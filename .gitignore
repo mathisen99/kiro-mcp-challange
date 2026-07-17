@@ -1,4 +1,4 @@
-# Gradle and Java build output
+# Gradle, Java, downloaded archives, and native/binary output
 .gradle/
 build/
 out/
@@ -11,18 +11,32 @@ target/
 *.tar.gz
 *.tgz
 *.exe
+*.dll
+*.so
+*.dylib
+*.bin
+*.hprof
+hs_err_pid*
 
-# Generated Kiro Royale runtime data
+# Generated Kiro Royale runtime logs, results, recordings, tools, and process state
 runtime/*
 !runtime/.gitkeep
 *.battle.gz
 *.log
+*.result.json
+*.pid
 server.properties
 
-# Local secrets and databases
+# Local credentials, secrets, environment files, and databases
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
 *.db
 *.db-journal
 *.sqlite

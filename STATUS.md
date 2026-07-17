@@ -4,7 +4,7 @@ Last updated: 2026-07-17
 
 ## Current state
 
-Stage 0 through Stage 4 are **COMPLETE**. Stage 4 hardened the demonstrated synchronous four-tool path, passed 20 focused example/contract tests through `./gradlew clean test`, and passed the dedicated genuine one-round `realSmoke` test with official completion provenance, two real bundled Bot processes, ordered official score components, a contained non-empty recording, loopback-only endpoint evidence, and complete cleanup of three owned processes. Optional property Tasks 8.3–8.18 were deliberately skipped and remain `not verified`; Stage 5 is unblocked.
+Stage 0 through Stage 4 are **COMPLETE**. Stage 5 Task 9 is complete, and all currently possible non-video work in Tasks 10 and 11 has been exercised: an isolated fresh-checkout-like snapshot passed the release flow, tracked-file/secret/configuration review passed with documented fixture exceptions, the GitHub repository is publicly accessible, and current official challenge terms/deadline were rechecked. Stage 5 remains **INCOMPLETE** only because the mandatory demo video, qualifying social post, final form submission, and their URLs/duration/accessibility evidence are not yet available. Tasks 10, 11, 11.1, and 11.2 remain in progress rather than falsely complete.
 
 ## Stage tracker
 
@@ -543,3 +543,219 @@ Generated `.gradle/**`, `build/**`, `runtime/bots/**`, `runtime/official-server/
 - Passive hosted live-viewer proof remains **not verified**; Stage 3 used same-battle official-GUI Replay Proof.
 - Cross-platform socket activation, Windows/macOS Bot launch, and `/usr/bin/true`, `/usr/bin/false`, `/usr/bin/sleep` availability outside the exercised Linux host: **not verified**.
 - Demo recording, public repository/video publication, fresh-checkout-like reproduction, and final tracked-file hygiene: **not verified** Stage 5 work.
+
+## Stage 5 submission preparation (Task 9) — 2026-07-17
+
+**Task 9 and subtasks 9.1–9.3 state: COMPLETE; Stage 5 gate remains INCOMPLETE.** The demonstrated path now has public-facing setup/tool/replay/security documentation, repository-relative release configuration, a finite transparent local preflight, an MIT project license, third-party attribution, and a claim matrix for human-supplied links. This task does not complete the subsequent human checkpoint or publication evidence Tasks 11.1–11.2.
+
+### Exact command and exit codes
+
+The following command ran from the repository root:
+
+| Command | Exit code | Observation |
+|---|---:|---|
+| `chmod +x scripts/verify-release.sh && ./scripts/verify-release.sh` | `0` | Made the tracked release preflight executable and ran all finite local checks below. |
+
+The script printed and checked every component command separately:
+
+| Component command/check | Exit code | Observation |
+|---|---:|---|
+| tracked/ignored/configuration hygiene preflight | `0` | `RELEASE_HYGIENE_OK`; required Wrapper/build/source/test/MCP files were tracked, generated/sensitive examples were ignored, no forbidden tracked generated artifact was found, and active executable/configuration files contained no developer-home absolute path. This is automated preflight evidence, not the required final human clean tracked-file review. |
+| `./gradlew clean build` | `0` | Clean application and both Bots built; the build's normal test dependency completed 20 tests; `BUILD SUCCESSFUL`. |
+| `./gradlew clean test` | `0` | All 20 focused example/transport/lifecycle tests passed; `BUILD SUCCESSFUL`. |
+| `./gradlew clean directBattle` | `0` | Production validation reported both fixed Bots `VALID`; a genuine official one-round direct battle completed on loopback with recording and complete cleanup. |
+| `./gradlew mcpProof` | `0` | Official Java MCP client initialized, discovered exactly four tools, invoked all three read-only tools, ran one genuine recorded round, parsed protocol-only stdout, and observed complete cleanup. |
+| `./gradlew realSmoke` | `0` | The dedicated genuine one-round production smoke test passed with official completion provenance, two ordered results, recording, loopback endpoint, and cleanup of three owned processes. |
+
+The script ended with `RELEASE_VERIFICATION_OK: local automated path passed` and an explicit `NOT VERIFIED` list. It did not automate Kiro, any viewer/GUI, publication, challenge submission, or video work.
+
+### Current direct/MCP/smoke observations
+
+- Direct battle endpoint: `ws://127.0.0.1:40783`; listener reported loopback-only.
+- Direct production validation: `kiro-bot` / Kiro Bot `1.0` / `VALID`; `sample-opponent` / Sample Opponent `1.0` / `VALID`.
+- Direct result 1: Sample Opponent `1.0`; total `60`, survival `50`, bullet damage `0`, ram damage `0`, first places `1`, rounds played `1`.
+- Direct result 2: Kiro Bot `1.0`; total `0`, survival `0`, bullet damage `0`, ram damage `0`, first places `0`, rounds played `1`.
+- Direct recording: `runtime/recordings/direct-1784308168015/game-2026-07-17-20-09-28.battle.gz`, `35,291` bytes; all three owned processes were dead after cleanup.
+- MCP discovery: `[get_arena_status, inspect_bot, list_bots, run_battle]`; status returned no invented endpoint before a battle and inspection returned the repository-relative Kiro Bot source.
+- MCP battle duration: `19,694 ms`; complete proof duration: `20,697 ms`; provenance `OFFICIAL_BATTLE_RUNNER_COMPLETION`.
+- MCP result 1: Kiro Bot `1.0`; total `62`, survival `50`, bullet damage `0`, ram damage `2`, first places `1`, rounds played `1`.
+- MCP result 2: Sample Opponent `1.0`; total `11`, survival `0`, bullet damage `7`, ram damage `4`, first places `0`, rounds played `1`.
+- MCP recording: `runtime/recordings/direct-1784308183793/game-2026-07-17-20-09-44.battle.gz`, `37,872` bytes; protocol parsing and cleanup of three owned processes succeeded.
+- Real smoke endpoint: `ws://127.0.0.1:40099`; provenance `OFFICIAL_BATTLE_RUNNER_COMPLETION`.
+- Smoke result 1: Sample Opponent `1.0`; total `60`, survival `50`, bullet damage `0`, ram damage `0`, first places `1`, rounds played `1`.
+- Smoke result 2: Kiro Bot `1.0`; total `0`, survival `0`, bullet damage `0`, ram damage `0`, first places `0`, rounds played `1`.
+- Smoke recording: `runtime/recordings/direct-1784308204683/game-2026-07-17-20-10-05.battle.gz`, `32,139` bytes; cleanup complete for three owned processes.
+- The direct, MCP, and smoke results differed. This is expected and reinforces that no winner/score repeatability claim is made.
+
+### Release configuration and documentation observations
+
+- `.kiro/settings/mcp.json` was inspected and remains enabled with repository-relative `./scripts/kiro-royale-mcp.sh`, no arguments, and auto-approval only for the three read-only tools. No change was necessary.
+- `build.gradle`, `settings.gradle`, the Gradle Wrapper scripts/JAR/properties, and exact pinned dependencies were inspected and remained valid. No build/Wrapper version change was necessary.
+- `.gitignore` now excludes credential/key formats, environment files except `.env.example`, downloaded archives/native binaries, Gradle/build output, logs/results/recordings/process state, databases, crash dumps, jqwik local state, and Kiro task-session metadata while preserving source/tests/config and the Wrapper JAR.
+- The README includes the pitch, MCP purpose, architecture, exercised prerequisites, pinned build, direct proof, Kiro configuration, all four tool examples, demonstrated official-GUI replay flow, unverified passive-viewer alternative, test/smoke/preflight commands, troubleshooting, limitations, attribution, and the local-code/user-permissions warning.
+- `SUBMISSION.md` contains placeholders and separate evidence states for build, two-Bot validation, real battle, genuine scores, MCP discovery, Kiro, live viewer, replay creation/playback, demo recording, video duration/accessibility, deadline, license, and clean tracked-file review.
+- The repository owner selected MIT. `LICENSE` contains the canonical grant for copyright 2026 Tommy Mathisen, while `THIRD_PARTY_NOTICES.md` records pinned external projects and source/license links.
+
+### Complete changed-file inventory
+
+- `.gitignore` — hardened generated/binary/credential/runtime exclusions while retaining the Wrapper exception.
+- `README.md` — replaced the obsolete scaffold text with evidence-bounded public setup and usage documentation.
+- `SUBMISSION.md` — added human-supplied URL slots and the final claim matrix.
+- `LICENSE` — added the selected canonical MIT license text for copyright 2026 Tommy Mathisen; the obsolete license-selection checklist was removed.
+- `THIRD_PARTY_NOTICES.md` — added pinned dependency/tool/Bot-example attribution and source/license links.
+- `scripts/README.md` — documents both finite fixed-purpose scripts and their evidence boundaries.
+- `scripts/verify-release.sh` — executable transparent local hygiene/build/direct/MCP/test/smoke preflight.
+- `.kiro/specs/kiro-royale/tasks.md` — reconciled the already-complete parent Task 9 with completed subtasks 9.1–9.3.
+- `STATUS.md` — updated current state and added this Task 9 evidence.
+
+Inspected and intentionally unchanged:
+
+- `.kiro/settings/mcp.json`
+- `build.gradle`
+- `settings.gradle`
+- `gradlew`
+- `gradlew.bat`
+- `gradle/wrapper/gradle-wrapper.jar`
+- `gradle/wrapper/gradle-wrapper.properties`
+
+Generated `.gradle/**`, `build/**`, `runtime/bots/**`, `runtime/official-server/**`, and `runtime/recordings/**` remain ignored local evidence, not release source.
+
+### Remaining failures/blockers
+
+- Automated Task 9 checks: **none**.
+- Project license selection/addition: **verified locally** as MIT; it no longer blocks publication readiness.
+- The Stage 5 gate cannot complete before the human checkpoint and Tasks 11.1–11.2.
+
+### Final claim states after Task 9
+
+- Gradle build: **verified locally**; fresh-checkout-like reproduction **not verified**.
+- Two-Bot validation: **verified locally**.
+- Real one-round battle: **verified locally**.
+- Genuine official scores: **verified locally**.
+- MCP tool discovery: **verified locally**.
+- Kiro MCP connection and all four Kiro calls: **verified manually in Stage 3**; not re-exercised by this Task 9 run.
+- Passive live viewer: **not verified**.
+- Replay creation: **verified locally**.
+- Same-battle official-GUI replay playback: **verified manually in Stage 3**; not re-exercised by this Task 9 run.
+- Demo recording: **not verified**.
+- Video duration and public accessibility: **not verified**.
+- Public repository accessibility: **not verified**.
+- Current challenge deadline/terms and final submission: **not verified**.
+- Final clean tracked-file/secret/generated-output review from a fresh-checkout-like state: **not verified**; only the finite automated preflight passed.
+- Optional jqwik Properties 1–16: **not verified** and unchanged.
+
+### Final file-state verification
+
+| Command | Exit code | Observation |
+|---|---:|---|
+| `git diff --check && git status --short && git diff --stat && stat -c '%A %n' scripts/verify-release.sh` | `0` | No whitespace errors; expected Task 9 files were modified/untracked and `scripts/verify-release.sh` was executable (`-rwxr-xr-x`). No files were staged or committed by this task. |
+
+## Task 9 checklist and MIT license reconciliation — 2026-07-17
+
+**State: COMPLETE.** The owner selected the MIT License. The canonical license text now identifies `Tommy Mathisen` as the 2026 copyright holder, the obsolete unresolved-license checklist was removed, and Tasks 9.1–9.3 were reconciled to complete because their implementation and passing evidence are already recorded above. Tasks 10, 11, 11.1, and 11.2 remain incomplete; the owner intends to record the YouTube demonstration later, so no video, upload, duration, accessibility, deadline, or final-publication claim is made now.
+
+### Exact commands and exit codes
+
+| Command | Exit code | Observation |
+|---|---:|---|
+| `grep -Fx 'MIT License' LICENSE && grep -Fx 'Copyright (c) 2026 Tommy Mathisen' LICENSE` | `0` | The selected license title and owner/year line are present exactly. |
+| `test ! -e LICENSE-TODO.md && ! git check-ignore -q LICENSE` | `0` | The obsolete checklist is absent and the project license is not ignored. |
+| `sh -n scripts/verify-release.sh && test -x scripts/verify-release.sh` | `0` | The updated release preflight is valid POSIX shell syntax and remains executable. |
+| `sed -n '248,280p' .kiro/specs/kiro-royale/tasks.md` | `0` | Tasks 9, 9.1, 9.2, and 9.3 are complete; Tasks 10, 11, 11.1, and 11.2 remain incomplete. |
+| `! rg -n 'LICENSE-TODO\|No project license has been selected\|has not yet selected a project license\|project license is still owner-supplied\|Choose and add the project license' README.md SUBMISSION.md STATUS.md THIRD_PARTY_NOTICES.md scripts .kiro/specs/kiro-royale/tasks.md` | `0` | No stale unresolved-license references remain. |
+| `git diff --check` | `0` | No whitespace errors. |
+
+### Files changed by this reconciliation
+
+- `LICENSE` — canonical MIT License with the owner-selected copyright line.
+- `LICENSE-TODO.md` — removed because the license decision is resolved.
+- `.kiro/specs/kiro-royale/tasks.md` — marked completed subtasks 9.1–9.3 complete without advancing the human checkpoint.
+- `README.md`, `SUBMISSION.md`, and `THIRD_PARTY_NOTICES.md` — replaced unresolved-license language with the verified MIT selection.
+- `scripts/verify-release.sh` — requires the tracked license/notices and validates the selected MIT title and copyright line.
+- `STATUS.md` — records this reconciliation and preserves the remaining evidence boundaries.
+
+### Remaining unverified claims
+
+- Fresh-checkout-like README/Kiro reproduction and final human tracked-file review: **not verified**.
+- Demo screen recording, YouTube upload, final duration, and public accessibility: **not verified**; intentionally deferred by the owner.
+- Public repository accessibility, current challenge terms/deadline, final submission URL, and Tasks 10/11: **not verified**.
+- The full release script was not rerun for this documentation/license-only reconciliation; its most recent complete run is the successful Task 9 evidence above. Application source and battle behavior were unchanged.
+
+## Stage 5 required non-video verification — 2026-07-17
+
+**State: ALL CURRENTLY POSSIBLE REQUIRED WORK COMPLETE; STAGE 5 GATE INCOMPLETE.** Tasks 10, 11, 11.1, and 11.2 are in progress because the challenge requires a human-recorded public demo, qualifying social post, and submitted entry form. The optional starred Tasks 8.3–8.18 were not implemented. The fresh-checkout-like release flow, repository-relative MCP configuration, tracked-file review, public repository check, current terms check, and final claim matrix are complete.
+
+### Fresh-checkout-like command and exit codes
+
+The current source tree, including the pending release documentation, was copied to an isolated temporary directory without Git metadata or generated state. A new Git index was created there so tracked-file checks covered the intended release contents without changing the source repository index.
+
+| Command | Exit code | Observation |
+|---|---:|---|
+| `release_snapshot=$(mktemp -d /tmp/kiro-royale-final.XXXXXX); echo "SNAPSHOT=$release_snapshot"; tar --exclude=.git --exclude=.gradle --exclude=build --exclude=runtime --exclude=.jqwik-database -cf - . \| tar -xf - -C "$release_snapshot"; cd "$release_snapshot"; git init -q; git add -A; ./scripts/verify-release.sh` | `0` | Created `/tmp/kiro-royale-final.dwNmAz`; the complete finite preflight ended with `RELEASE_VERIFICATION_OK` from isolated source state. |
+| isolated `./gradlew clean build` | `0` | Clean build passed; all `20` required focused/contract tests passed. |
+| isolated `./gradlew clean test` | `0` | All `20` tests passed again with no failures. |
+| isolated `./gradlew clean directBattle` | `0` | Both registered Bots validated and one genuine official round completed on `ws://127.0.0.1:45985`; recording `runtime/recordings/direct-1784310738724/game-2026-07-17-20-52-19.battle.gz` was `31,044` bytes and cleanup completed for three processes. Results were Sample Opponent rank 1 / total `60` / survival `50`, and Kiro Bot rank 2 / total `0`. |
+| isolated `./gradlew mcpProof` | `0` | Official MCP client discovered exactly four tools and a genuine official battle completed. Kiro Bot ranked 1 with total `67`, survival `50`, bullet damage `7`; Sample Opponent ranked 2 with total `0`. Recording `runtime/recordings/direct-1784310756780/game-2026-07-17-20-52-37.battle.gz` was `58,933` bytes; battle duration was `28,581 ms`, full proof duration `29,569 ms`, and protocol/cleanup checks passed. |
+| isolated `./gradlew realSmoke` | `0` | Genuine one-round smoke completed on `ws://127.0.0.1:42271`. Sample Opponent ranked 1 with total `62`, survival `50`, ram damage `2`; Kiro Bot ranked 2 with total `21`, bullet damage `20`, ram damage `1`. Recording `runtime/recordings/direct-1784310786621/game-2026-07-17-20-53-07.battle.gz` was `53,902` bytes and cleanup completed for three processes. |
+| isolated exact `.kiro/settings/mcp.json` comparison | `0` | `FRESH_MCP_CONFIG_OK`: command `./scripts/kiro-royale-mcp.sh`, empty args, enabled server, and auto-approval limited to the three read-only tools. |
+
+Every battle result above carried official completion provenance. The differing scores are genuine observations; score or winner determinism is not claimed.
+
+### Tracked-file, secret, and path review
+
+| Command/check | Exit code | Observation |
+|---|---:|---|
+| isolated release hygiene preflight | `0` | `RELEASE_HYGIENE_OK`; required release files were present, active configuration was repository-relative, and forbidden generated/sensitive patterns were absent. |
+| `git -C /tmp/kiro-royale-final.dwNmAz diff --cached --check` | `1` | The newly initialized snapshot treats upstream `gradlew.bat` CRLF line endings as whitespace errors because every file is newly staged. No other file was reported. The tracked Wrapper was not rewritten. |
+| `git -C /tmp/kiro-royale-final.dwNmAz diff --cached --check -- . ':!gradlew.bat'` | `0` | All release files other than the intentionally CRLF Windows Wrapper passed the whitespace review. The source repository's actual incremental `git diff --check` also passed. |
+| credential-signature scan over intended tracked files | `0` | No private-key headers, common live-token signatures, or committed credential assignments were found. |
+| broad developer-home path scan | `1` | Matches were limited to the scanner's own forbidden-path expression and hostile `/home/user` fixtures/assertions in `Stage4FocusedUnitTest`; neither is active release configuration. |
+| active executable/configuration path scan | `0` | No developer-specific absolute path was present in active release configuration or launch scripts. |
+| initial `runtime/.gitkeep` assertion | `1` | The check incorrectly expected a tracked runtime placeholder. None is required. |
+| `git ls-files build runtime` | `0` | Produced no output: no build product, recording, runtime Bot copy, server distribution, log, result, or database is tracked. |
+| `git diff --check` | `0` | Current source changes contain no whitespace errors. |
+| `test ! -e src/test/java/dev/kiro/royale/Stage4PropertyTests.java` | `0` | Confirms no optional property-test bundle was added. |
+
+Generated build and battle artifacts created during verification remained ignored. Historical command evidence in `STATUS.md` and deliberate hostile-input tests may contain example absolute paths; they are documentation/test data, not machine-bound runtime configuration.
+
+### Public repository and current challenge rules
+
+| Command/observation | Exit code/state | Result |
+|---|---:|---|
+| `curl -sS -o /tmp/kiro-royale-repo.json -w '%{http_code}' https://api.github.com/repos/mathisen99/kiro-mcp-challange` | `0`; HTTP `200` | GitHub returned the repository without authentication. |
+| parsed `full_name`, `private`, `html_url`, `default_branch`, and `pushed_at` from the response | `0` | `mathisen99/kiro-mcp-challange`, `private=false`, `https://github.com/mathisen99/kiro-mcp-challange`, default branch `main`, pushed at `2026-07-17T17:03:46Z`. |
+| official Kiro challenge page and terms reviewed on 2026-07-17 | verified manually | Official terms state the challenge period ends July 17, 2026 at 23:59 PT. A qualifying entry requires a public repository containing `.kiro`, at least one challenge-period commit, a working project, a public 30-second-to-3-minute demo, a qualifying X/LinkedIn post, and the official form. |
+| Pacific time checked during review | verified | It was July 17, 2026 at approximately 10:34 AM PT, before the stated deadline. |
+
+Official sources reviewed: `https://kiro.dev/birthday/2026/challenge/` and `https://kiro.dev/birthday/2026/terms/`. The repository is public and `.kiro` is tracked. Demo-video, social-post, and form URLs remain unavailable and are not claimed.
+
+### Files changed for Tasks 9–11 preparation
+
+- `.gitignore` — release hygiene exclusions.
+- `.kiro/specs/kiro-royale/tasks.md` — Task 9 complete; required Tasks 10/11 accurately in progress; optional starred tasks unchanged.
+- `LICENSE` — selected MIT License.
+- `LICENSE-TODO.md` — removed after the license choice was resolved.
+- `README.md` — public setup, architecture, MCP, replay, security, troubleshooting, and limitations.
+- `STATUS.md` — exact Stage 5 commands, results, boundaries, and blockers.
+- `SUBMISSION.md` — verified public repository, claim matrix, prepared project/Kiro/social copy, and video/form placeholders.
+- `THIRD_PARTY_NOTICES.md` — dependency, tool, and adapted-example attribution.
+- `scripts/README.md` — release-script purpose and evidence boundary.
+- `scripts/verify-release.sh` — executable finite release verification.
+
+### Final verification standard
+
+- Gradle build: **exercised** from the isolated snapshot.
+- Two-Bot validation: **exercised** through production validation.
+- Real one-round battle: **exercised** through direct, MCP, Kiro, and smoke paths.
+- Real scores: **exercised** with genuine official rankings and score components.
+- MCP tool discovery: **exercised**; exactly four tools were discovered.
+- Kiro MCP connection: **exercised manually in Stage 3**; connected and all four tools were visible/invoked. Installed Kiro was not reopened against the isolated snapshot.
+- Live viewer: **not verified**. The demonstrated visual path is replay playback.
+- Replay creation: **exercised** in direct, MCP, Kiro, and smoke paths.
+- Replay playback: **exercised manually in Stage 3** using the exact Kiro-triggered recording in the official GUI.
+- Demo recording: **not verified**; intentionally deferred by the owner.
+- Clean tracked-file review: **exercised** for the isolated intended release, with the Windows Wrapper CRLF and deliberate hostile test fixtures documented above.
+
+### Remaining required blocker
+
+Only human publication evidence remains: record and review a 30-second-to-3-minute demo, upload it publicly, publish the required social post, submit the official entry form, then replace the three `not provided` values in `SUBMISSION.md` and record the observed duration/accessibility/submission result here. Until then, Tasks 10, 11, 11.1, and 11.2 and the Stage 5 gate must remain in progress/incomplete.

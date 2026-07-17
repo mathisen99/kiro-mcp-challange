@@ -245,34 +245,34 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
     - Mark Stage 4 complete only when the mandatory focused tests and real smoke pass; otherwise block Stage 5.
     - _Requirements: 1.1, 1.4, 1.7–1.12, 9.1–9.13_
 
-- [ ] 9. Stage 5 — make the demonstrated path reproducible and submission-ready
-  - [ ] 9.1 Finalize the public README and executable setup instructions
+- [x] 9. Stage 5 — make the demonstrated path reproducible and submission-ready
+  - [x] 9.1 Finalize the public README and executable setup instructions
     - Document the pitch, MCP purpose, architecture, Java/Gradle prerequisites, pinned setup/build, direct battle proof, Kiro configuration, four tool examples, actual viewer flow, replay fallback, test/smoke commands, troubleshooting, limitations, licenses/attribution, and warning that Bots execute local code with user permissions.
     - Include only commands with corresponding successful `STATUS.md` evidence and no stretch-feature claims.
     - _Requirements: 6.12, 10.1, 10.2, 12.1_
 
-  - [ ] 9.2 Harden repository-relative release configuration and tracked-file hygiene
+  - [x] 9.2 Harden repository-relative release configuration and tracked-file hygiene
     - Finalize `.gitignore`, license/attribution files, Gradle Wrapper/build files, `.kiro/settings/mcp.json`, and any finite release-verification script so source/tests/config remain tracked while credentials, `.env`, binaries, build outputs, logs, results, recordings, databases, and machine-specific absolute paths do not.
     - Add reproducible commands/checks for a fresh-checkout-like build, two-Bot validation, direct real battle, MCP client proof, focused tests, and real smoke without automating Kiro, viewer, publication, or video claims.
     - _Requirements: 10.3, 10.4, 10.5, 10.7, 10.8_
 
-  - [ ] 9.3 Prepare `SUBMISSION.md` and the final claim matrix for human-supplied links
+  - [x] 9.3 Prepare `SUBMISSION.md` and the final claim matrix for human-supplied links
     - Structure `SUBMISSION.md` for the public repository and video URLs and list separate evidence states for Gradle build, two-Bot validation, real one-round battle, genuine scores, MCP discovery, Kiro connection, live viewer, replay creation/playback, demo recording, and clean tracked-file review.
     - Keep absent links and unexercised claims explicitly `not verified`; do not invent publication, accessibility, deadline, or video-duration evidence.
     - _Requirements: 10.6, 10.11, 11.1–11.8_
 
-- [ ] 10. Human verification checkpoint — Stage 5 fresh-checkout, video, and publication
+- [-] 10. Human verification checkpoint — Stage 5 fresh-checkout, video, and publication
   - From a fresh-checkout-like state, manually follow the README, verify the repository-relative Kiro launcher, inspect tracked files for secrets/generated artifacts/absolute paths, and record each exercised final claim separately.
   - Recheck the official challenge terms/deadline, record a video of at most three minutes showing connected Kiro, `list_bots`, `inspect_bot`, `run_battle`, visual proof, and genuine score components, then publish both the repository and video and verify their public accessibility.
   - Provide the actual URLs and observations to Tasks 11.1–11.2. These actions are human verification checkpoints and must not be represented as completed by automated tests.
 
-- [ ] 11. Stage 5 — persist publication and final evidence
-  - [ ] 11.1 Complete `SUBMISSION.md` with verified public artifacts
+- [-] 11. Stage 5 — persist publication and final evidence
+  - [-] 11.1 Complete `SUBMISSION.md` with verified public artifacts
     - Insert the human-verified public repository and video URLs, record the observed duration and accessibility checks, and preserve `not verified` for any claim not actually exercised.
     - Ensure the submission describes only the demonstrated four-tool synchronous MVP and its live-view or replay proof.
     - _Requirements: 10.6, 10.9, 10.10, 10.11, 11.1–11.8, 12.1, 12.2_
 
-  - [ ] 11.2 Write the Stage 5 exit and final claim evidence in `STATUS.md`
+  - [-] 11.2 Write the Stage 5 exit and final claim evidence in `STATUS.md`
     - Add exact fresh-checkout/build/direct/MCP/test/smoke/hygiene commands with every exit code, changed files, observed Kiro/visual/publication/video outcomes, remaining failures, and every unexercised claim labeled `not verified`.
     - State separately whether Gradle build, two-Bot validation, real one-round battle, genuine scores, MCP discovery, Kiro connection, live viewer, replay creation and playback, demo recording, and clean tracked-file review were exercised.
     - Mark Stage 5 complete only when README reproducibility, repository hygiene, public repository, accessible ≤3-minute video, and submission links are all verified.
