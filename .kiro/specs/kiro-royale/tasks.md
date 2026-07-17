@@ -33,38 +33,38 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
 - [x] 2. Human verification checkpoint — Stage 0 exit
   - Confirm the Stage 0 evidence is reproducible, the Gradle Wrapper is committed as required, `DECISIONS.md` contains only verified facts, and no Battle Runner or MCP adapter implementation began early. Do not authorize Stage 1 while any Stage 0 exit fact is missing.
 
-- [ ] 3. Stage 1 — prove the direct genuine two-Bot battle
-  - [ ] 3.1 Implement and build the two real bundled Java Bots
+- [x] 3. Stage 1 — prove the direct genuine two-Bot battle
+  - [x] 3.1 Implement and build the two real bundled Java Bots
     - Adapt current official Java Bot examples into `bots/kiro-bot` and `bots/sample-opponent` using the Stage 0-verified configuration and launch format.
     - Give `kiro-bot` one obvious primary editable strategy source and give `sample-opponent` a simple deterministic event-response strategy; wire both Bot builds into Gradle without accepting caller-provided commands.
     - Keep Bot identity, version, source labels, and launch metadata consistent across their configurations and Java sources.
     - _Requirements: 3.1, 3.2, 3.3, 6.7, 12.1_
 
-  - [ ] 3.2 Implement the minimal internal models, runtime paths, registry, and Bot validation needed by direct mode
+  - [x] 3.2 Implement the minimal internal models, runtime paths, registry, and Bot validation needed by direct mode
     - Add repository-root/runtime-path resolution, the static registry for exactly `kiro-bot` and `sample-opponent`, Bot descriptors/inspection models, and validation based only on Stage 0-verified Bot files.
     - Keep all generated targets under canonical `runtime/`; expose only repository-relative paths and application-owned argument lists.
     - Reject invalid registered Bot prerequisites before launch, but defer broad generated-input/property coverage to Stage 4.
     - _Requirements: 3.1, 5.11, 6.1–6.3, 6.7, 6.9, 12.1_
 
-  - [ ] 3.3 Implement the official Battle Runner adapter and owned lifecycle for direct mode
+  - [x] 3.3 Implement the official Battle Runner adapter and owned lifecycle for direct mode
     - Implement the verified official managed-server, loopback binding, finite Bot-connect timeout, real child-Bot launch, one-active-battle lifecycle, official completion capture, and idempotent cleanup using argument-list process APIs.
     - Consume child streams without MCP stdout assumptions, bound initial diagnostics, and terminate only application-owned processes on success, failure, timeout, and shutdown.
     - Do not add MCP SDK types, MCP schemas, tool handlers, or a second battle implementation.
     - _Requirements: 3.4–3.6, 3.10, 6.7, 6.8, 6.10, 6.13–6.15, 7.2–7.5_
 
-  - [ ] 3.4 Implement direct diagnostic result mapping and optional genuine recording
+  - [x] 3.4 Implement direct diagnostic result mapping and optional genuine recording
     - Add the direct diagnostic entry/task that selects the two registered Bots and invokes the official adapter for exactly one round by default, outside MCP.
     - Map only the verified official successful-completion event into exactly two ascending-ranked results with rank, name, version, total score, survival score, bullet damage, ram damage, first places, and rounds played.
     - When recording is enabled, allocate and verify a contained, non-empty `.battle.gz` under `runtime/recordings`; return failure rather than score data for non-success completion or required-recording failure.
     - _Requirements: 3.4, 3.7–3.11, 5.15, 6.9, 7.1, 7.2, 7.5, 7.6, 7.8_
 
-  - [ ] 3.5 Directly execute and inspect the genuine one-round match
+  - [x] 3.5 Directly execute and inspect the genuine one-round match
     - From the repository root, run the dedicated Gradle command that builds the application and both Bots and executes `direct-battle` for one round with recording enabled; this command must call the official Battle Runner directly and must not route through MCP or a fake engine.
     - Require exit code 0, an observed official completion event, two real Bot processes, exactly two ordered configured identities, every required official score component, and a verified real recording when enabled; do not assert repeatable winners or scores.
     - Capture the exact actual command, loopback endpoint observation, process/lifecycle observations, result output, recording path, and cleanup outcome for the gate task.
     - _Requirements: 1.3, 3.4–3.11, 7.1, 7.2, 7.8_
 
-  - [ ] 3.6 Record Stage 1 adapter decisions and exit evidence
+  - [x] 3.6 Record Stage 1 adapter decisions and exit evidence
     - Update `DECISIONS.md` with only facts verified by the direct run: current Bot configuration/launch format, official completion/result accessors and numeric types, loopback/endpoint behavior, recording mechanism, timeout values, and proven process ownership/cleanup behavior.
     - Add the `STATUS.md` Stage 1 entry with the exact build/direct-battle commands and exit codes, observed real processes and official completion/results, exact changed files, replay outcome, remaining failures, and all unverified visual/MCP/Kiro claims marked `not verified`.
     - Mark Stage 1 complete only after the genuine direct match succeeds; otherwise leave it incomplete and block every Stage 2 leaf task.

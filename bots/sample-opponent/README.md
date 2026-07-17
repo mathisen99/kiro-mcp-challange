@@ -1,11 +1,9 @@
-# sample-opponent placeholder
+# Sample Opponent
 
-Stage 1 will replace this placeholder with a real Java Tank Royale bot based on
-the current official sample structure.
+`Sample Opponent` version `1.0` is a deterministic Java 21 Tank Royale opponent.
+Its source is `src/main/java/dev/kiro/royale/bots/SampleOpponent.java`. It circles,
+fires on scans, and reverses in fixed responses to wall and bot collisions; it
+uses no random decisions.
 
-Design goals:
-
-- small and reliable;
-- distinct behavior from `kiro-bot`;
-- no randomness unless seeded and explained;
-- valid name, version, and launch configuration.
+The repository-owned Gradle `buildBundledBots` task compiles it under
+`runtime/bots`. Bots execute local code with the current user's permissions.

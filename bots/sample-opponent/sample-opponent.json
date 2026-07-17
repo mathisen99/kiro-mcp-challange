@@ -1,0 +1,10 @@
+{
+  "name": "Sample Opponent",
+  "version": "1.0",
+  "authors": ["Kiro Royale"],
+  "description": "A deterministic event-response opponent.",
+  "homepage": "",
+  "countryCodes": ["us"],
+  "platform": "JVM",
+  "programmingLang": "Java 21"
+}

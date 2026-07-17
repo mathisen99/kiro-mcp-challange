@@ -15,10 +15,15 @@ java {
     }
 }
 
+configurations {
+    botCompileClasspath
+}
+
 dependencies {
     implementation 'io.modelcontextprotocol.sdk:mcp:2.0.0'
     implementation 'dev.robocode.tankroyale:robocode-tankroyale-runner:1.0.2'
     implementation 'dev.robocode.tankroyale:robocode-tankroyale-bot-api:1.0.2'
+    botCompileClasspath 'dev.robocode.tankroyale:robocode-tankroyale-bot-api:1.0.2'
 
     testImplementation platform('org.junit:junit-bom:5.13.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -39,4 +44,58 @@ tasks.register('stage0Probe', JavaExec) {
     description = 'Verifies Stage 0 dependency classes and documented API members without starting external services.'
     classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
     mainClass = 'dev.kiro.royale.Stage0DependencyProbe'
+}
+
+def botRuntimeRoot = layout.projectDirectory.dir('runtime/bots')
+def botSources = [
+    'kiro-bot': 'bots/kiro-bot/src/main/java/dev/kiro/royale/bots/KiroBot.java',
+    'sample-opponent': 'bots/sample-opponent/src/main/java/dev/kiro/royale/bots/SampleOpponent.java'
+]
+
+tasks.register('prepareBotRuntime', Copy) {
+    group = 'build'
+    description = 'Copies the pinned Java Bot API into the contained runtime bot layout.'
+    from(configurations.botCompileClasspath)
+    into(botRuntimeRoot.dir('lib'))
+}
+
+botSources.each { botId, sourcePath ->
+    def taskName = "compile${botId.split('-').collect { it.capitalize() }.join('')}"
+    tasks.register(taskName, JavaCompile) {
+        group = 'build'
+        description = "Compiles the reviewed ${botId} source into runtime/bots."
+        source = files(sourcePath)
+        classpath = configurations.botCompileClasspath
+        destinationDirectory = botRuntimeRoot.dir("classes/${botId}")
+        options.release = 21
+    }
+}
+
+tasks.register('buildBundledBots') {
+    group = 'build'
+    description = 'Builds exactly the two registered Java bots into the contained runtime layout.'
+    dependsOn 'prepareBotRuntime', 'compileKiroBot', 'compileSampleOpponent'
+}
+
+tasks.named('build') {
+    dependsOn 'buildBundledBots'
+}
+
+tasks.register('directBattle', JavaExec) {
+    group = 'verification'
+    description = 'Runs one genuine direct Battle Runner match with the two registered bots and recording enabled.'
+    dependsOn 'build'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'dev.kiro.royale.DirectBattleDiagnostic'
+    args 'direct-battle', '--record'
+    systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
+}
+
+tasks.named('test') {
+    dependsOn 'buildBundledBots'
+    systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
+}
+
+tasks.named('clean') {
+    delete botRuntimeRoot
 }

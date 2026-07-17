@@ -1,0 +1,10 @@
+{
+  "name": "Kiro Bot",
+  "version": "1.0",
+  "authors": ["Kiro Royale"],
+  "description": "A deliberately simple editable patrol-and-fire strategy.",
+  "homepage": "",
+  "countryCodes": ["us"],
+  "platform": "JVM",
+  "programmingLang": "Java 21"
+}

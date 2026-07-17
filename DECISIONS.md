@@ -136,3 +136,25 @@ Final command used by `.kiro/settings/mcp.json`:
 ```text
 not verified — Stage 2 must implement and prove the repository-root MCP launcher
 ```
+
+## ADR-005 — Stage 1 direct Battle Runner integration
+
+**Status:** accepted for the genuine direct battle path on 2026-07-17; the initial embedded-server bind blocker is resolved on the exercised Linux host.
+
+**Execution-verified decisions:**
+
+- The exact static registry is `kiro-bot` (`Kiro Bot` `1.0`) and `sample-opponent` (`Sample Opponent` `1.0`). Each reviewed directory contains `<directory-name>.json`, Java 21 strategy source, and fixed `.sh`/`.cmd` launch metadata. `./gradlew clean test` built both bots and all six focused Stage 1 tests passed.
+- Generated Bot classes and the pinned Bot API runtime are placed only below `runtime/bots`; the registered source/configuration directories remain below canonical `bots/` paths.
+- The direct production path uses `BattleRunner.create`, `externalServer("ws://127.0.0.1:<reserved-port>")`, `botConnectTimeout(Duration.ofSeconds(30))`, `startBattleAsync`, `BattleHandle.awaitResults`, and deterministic `BattleHandle`/`BattleRunner` closure. The application wall-clock timeout is `120` seconds and owned-process cleanup grace is `5` seconds. These values are immutable from direct battle input.
+- The successful run observed the official `GameEnded` completion event and mapped `BattleResults.getNumberOfRounds()` plus `BotResult` accessors. Official component types are `int`: rank, total score, survival, bullet damage, ram damage, and first places; identity accessors are `String` name/version. Internal score fields use `long`, so mapping widens without truncation or calculation.
+- `enableRecording(Path)` was given a unique contained directory. The final gate run created exactly one regular non-empty `.battle.gz`; it verified `30,152` bytes at `runtime/recordings/direct-1784300659081/game-2026-07-17-18-04-20.battle.gz`.
+- The final gate run observed the owned official server PID `1835919`, Kiro Bot PID `1836060`, and Sample Opponent PID `1836069`. After official handle/runner closure and application-owned server termination, all three were no longer alive and cleanup reported complete. The application never enumerates or terminates unrelated processes.
+- The embedded runner mode was rejected for this MVP because upstream `v1.0.2` constructs an address without a public bind-host option and execution showed `wildcard:42253`. The pinned official server also supports `--port inherit`; its source constructs `ServerWebSocketObserver` from `System.inheritedChannel()`. On the exercised Linux host, `/usr/bin/systemd-socket-activate --listen=127.0.0.1:<port> --inetd --now` supplies that channel. The runner then uses its public external-server mode. The final URL was `ws://127.0.0.1:44943`, runtime inspection reported `loopback:44943`, and the same official one-round match succeeded. This satisfies the Stage 1 loopback gate without a proxy or modified server.
+- This loopback implementation deliberately fails closed when `/usr/bin/systemd-socket-activate` is unavailable. Other operating systems, alternate binary locations, and hosts without Java-compatible inetd descriptor passing are not verified; the adapter must not fall back to the wildcard embedded mode.
+- The runner consumed managed server/booter output while `suppressServerOutput()` prevented unbounded forwarding. Bot stdout is discarded and bot stderr is consumed by the official booter. Application lifecycle diagnostics are retained in a fixed 40-line bounded tail.
+
+**Exact successful commands:** `./gradlew clean test` (exit `0`) and `./gradlew clean directBattle` (exit `0`). The direct command did not route through MCP.
+
+**Official implementation references used for this adapter:** [Battle Runner README v1.0.2](https://github.com/robocode-dev/tank-royale/blob/v1.0.2/runner/README.md), [BattleRunner v1.0.2](https://github.com/robocode-dev/tank-royale/blob/v1.0.2/runner/src/main/kotlin/dev/robocode/tankroyale/runner/BattleRunner.kt), [Java sample bots v1.0.2](https://github.com/robocode-dev/tank-royale/tree/v1.0.2/sample-bots/java), [ServerCli v1.0.2](https://github.com/robocode-dev/tank-royale/blob/v1.0.2/server/src/main/kotlin/dev/robocode/tankroyale/server/cli/ServerCli.kt), and [ServerWebSocketObserver v1.0.2](https://github.com/robocode-dev/tank-royale/blob/v1.0.2/server/src/main/kotlin/dev/robocode/tankroyale/server/connection/ServerWebSocketObserver.kt). External source descriptions are paraphrased.
+
+**Not verified:** replay playback in the official GUI; passive viewer compatibility; MCP server/client behavior; Kiro integration or timeout; booter PID capture as explicit returned process evidence; non-Linux socket activation/listener inspection; Windows Bot launch; timeout/failure/shutdown execution branches; repeated-winner or repeated-score determinism.

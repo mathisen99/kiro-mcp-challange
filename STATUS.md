@@ -4,14 +4,14 @@ Last updated: 2026-07-17
 
 ## Current state
 
-Stage 0 is complete. Java 21, the Gradle 9.6.1 Wrapper, all pinned dependencies, the clean build, and the non-invasive dependency probe succeeded. Commit `8555529` contains the reviewed Wrapper, build, probe, decisions, and evidence. No MCP server, Battle Runner adapter, Bot launch code, or battle behavior was implemented.
+Stage 0 and its human checkpoint are complete. Stage 1 implementation now builds two genuine bundled Java Bots and directly completed one official one-round Battle Runner match with two real Bot processes, official results, a non-empty recording, and successful owned-process cleanup.
 
-The Task 2 human checkpoint passed. Stage 1 / Task 3 is authorized to begin.
+Stage 1 is **COMPLETE**. The embedded-server wildcard blocker was resolved by using the pinned official server's supported inherited-socket mode on an application-owned `127.0.0.1` socket, then connecting the official Battle Runner through its supported external-server mode. A fresh direct run verified `listenerBinding=loopback:44943`, genuine results, recording creation, and complete cleanup. Stage 2 is now unblocked; no MCP implementation has begun.
 
 ## Stage tracker
 
 - [x] Stage 0 — environment and dependency verification
-- [ ] Stage 1 — direct real Battle Runner battle
+- [x] Stage 1 — direct real Battle Runner battle
 - [ ] Stage 2 — custom MCP server
 - [ ] Stage 3 — Kiro and viewer integration
 - [ ] Stage 4 — focused hardening and smoke test
@@ -118,7 +118,7 @@ Ignored `.gradle/` and `build/` outputs are generated validation artifacts and a
 
 ## Stage 1 gate
 
-**READY.** Task 2 passed and Stage 1 / Task 3 may begin. No Stage 1 implementation has begun.
+**COMPLETE.** The first direct run exposed an embedded-server wildcard bind. The resolution evidence below proves the replacement official socket-activation/external-runner path binds only to `127.0.0.1` and completes the same genuine direct battle. Stage 2 is unblocked.
 
 ## Task 2 human verification checkpoint — 2026-07-17
 
@@ -173,3 +173,125 @@ after commit `8555529` was inspected.
 The reviewed Stage 0 implementation/evidence files, including all Gradle Wrapper
 files, were committed without generated output. The committed tree was inspected,
 Task 2 passed, and Stage 1 is unblocked.
+
+## Stage 1 evidence gate — 2026-07-17
+
+**Initial gate state: INCOMPLETE; resolved below.** A genuine direct one-round match passed, but the first embedded listener was observed on a wildcard address. The later blocker-resolution run below replaces that path and supplies the required loopback evidence.
+
+### Exact commands and exit codes
+
+| Command | Exit code |
+|---|---:|
+| `./gradlew clean test` | `0` |
+| `./gradlew clean directBattle` | `0` |
+
+Both commands ran from the repository root. `directBattle` depends on the normal application `build` and `buildBundledBots`, invokes `dev.kiro.royale.DirectBattleDiagnostic`, and calls the official Battle Runner directly; no MCP SDK type or MCP execution path is involved.
+
+### Build, validation, and direct-battle observations
+
+- `./gradlew clean test`: both Java Bot sources compiled into `runtime/bots/classes`, the pinned Java Bot API was copied into `runtime/bots/lib`, application/test compilation succeeded, and all `6` focused Stage 1 JUnit tests passed. Registry validation found exactly `kiro-bot` and `sample-opponent` and rejected an unknown ID in the focused suite.
+- Direct validation reported exactly two configured identities as `VALID`: `kiro-bot` / `Kiro Bot` / `1.0` / `editable-primary`, and `sample-opponent` / `Sample Opponent` / `1.0` / `bundled-deterministic`.
+- The official runner logged one round and two bots, booted both bots, started the game, emitted the observed official completion event, and returned `numberOfRounds=1`.
+- Actual reported endpoint: `ws://localhost:42253`.
+- Actual Linux listener observation while the official battle was active: `listenerBinding=wildcard:42253`. This is the precise gate blocker; a localhost URL is not evidence of a loopback-only bind.
+- Real owned Bot process observations: PID `1821249`, role `kiro-bot`; PID `1821258`, role `sample-opponent`. Both were observed alive during the battle. The final returned process snapshots showed both PIDs no longer alive after cleanup; their command metadata was unavailable after process exit and therefore printed as `unknown` rather than being invented.
+- Official result 1: rank `1`, name `Sample Opponent`, version `1.0`, total score `60`, survival score `50`, bullet damage `0`, ram damage `0`, first places `1`, rounds played `1`.
+- Official result 2: rank `2`, name `Kiro Bot`, version `1.0`, total score `0`, survival score `0`, bullet damage `0`, ram damage `0`, first places `0`, rounds played `1`.
+- No repeatability claim is made for winner, rank, or scores.
+- Recording enabled: exactly one regular non-empty official artifact was verified at `runtime/recordings/direct-1784299991739/game-2026-07-17-17-53-13.battle.gz`, size `35,232` bytes. The generated artifact is ignored and remains under canonical `runtime/`.
+- Cleanup observation: official `BattleHandle.close()` and `BattleRunner.close()` completed; both observed Bot PIDs were dead; `CLEANUP_COMPLETE: true`; command ended with `DIRECT_BATTLE_OK` and exit `0`.
+- Timeouts exercised as configuration: Bot connection `30s`, battle wall clock `120s`, cleanup grace `5s`. Normal completion exercised these configured finite values; timeout branches themselves were not triggered.
+
+### Complete changed-file inventory
+
+- `.gitignore` — excludes the local jqwik execution database created by the focused test run.
+- `build.gradle` — two-Bot compilation/runtime preparation, normal build wiring, focused-test setup, and the dedicated `directBattle` task.
+- `bots/kiro-bot/README.md`
+- `bots/kiro-bot/kiro-bot.json`
+- `bots/kiro-bot/kiro-bot.sh`
+- `bots/kiro-bot/kiro-bot.cmd`
+- `bots/kiro-bot/src/main/java/dev/kiro/royale/bots/KiroBot.java`
+- `bots/sample-opponent/README.md`
+- `bots/sample-opponent/sample-opponent.json`
+- `bots/sample-opponent/sample-opponent.sh`
+- `bots/sample-opponent/sample-opponent.cmd`
+- `bots/sample-opponent/src/main/java/dev/kiro/royale/bots/SampleOpponent.java`
+- `src/main/java/dev/kiro/royale/Models.java`
+- `src/main/java/dev/kiro/royale/RepositoryPaths.java`
+- `src/main/java/dev/kiro/royale/BoundedDiagnostics.java`
+- `src/main/java/dev/kiro/royale/BotRegistry.java`
+- `src/main/java/dev/kiro/royale/BattleCoordinator.java`
+- `src/main/java/dev/kiro/royale/GenuineResultMapper.java`
+- `src/main/java/dev/kiro/royale/OfficialBattleRunnerAdapter.java`
+- `src/main/java/dev/kiro/royale/BattleService.java`
+- `src/main/java/dev/kiro/royale/DirectBattleDiagnostic.java`
+- `src/test/java/dev/kiro/royale/Stage1CoreTest.java`
+- `DECISIONS.md`
+- `STATUS.md`
+
+Generated `runtime/bots/**`, `runtime/recordings/**`, `.gradle/**`, `build/**`, and `.jqwik-database` entries are ignored validation/runtime artifacts, not committed project files. The generated local `.jqwik-database` observed after testing was removed and added to `.gitignore`. The pre-existing task-state modification in `.kiro/specs/kiro-royale/tasks.md` was preserved and was not used to claim completion.
+
+### Remaining failure/blocker
+
+- The pinned official embedded server starts via `ServerWebSocketObserver(InetSocketAddress(port), ...)`, and the public runner builder has no bind-host/address option. Runtime `/proc/net/tcp*` inspection confirmed a wildcard listener for this match. Stage 1 cannot be marked complete without a verified official-server path that binds only to loopback; Stage 2 must not begin.
+- No test/build/direct command failed. The failure is the execution-proven network boundary mismatch, not a fabricated or mocked battle result.
+
+### Unexercised claims — not verified
+
+- Loopback-only server binding: **not verified; contradicted by the wildcard listener observation**.
+- Official GUI loading or playback of the generated recording (Replay Proof): **not verified**. Only creation, containment, regular-file status, and non-zero size were verified.
+- Passive live viewer connection/observation: **not verified**.
+- MCP server construction, schemas, stdio protocol integrity, handshake, discovery, client calls, and same-path battle invocation: **not verified; no MCP implementation exists**.
+- Kiro MCP connection, every tool invocation, synchronous tool timeout compatibility, and Kiro-triggered battle: **not verified**.
+- Server and booter PIDs as explicit returned process evidence: **not verified**; official lifecycle logs and closure ran, while application process evidence captured only the two Bot PIDs.
+- Bot-connect timeout, wall-clock timeout, startup-failure, abort, recording-failure, forced-kill, and JVM-shutdown branches: **not verified** by this successful run.
+- Windows Bot launch and non-Linux listener inspection: **not verified**.
+- Repeated battle score/winner determinism: **not verified and not required**.
+- Real Stage 4 integration smoke test, demo recording, publication, and clean tracked-file review: **not verified**.
+
+## Stage 1 blocker resolution and final gate — 2026-07-17
+
+**Final gate state: COMPLETE.** The direct production path now extracts the official `1.0.2` server JAR packaged in the pinned Battle Runner dependency into ignored `runtime/`, gives it an application-owned inherited socket bound by `/usr/bin/systemd-socket-activate` to `127.0.0.1`, and connects `BattleRunner` through its public `externalServer` API. This is still the official Tank Royale server and official Battle Runner; no fake engine, proxy, or MCP path is involved.
+
+### Exact resolution commands and exit codes
+
+| Command | Exit code | Observation |
+|---|---:|---|
+| `command -v systemd-socket-activate` | `0` | Resolved `/usr/bin/systemd-socket-activate`. |
+| `systemd-socket-activate --version` | `0` | systemd `261`; the installed launcher supports `--listen`, `--inetd`, and `--now`. |
+| `java -jar robocode-tankroyale-server.jar --help` against the server JAR extracted from the resolved runner | `0` | Official server `1.0.2` advertises `--port inherit` for socket activation. |
+| Pinned official-source fetch for `ServerWebSocketObserver.kt`, `ServerCli.kt`, and `BattleRunner.kt` | `6` then `0` | The sandbox DNS attempt failed; the authorized retry succeeded and confirmed inherited `ServerSocketChannel`, `--port inherit`, and public `externalServer(String)` behavior. |
+| `systemd-socket-activate --listen=127.0.0.1:45678 --now java -jar robocode-tankroyale-server.jar --port inherit` | `2` | Proved fd-3 mode alone is not accepted by Java `System.inheritedChannel()` on this host. |
+| `systemd-socket-activate --listen=127.0.0.1:45678 --inetd --now java -jar robocode-tankroyale-server.jar --port inherit` | manually interrupted after inspection | The official server stayed active; `ss` and `/proc/net/tcp` showed only `127.0.0.1:45678`. The probe was then stopped. |
+| `./gradlew clean test` | `1` then `0` | The sandbox attempt could not write the existing Gradle cache lock; the authorized rerun passed all six focused Stage 1 tests. |
+| `./gradlew clean directBattle` | `0` | Fresh official one-round battle passed with loopback listener, two real Bots, genuine results, recording, and cleanup. |
+| `ps -p 1835919,1836060,1836069 -o pid=,stat=,args=` | `1` | No listed official-server or Bot PID remained after the battle. |
+| `stat -c '%n %s bytes' runtime/recordings/direct-1784300659081/game-2026-07-17-18-04-20.battle.gz` | `0` | Verified a regular `30,152`-byte recording under ignored `runtime/`. |
+
+### Final direct-battle observations
+
+- Actual endpoint: `ws://127.0.0.1:44943`.
+- Actual listener evidence during execution: `listenerBinding=loopback:44943`; wildcard and non-loopback observations are treated as fatal startup failures by the adapter.
+- The official socket-activated server was observed as owned PID `1835919`. Kiro Bot PID `1836060` and Sample Opponent PID `1836069` were observed as real child processes. All three were dead after cleanup, and the command reported `CLEANUP_COMPLETE: true`.
+- The official `GameEnded` event was observed and `BattleResults.getNumberOfRounds()` returned `1`.
+- Rank 1: Sample Opponent `1.0`; total `60`, survival `50`, bullet damage `0`, ram damage `0`, first places `1`, rounds played `1`.
+- Rank 2: Kiro Bot `1.0`; total `0`, survival `0`, bullet damage `0`, ram damage `0`, first places `0`, rounds played `1`.
+- These values are recorded as this run's genuine results; winner/score repeatability is not claimed.
+- Recording: `runtime/recordings/direct-1784300659081/game-2026-07-17-18-04-20.battle.gz`, `30,152` bytes.
+- `DIRECT_BATTLE_OK` and Gradle `BUILD SUCCESSFUL` completed in `18s`.
+
+### Resolution files changed
+
+- `src/main/java/dev/kiro/royale/OfficialBattleRunnerAdapter.java` — replaces unsafe embedded binding with the pinned official server's loopback inherited-socket mode, public external-runner mode, startup bind verification, and owned-server cleanup/evidence.
+- `.kiro/specs/kiro-royale/tasks.md` — marks Stage 1 leaves 3.1–3.6 complete after execution evidence.
+- `DECISIONS.md` — records the verified socket-activation decision and host prerequisite.
+- `STATUS.md` — records the commands, results, changed files, resolved blocker, and remaining unverified claims.
+
+### Remaining failures and unverified claims
+
+- Remaining Stage 1 blocker: **none on the exercised Linux host**. Stage 2 may begin.
+- The loopback solution requires executable `/usr/bin/systemd-socket-activate` with inetd descriptor passing. Windows, macOS, other launcher locations, and Linux hosts without this executable are **not verified** and must fail closed rather than fall back to wildcard binding.
+- Official GUI replay playback and passive live-viewer observation: **not verified**.
+- MCP construction, tool discovery/calls, stdout isolation, Kiro connection, and Kiro-triggered battle: **not verified; no MCP implementation exists**.
+- Timeout, abort, startup-failure, recording-failure, forced-kill, and JVM-shutdown branches: **not verified** by the successful battle.
+- Demo recording, publication, Stage 4 smoke test, and clean tracked-file review: **not verified**.

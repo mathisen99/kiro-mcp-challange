@@ -37,3 +37,6 @@ Thumbs.db
 
 # Kiro local task execution/session metadata
 .kiro/specs/**/tasks.meta.json
+
+# Local property-test execution database
+.jqwik-database
