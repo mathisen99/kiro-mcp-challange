@@ -6,14 +6,14 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
 
 ## Tasks
 
-- [ ] 1. Stage 0 — verify the environment, official APIs, dependencies, and build
+- [x] 1. Stage 0 — verify the environment, official APIs, dependencies, and build
   - [x] 1.1 Verify current official integration facts without implementing adapters
     - Run `java -version` and verify that the selected runtime and compiler are Java 21.
     - Check current official Tank Royale, Battle Runner, Java Bot API, MCP Java SDK stdio server, and jqwik sources; verify artifact coordinates, releases, required Java level, and the specific API capabilities identified as uncertain in the design.
     - Record source URLs and candidate facts for later evidence, but do not create `OfficialBattleRunnerAdapter`, `McpStdioAdapter`, Bot launch code, or assumed external signatures in this task.
     - _Requirements: 1.2, 2.1, 2.2, 2.3_
 
-  - [ ] 1.2 Create the pinned Gradle build, Wrapper, and compile-only Stage 0 probe
+  - [x] 1.2 Create the pinned Gradle build, Wrapper, and compile-only Stage 0 probe
     - Create the Java 21 Gradle application/build structure and Gradle Wrapper, pin only versions that successfully resolve, and configure JUnit Platform plus the verified jqwik dependency without adding tests yet.
     - Add a trivial `Stage0DependencyProbe` that compiles and runs against the verified dependencies only far enough to prove class/API availability; it must not contain battle orchestration or MCP adapter behavior.
     - Verify from the repository root with `./gradlew --version`, `./gradlew dependencies --configuration runtimeClasspath`, `./gradlew clean build`, and the dedicated Stage 0 probe task.
@@ -25,12 +25,12 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
     - Record verified stdio construction/tool registration APIs, Battle Runner lifecycle/result/recording/process APIs, Bot configuration format, loopback/endpoint behavior, and any incompatibility affecting the one-JVM decision; leave unsupported facts explicitly unresolved rather than guessing.
     - _Requirements: 1.5, 2.2, 2.3, 2.4, 2.5_
 
-  - [ ] 1.4 Write the Stage 0 exit evidence gate in `STATUS.md`
+  - [x] 1.4 Write the Stage 0 exit evidence gate in `STATUS.md`
     - Add a `Stage 0` entry containing the exact commands from Tasks 1.1–1.2, every exit code, exact resolved values, observed probe/build output, the complete changed-file list, remaining failures, and every unexercised claim labeled `not verified`.
     - Mark Stage 0 complete only if Java 21 works, all pinned dependencies resolve, the Wrapper is included in the version-controlled change, and the trivial probe/build succeeds; otherwise keep the gate incomplete and block Stage 1.
     - _Requirements: 1.1, 1.2, 1.4, 1.7–1.12, 2.1–2.8_
 
-- [ ] 2. Human verification checkpoint — Stage 0 exit
+- [x] 2. Human verification checkpoint — Stage 0 exit
   - Confirm the Stage 0 evidence is reproducible, the Gradle Wrapper is committed as required, `DECISIONS.md` contains only verified facts, and no Battle Runner or MCP adapter implementation began early. Do not authorize Stage 1 while any Stage 0 exit fact is missing.
 
 - [ ] 3. Stage 1 — prove the direct genuine two-Bot battle

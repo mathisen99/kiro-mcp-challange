@@ -4,13 +4,13 @@ Last updated: 2026-07-17
 
 ## Current state
 
-Stage 0 technical checks are complete. Java 21, the Gradle 9.6.1 Wrapper, all pinned dependencies, the clean build, and the non-invasive dependency probe succeeded. No MCP server, Battle Runner adapter, Bot launch code, or battle behavior was implemented. The Stage 0 exit gate remains blocked because the reviewed Wrapper and build files are not committed.
+Stage 0 is complete. Java 21, the Gradle 9.6.1 Wrapper, all pinned dependencies, the clean build, and the non-invasive dependency probe succeeded. Commit `8555529` contains the reviewed Wrapper, build, probe, decisions, and evidence. No MCP server, Battle Runner adapter, Bot launch code, or battle behavior was implemented.
 
-Stage 1 remains blocked until the Task 2 human checkpoint confirms this evidence and the Wrapper files are committed with the project.
+The Task 2 human checkpoint passed. Stage 1 / Task 3 is authorized to begin.
 
 ## Stage tracker
 
-- [ ] Stage 0 — environment and dependency verification (technical checks pass; commit gate blocked)
+- [x] Stage 0 — environment and dependency verification
 - [ ] Stage 1 — direct real Battle Runner battle
 - [ ] Stage 2 — custom MCP server
 - [ ] Stage 3 — Kiro and viewer integration
@@ -30,7 +30,7 @@ Stage 1 remains blocked until the Task 2 human checkpoint confirms this evidence
 
 ## Stage 0 evidence gate — 2026-07-17
 
-**Gate state: BLOCKED.** All automated Stage 0 checks succeeded, but the Stage 0 exit condition requiring the verified Gradle Wrapper to be committed is unsatisfied. Stage 1 is not authorized.
+**Gate state: COMPLETE.** All automated Stage 0 checks succeeded, and commit `8555529` contains the verified Gradle Wrapper and Stage 0 implementation/evidence files.
 
 ### Exact commands and exit codes
 
@@ -99,7 +99,7 @@ Ignored `.gradle/` and `build/` outputs are generated validation artifacts and a
 ### Remaining failures/blockers
 
 - No Stage 0 gate command failed.
-- The Wrapper files are present and trackable but are not yet committed; this subagent did not create a Git commit. The Task 2 human checkpoint must confirm the committed Wrapper before authorizing Stage 1.
+- The Wrapper files and reviewed Stage 0 implementation/evidence files are committed in `8555529`.
 - No system `gradle` executable was available; the verified Wrapper is the supported build path.
 - `.kiro/specs/kiro-royale/.config` does not exist. The available requirements/design/tasks identify this as a feature spec, not a bugfix spec.
 - SLF4J has no runtime provider in the Stage 0 probe. This is non-blocking now and must be resolved before MCP logging/protocol isolation is implemented.
@@ -118,12 +118,13 @@ Ignored `.gradle/` and `build/` outputs are generated validation artifacts and a
 
 ## Stage 1 gate
 
-**BLOCKED pending Task 2 human verification checkpoint.** No Stage 1 implementation has begun.
+**READY.** Task 2 passed and Stage 1 / Task 3 may begin. No Stage 1 implementation has begun.
 
 ## Task 2 human verification checkpoint — 2026-07-17
 
-**Checkpoint state: BLOCKED.** The technical Stage 0 evidence reproduced, but the
-required Gradle Wrapper commit does not exist. Stage 1 is not authorized.
+**Checkpoint state: COMPLETE.** The technical Stage 0 evidence reproduced, and
+commit `8555529` contains the required Gradle Wrapper and reviewed Stage 0 files.
+Stage 1 is authorized.
 
 ### Reviewer commands and exit codes
 
@@ -137,6 +138,9 @@ required Gradle Wrapper commit does not exist. Stage 1 is not authorized.
 | `./gradlew stage0Probe` | `1` | Same sandbox-only user-cache lock failure. |
 | `./gradlew --version && ./gradlew dependencies --configuration runtimeClasspath && ./gradlew clean build && ./gradlew stage0Probe` | `0` | Re-run with permission to use the existing Gradle user cache; Gradle `9.6.1`, dependency resolution, clean build, and `STAGE0_PROBE_OK` all succeeded. |
 | `git ls-files --error-unmatch gradlew gradlew.bat gradle/wrapper/gradle-wrapper.jar gradle/wrapper/gradle-wrapper.properties build.gradle settings.gradle src/main/java/dev/kiro/royale/Stage0DependencyProbe.java` | `1` | Git reported every listed Stage 0 implementation file as unknown/untracked. |
+| `git show --stat --oneline --decorate 8555529` | `0` | The Stage 0 commit contains the reviewed build, Wrapper, probe, decisions, task state, and evidence files. |
+| `git ls-tree -r --name-only 8555529` | `0` | The committed tree contains every required Stage 0 implementation file. |
+| `./gradlew clean build stage0Probe` | `0` | Final post-commit verification: seven tasks executed, `BUILD SUCCESSFUL`, and `STAGE0_PROBE_OK`. |
 
 ### Human review observations
 
@@ -149,18 +153,23 @@ required Gradle Wrapper commit does not exist. Stage 1 is not authorized.
   loading and method-name reflection; it does not construct an MCP server, register
   a tool, create a Battle Runner, launch a process, or run a battle. No Stage 1 or
   Stage 2 adapter implementation began early.
-- The Wrapper scripts, properties, and JAR are present and trackable, but `git
-  status --short` shows them as untracked and `git ls-files` confirms they are not
-  committed. Requirement 2.7 and Task 2 therefore remain unsatisfied.
+- Commit `8555529` contains `gradlew`, `gradlew.bat`, the Wrapper properties/JAR,
+  build files, dependency probe, decisions, and Stage 0 evidence. `git ls-tree`
+  confirmed every required implementation file is tracked in that commit.
+- Generated `.gradle/` and `build/` output and Kiro's local `tasks.meta.json`
+  execution/session history remain ignored and uncommitted.
 
 ### Changed files from this review
 
-- `STATUS.md` — added this human checkpoint evidence and blocked verdict.
-- `.kiro/specs/kiro-royale/tasks.md` — corrected premature Stage 0/Task 1.2/Task 1.4 completion states; Task 2 remains unchecked.
+- `STATUS.md` — added the human checkpoint evidence, initial blocked verdict, and verified resolution.
+- `.kiro/specs/kiro-royale/tasks.md` — kept the gates incomplete while the commit was absent, then marked Tasks 1 and 2 complete after commit verification.
+- `.gitignore` — excludes Kiro's local `tasks.meta.json` execution/session metadata.
 
-### Required remediation
+The follow-up resolution changes mark the verified Stage 0 and Task 2 gates complete
+after commit `8555529` was inspected.
 
-Commit the reviewed Stage 0 implementation/evidence files, including all Gradle
-Wrapper files, without including generated output. Then rerun this checkpoint and
-confirm the committed tree contains the exact reviewed files before checking Task 2
-or starting Stage 1.
+### Resolution
+
+The reviewed Stage 0 implementation/evidence files, including all Gradle Wrapper
+files, were committed without generated output. The committed tree was inspected,
+Task 2 passed, and Stage 1 is unblocked.
