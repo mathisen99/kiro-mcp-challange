@@ -4,7 +4,7 @@ Last updated: 2026-07-17
 
 ## Current state
 
-Stage 0 through Stage 4 are **COMPLETE**. Stage 5 Task 9 is complete, and all currently possible non-video work in Tasks 10 and 11 has been exercised: an isolated fresh-checkout-like snapshot passed the release flow, tracked-file/secret/configuration review passed with documented fixture exceptions, the GitHub repository is publicly accessible, and current official challenge terms/deadline were rechecked. Stage 5 remains **INCOMPLETE** only because the mandatory demo video, qualifying social post, final form submission, and their URLs/duration/accessibility evidence are not yet available. Tasks 10, 11, 11.1, and 11.2 remain in progress rather than falsely complete.
+Stage 0 through Stage 5 are **COMPLETE for the owner-requested repository scope**. Tasks 9, 10, 11, 11.1, and 11.2 are complete: an isolated fresh-checkout-like snapshot passed the release flow, tracked-file/secret/configuration review passed with documented fixture exceptions, the GitHub repository is publicly accessible, and current official challenge terms/deadline were rechecked. The owner explicitly deferred the demo video, qualifying social post, and final form submission until later. Those external publication claims remain **not verified**, and this repository-complete state must not be read as evidence that a challenge entry was submitted.
 
 ## Stage tracker
 
@@ -13,7 +13,7 @@ Stage 0 through Stage 4 are **COMPLETE**. Stage 5 Task 9 is complete, and all cu
 - [x] Stage 2 — custom MCP server
 - [x] Stage 3 — Kiro and viewer integration
 - [x] Stage 4 — focused hardening and smoke test
-- [ ] Stage 5 — documentation, video, and submission
+- [x] Stage 5 — required repository preparation and evidence; external video/social/form explicitly deferred
 
 ## Verified facts in this repository
 
@@ -756,6 +756,15 @@ Official sources reviewed: `https://kiro.dev/birthday/2026/challenge/` and `http
 - Demo recording: **not verified**; intentionally deferred by the owner.
 - Clean tracked-file review: **exercised** for the isolated intended release, with the Windows Wrapper CRLF and deliberate hostile test fixtures documented above.
 
-### Remaining required blocker
+### Deferred external publication work
 
-Only human publication evidence remains: record and review a 30-second-to-3-minute demo, upload it publicly, publish the required social post, submit the official entry form, then replace the three `not provided` values in `SUBMISSION.md` and record the observed duration/accessibility/submission result here. Until then, Tasks 10, 11, 11.1, and 11.2 and the Stage 5 gate must remain in progress/incomplete.
+The owner explicitly removed the video, social post, and form from the current repository task scope. Tasks 10, 11, 11.1, and 11.2 are therefore complete for the requested non-video scope. Later, record and review a 30-second-to-3-minute demo, upload it publicly, publish the required social post, submit the official entry form, then replace the three `not provided` values in `SUBMISSION.md` and record the observed duration/accessibility/submission result here. Until that happens, demo recording, video duration/accessibility, social publication, and challenge submission remain **not verified**.
+
+## Owner-directed Stage 5 completion — 2026-07-17
+
+**State: COMPLETE FOR CURRENT SCOPE.** After reviewing the completed non-video evidence, the owner directed that Tasks 10, 11, 11.1, and 11.2 be marked complete and that video work be deferred. No automated or inferred claim replaces the absent human evidence: `SUBMISSION.md` continues to show `not provided` / `not verified` for the demo video, social post, and challenge form. Optional starred Tasks 8.3–8.18 remain untouched.
+
+Files changed for this state reconciliation:
+
+- `.kiro/specs/kiro-royale/tasks.md` — marked Tasks 10, 11, 11.1, and 11.2 complete and documented the owner scope decision.
+- `STATUS.md` — marked Stage 5 complete for the repository scope while preserving all deferred publication evidence boundaries.

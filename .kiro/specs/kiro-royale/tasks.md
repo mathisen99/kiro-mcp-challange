@@ -261,28 +261,29 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
     - Keep absent links and unexercised claims explicitly `not verified`; do not invent publication, accessibility, deadline, or video-duration evidence.
     - _Requirements: 10.6, 10.11, 11.1–11.8_
 
-- [-] 10. Human verification checkpoint — Stage 5 fresh-checkout, video, and publication
+- [x] 10. Human verification checkpoint — Stage 5 fresh-checkout and publication preparation
   - From a fresh-checkout-like state, manually follow the README, verify the repository-relative Kiro launcher, inspect tracked files for secrets/generated artifacts/absolute paths, and record each exercised final claim separately.
-  - Recheck the official challenge terms/deadline, record a video of at most three minutes showing connected Kiro, `list_bots`, `inspect_bot`, `run_battle`, visual proof, and genuine score components, then publish both the repository and video and verify their public accessibility.
-  - Provide the actual URLs and observations to Tasks 11.1–11.2. These actions are human verification checkpoints and must not be represented as completed by automated tests.
+  - Recheck the official challenge terms/deadline and verify the public repository. The owner deferred video recording, social publication, and form submission until later; retain `not verified` for those external claims.
+  - Persist the available URLs and observations in Tasks 11.1–11.2 without representing deferred human actions as completed by automated tests.
 
-- [-] 11. Stage 5 — persist publication and final evidence
-  - [-] 11.1 Complete `SUBMISSION.md` with verified public artifacts
-    - Insert the human-verified public repository and video URLs, record the observed duration and accessibility checks, and preserve `not verified` for any claim not actually exercised.
+- [x] 11. Stage 5 — persist publication and final evidence
+  - [x] 11.1 Complete `SUBMISSION.md` with currently verified public artifacts
+    - Insert the human-verified public repository URL and preserve `not provided` / `not verified` for the deferred video, social post, form, duration, and accessibility claims.
     - Ensure the submission describes only the demonstrated four-tool synchronous MVP and its live-view or replay proof.
     - _Requirements: 10.6, 10.9, 10.10, 10.11, 11.1–11.8, 12.1, 12.2_
 
-  - [-] 11.2 Write the Stage 5 exit and final claim evidence in `STATUS.md`
+  - [x] 11.2 Write the Stage 5 exit and final claim evidence in `STATUS.md`
     - Add exact fresh-checkout/build/direct/MCP/test/smoke/hygiene commands with every exit code, changed files, observed Kiro/visual/publication/video outcomes, remaining failures, and every unexercised claim labeled `not verified`.
     - State separately whether Gradle build, two-Bot validation, real one-round battle, genuine scores, MCP discovery, Kiro connection, live viewer, replay creation and playback, demo recording, and clean tracked-file review were exercised.
-    - Mark Stage 5 complete only when README reproducibility, repository hygiene, public repository, accessible ≤3-minute video, and submission links are all verified.
+    - Mark the current repository scope complete when README reproducibility, repository hygiene, public repository, and all available claim evidence are verified. Keep the later external challenge-entry checkpoint explicitly deferred until an accessible ≤3-minute video, social post, and submission links are supplied.
     - _Requirements: 1.1, 1.4, 1.6–1.12, 10.1–10.11, 11.1–11.8_
 
 ## Notes
 
+- Owner scope decision on 2026-07-17: the demo video, social post, and final form submission are explicitly deferred until after repository work is finished. Tasks 10, 11.1, and 11.2 are complete for the requested non-video repository scope; `SUBMISSION.md` and `STATUS.md` retain `not verified` for every deferred publication claim. This completion state is not evidence that the external challenge entry has been submitted.
 - Tasks marked with `*` are optional property-test implementation tasks for the one-day MVP; they remain individually traceable and schedulable. Mandatory Stage 4 unit/contract/smoke tasks still cover the acceptance-critical safety and genuine-integration checks.
-- Every stage evidence task is a hard gate. It must be completed last in its stage and must remain incomplete when required evidence is absent.
-- Human checkpoints are intentionally excluded from automated execution metadata. Their following evidence leaf cannot be completed until the reviewer supplies the observations.
+- Every stage evidence task is a hard gate for its active scope. It must be completed last in its stage, and absent or deferred evidence must remain explicitly `not verified`.
+- Human checkpoints are intentionally excluded from automated execution metadata. Deferred human observations remain unverified until the reviewer supplies them, even though the owner-requested repository scope is complete.
 - Test doubles are permitted only in Stage 4 unit/property/contract tests. They never satisfy direct battle, MCP client proof, real smoke, Kiro, viewer, replay-playback, video, or publication evidence.
 - No task adds leaderboards, ratings, remote matchmaking/downloads/imports/uploads, containers, sandboxing claims, a custom viewer, battle controls, per-turn telemetry, intent diagnostics, browser automation, hooks, tournaments, simultaneous battles, SQLite, a feature-parity CLI, or unproven async job tools.
 
