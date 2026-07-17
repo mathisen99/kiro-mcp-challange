@@ -1013,3 +1013,23 @@ Files changed: `README.md` and `STATUS.md`. Build, test, battle, installed-Kiro,
 behavior were not rerun because this reconciliation changes documentation only; their latest
 exercised evidence remains recorded above. The current compiler-enabled revision's isolated-copy
 fresh-checkout-like run remains **not verified**.
+
+## Concise public README and hero artwork — 2026-07-17
+
+**State: COMPLETE.** The public README was reviewed end to end and reduced from `2,378` words / `343`
+lines to `1,072` words / `188` lines. Its opening and demonstrated-scope section now lead with the
+project's primary differentiator: Kiro meaningfully edits the Bot, the MCP server compiles that exact
+revision, the official runner executes it, the viewer shows it, and genuine results plus source
+hashes enable another improvement cycle.
+
+| Command/observation | Exit code/state | Result |
+|---|---:|---|
+| source/spec/evidence comparison against required project documents and the current implementation | `0` | Retained the verified setup, four-tool contract, compile/hash boundary, genuine execution, viewer/replay path, security warning, commands, limitations, and license while removing duplicated proof narration and deep troubleshooting. |
+| built-in image generation followed by visual inspection | success | Created a text-free 16:9 hero illustration showing an AI-authored tank emerging from code into a two-Bot arena. Visual inspection confirmed the intended subject, composition, lack of branding/watermark, and README suitability. |
+| `cwebp -quiet -q 88 assets/kiro-royale-hero.png -o assets/kiro-royale-hero.webp` | `0` | Converted the generated `1,672 × 941` RGB PNG from approximately `2.0 MiB` to a `212 KiB` WebP; the intermediate project PNG was removed while the image-generation source remains in the tool's generated-image store. |
+| README relative-link inventory and target review | `0` | Confirmed the hero, status, workspace MCP configuration, Bot-development steering, license, and third-party notice targets exist; the external viewer link is unchanged from the verified project documentation. |
+| `git diff --check` | `0` | README and asset changes contain no whitespace errors. |
+
+Changed files: `README.md`, `STATUS.md`, and new `assets/kiro-royale-hero.webp`. No application,
+Bot, MCP schema, build, test, or runtime behavior changed, so genuine battles and installed-Kiro
+flows were not rerun for this presentation-only update.
