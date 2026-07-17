@@ -22,12 +22,13 @@ The installed-Kiro and official-GUI replay flow was exercised successfully. Auto
 
 ### Bundled Bot behavior
 
-`kiro-bot` remains a compact, editable teaching strategy, but it now behaves like a basic combat
-Bot: independent radar sweep/lock, linear target prediction, distance-based firepower, alignment
-checks before firing, perpendicular strafing, and collision/hit recovery. `sample-opponent` is a
-simpler deterministic baseline with direct coordinate aiming, radar lock, orbiting movement, and
-fixed reversals. Neither strategy uses randomness or claims competitive sophistication; their
-small named methods are intended for Kiro-assisted tuning between battles.
+`kiro-bot` is the primary LLM-editable strategy. Its current Kiro-authored revision uses independent
+radar sweep/lock, iterative wall-bounded target prediction, energy- and distance-aware firepower,
+range-controlled orbiting, scheduled direction reversals, alignment checks, and collision/hit
+recovery. `sample-opponent` remains a simpler deterministic baseline with direct coordinate aiming,
+radar lock, orbiting movement, distance-based firepower, and fixed reversals. Neither strategy uses
+randomness or claims competitive sophistication; the Kiro Bot is intentionally designed to be
+inspected and meaningfully rewritten by the current Kiro model before a battle.
 
 ## Architecture
 
@@ -39,6 +40,7 @@ Kiro / official MCP client
 Kiro Royale Java application
   +-- strict four-tool MCP adapter
   +-- static two-Bot registry and validation
+  +-- fixed-source Java 21 compiler and SHA-256 provenance
   +-- one-active-battle coordinator
   +-- shared BattleService
         |
@@ -216,7 +218,7 @@ the Bot when an LLM-generated revision is desired.
 `showBattle` defaults to `false` so headless and automated runs do not open windows. When it is
 `true`, Kiro Royale keeps the viewer on its documented default `ws://localhost:7654`, binds the
 fixed listener to IPv6 loopback because the exercised Firefox host resolves `localhost` to `::1`
-first, gives the Java Battle Runner the unambiguous equivalent `ws://[::1]:7654`, and opens
+first, gives the Java Battle Runner the unambiguous equivalent `ws://[::1]:7654`, opens
 the fixed trusted URL `https://jandurovec.github.io/tank-royale-viewer/`, and gives the browser a
 10-second pre-battle connection window. Success adds `viewerRequested: true` and reports
 `viewerConnected` as the kernel-level observation state. A successful URL launch is not falsely
@@ -290,7 +292,9 @@ Complete finite local release preflight:
 
 The script transparently runs tracked-file/ignore/config hygiene checks followed by the evidenced clean build, focused tests, direct battle, MCP proof, and real smoke commands. It does **not** automate Kiro, the GUI/viewer, publication, challenge submission, or video claims. It creates ignored runtime artifacts and runs three genuine one-round battles.
 
-A truly fresh-checkout-like run and final human tracked-file review remain part of the next checkpoint and are not claimed by this script.
+An isolated fresh-checkout-like release run was completed for the earlier MVP snapshot. The current
+compiler-enabled revision has passed the complete local release script and tracked-file review, but
+that isolated-copy exercise has not been repeated after the compiler workflow was added.
 
 ## Security
 
@@ -326,7 +330,11 @@ Do not replace bundled Bots with downloaded or unreviewed executables. Do not ex
 - Genuine production timeout/abort/startup/recording-failure/forced-kill branches and live-battle JVM shutdown races are not integration-verified.
 - Optional jqwik Properties 1–16 were not implemented; focused examples and contract tests cover the mandatory Stage 4 gate.
 - No remote Bot import, shell execution, custom viewer, async jobs, tournament, leaderboard, database, telemetry, browser automation, or sandboxing claim.
-- The public repository, fresh-checkout-like release flow, tracked-file review, and current challenge deadline/terms are verified. Demo recording, video/social-post accessibility, final duration, and form submission remain **not verified**.
+- Public repository accessibility, the current tracked-file review, and the challenge terms/deadline
+  review performed on 2026-07-17 are verified. The earlier MVP passed an isolated fresh-checkout-like
+  release flow; that isolated-copy exercise has not been repeated for the current compiler-enabled
+  revision. Demo recording, video/social-post accessibility, final duration, and form submission
+  remain **not verified**.
 
 ## License and attribution
 

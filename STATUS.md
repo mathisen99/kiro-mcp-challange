@@ -989,5 +989,27 @@ challenge workflow and implemented security boundaries. The release script now r
 environment or runtime file and requires the Kiro Bot-development steering and registered compiler.
 
 This final automated run did not exercise installed Kiro, the live viewer, or replay playback;
-those are verified separately above. Fresh-checkout review, publication/public accessibility,
-demo video, deadline submission, and video duration remain **not verified**.
+those are verified separately above. The earlier MVP snapshot passed the isolated fresh-checkout-like
+flow and public-repository check, while the current compiler-enabled revision passed the complete
+local release gate and tracked-file review but was not recopied into a fresh isolated directory.
+Demo video, social publication, form submission, and video duration remain **not verified**.
+
+## README capability reconciliation — 2026-07-17
+
+**State: COMPLETE.** A source-to-documentation audit corrected the public README after the final
+Kiro-authored strategy landed. The Bot summary now describes range-controlled orbiting, scheduled
+reversals, iterative wall-bounded prediction, and energy-aware firing. The architecture now shows
+the fixed-source compiler and SHA-256 provenance step. Viewer wording was corrected, and the
+fresh-checkout evidence boundary now consistently distinguishes the earlier isolated MVP run from
+the current compiler-enabled revision's complete local release verification.
+
+| Command/observation | Exit code/state | Result |
+|---|---:|---|
+| README comparison against `KiroBot.java`, `SampleOpponent.java`, `LiveViewerLauncher.java`, `OfficialBattleRunnerAdapter.java`, the MCP adapter, requirements, decisions, and latest status evidence | `0` | Located and corrected the stale strategy summary, incomplete compiler architecture, duplicated viewer wording, and contradictory fresh-checkout statements. No implementation change was required. |
+| `git diff --check` | `0` | The README/status-only update contains no whitespace errors. |
+| unauthenticated GitHub repository API check | HTTP `200` | `mathisen99/kiro-mcp-challange` remained public (`private=false`) with default branch `main`. The first sandboxed DNS attempt returned HTTP `000`; the permitted network retry succeeded. |
+
+Files changed: `README.md` and `STATUS.md`. Build, test, battle, installed-Kiro, viewer, and replay
+behavior were not rerun because this reconciliation changes documentation only; their latest
+exercised evidence remains recorded above. The current compiler-enabled revision's isolated-copy
+fresh-checkout-like run remains **not verified**.
