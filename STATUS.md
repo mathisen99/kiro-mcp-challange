@@ -768,3 +768,124 @@ Files changed for this state reconciliation:
 
 - `.kiro/specs/kiro-royale/tasks.md` — marked Tasks 10, 11, 11.1, and 11.2 complete and documented the owner scope decision.
 - `STATUS.md` — marked Stage 5 complete for the repository scope while preserving all deferred publication evidence boundaries.
+
+## Post-MVP automatic live-view improvement — 2026-07-17
+
+**State: IMPLEMENTED AND EXERCISED.** The existing approval-required `run_battle` tool now accepts
+optional Boolean `showBattle` (default `false`). With `true`, it starts the official server on the
+trusted viewer's documented default loopback port `7654`, opens only the fixed hosted viewer origin,
+gives Firefox a bounded pre-battle connection window, then runs the same production Battle Runner
+path. Headless/default calls retain dynamic loopback ports and open no window. Exactly four MCP tools
+remain exposed.
+
+### Exact commands and exit codes
+
+| Command | Exit code | Observation |
+|---|---:|---|
+| `curl -sL 'https://api.github.com/repos/jandurovec/tank-royale-viewer/git/trees/main?recursive=1'` | `0` | Resolved upstream viewer tree commit `479f020cdb4c33a55126eef63a2685f6aa725d21` and relevant source paths. |
+| sandbox `curl -sSL https://raw.githubusercontent.com/jandurovec/tank-royale-viewer/main/src/settings.ts` | `6` | Restricted DNS failed; no source claim was made from this attempt. |
+| authorized retry of the same `curl` | `0` | Verified `src/settings.ts` defaults to `ws://localhost:7654` and persists later settings in browser local storage. |
+| local manifest/`javap` inspection of official GUI 1.0.2 `GuiAppKt` | `0` | Confirmed the official GUI accepts version flags but has no supported replay-file startup argument; replay remains file-chooser driven. |
+| initial sandbox `./gradlew test` | `1` | Managed sandbox could not write the existing user Gradle cache lock; this was an environment restriction, not a test failure. |
+| authorized `./gradlew test` | `0` | Focused suite passed after the initial implementation. |
+| authorized `./gradlew test` after the MCP option propagation test | `0` | All focused tests passed with strict type/additional-property handling and truthful viewer flags. |
+| `./gradlew clean test realSmoke` | `0` | Clean compile and all `21` focused tests passed; genuine headless one-round smoke completed on `ws://127.0.0.1:40295`, returned two official results, created a `29,775`-byte recording, and cleaned all three owned processes. |
+| `./gradlew viewerBattle` | `0` | Opened Firefox, mechanically observed a loopback client on `7654` before Bot startup, ran a genuine official round, created a `38,224`-byte recording, returned genuine scores, and completed cleanup. |
+| owner visual observation during `viewerBattle` | human verified | The automatically opened Firefox viewer visibly displayed the battle; no replay file was selected manually. |
+| `./gradlew mcpProof` | `0` | Default/headless official MCP proof retained exactly four tools, protocol-clean stdout, genuine results/recording, and cleanup. |
+| first two strict-gate `./gradlew mcpViewerProof` attempts | `1` | Firefox URL launch succeeded but mandatory pre-battle TCP detection timed out, producing truthful sanitized `VIEWER_UNAVAILABLE` failures and no fabricated success. This exposed a brittle evidence gate. |
+| interrupted diagnostic MCP proof | interrupted | The interrupted parent left MCP PID `1936950`; `kill 1936950` exited `0`, and later process inspection found no remaining proof/server process. |
+| corrected `./gradlew mcpViewerProof` | `0` | Official stdio client discovered exactly four tools and called `run_battle` with `showBattle=true`; the viewer connection was observed, the genuine battle completed in `19,746 ms`, recording `runtime/recordings/direct-1784314547838/game-2026-07-17-21-55-49.battle.gz` was `36,254` bytes, and cleanup/protocol checks passed. |
+| final `./gradlew clean test realSmoke` | `0` | Finalized source passed all `21` focused tests and a fresh genuine headless round on `ws://127.0.0.1:34335`; official results, a `56,001`-byte recording, and cleanup of all three owned processes were verified. |
+| `git diff --check` | `0` | No whitespace errors after implementation and documentation updates. |
+
+The failed strict-gate attempts led to the final truthful policy: failure to launch the configured
+browser is fatal before Bot startup, but absence of a kernel-level connection observation during
+the bounded head start is reported as `viewerConnected=false` rather than converted into a false
+battle failure. This permits Firefox's later retry to display the live battle. The final MCP proof
+did observe the connection and reported `viewerRequested=true`, `viewerConnected=true`.
+
+### Changed files
+
+- `src/main/java/dev/kiro/royale/LiveViewerLauncher.java` — fixed trusted URL launch, fresh session
+  query, loopback-client observation, graphical-session checks, and finite connection head start.
+- `Models.java`, `BattleEngine.java`, `BattleService.java`, and
+  `OfficialBattleRunnerAdapter.java` — propagate explicit viewer intent/evidence through the shared
+  production path while preserving the default headless behavior.
+- `McpToolAdapter.java` — strict optional `showBattle` schema plus `viewerRequested` and
+  `viewerConnected` structured/text results.
+- `Stage2McpProof.java`, `Stage4FocusedUnitTest.java`, and `build.gradle` — option propagation tests,
+  real `viewerBattle`, and full `mcpViewerProof` commands.
+- `KiroRoyaleApplication.java` and `DirectBattleDiagnostic.java` — bounded opt-in direct visual
+  diagnostic; MCP launcher arguments remain fixed.
+- `README.md`, `KIRO_ROYALE_AGENT_BUILD_BRIEF.md`, `.kiro/specs/kiro-royale/requirements.md`,
+  `.kiro/specs/kiro-royale/design.md`, `.kiro/specs/kiro-royale/tasks.md`, `DECISIONS.md`, and
+  `STATUS.md` — updated contract, architecture, usage, troubleshooting, decision, and evidence.
+- `SUBMISSION.md` — updated the final claim matrix with the new mechanically and visually verified
+  Firefox/Linux live-view evidence while retaining the installed-Kiro-new-field boundary.
+- `THIRD_PARTY_NOTICES.md` — updated the non-bundled viewer's role, license link, and exercised
+  Firefox/Linux compatibility state.
+
+Generated build output, server files, Bot runtime files, recordings, and browser state remain
+ignored and untracked.
+
+### Remaining evidence boundaries
+
+- Automatic live viewing through the direct shared production path: **verified mechanically and
+  visually** on the exercised Firefox/Linux desktop.
+- Automatic live viewing through official MCP stdio: **verified mechanically and visually** with
+  genuine completed battles through both the repository proof client and installed Kiro.
+- Installed Kiro invocation with the new `showBattle` field: **verified**; Kiro returned official
+  completion, genuine scores, recording and cleanup evidence, and both viewer flags true while the
+  owner visibly observed the automatically opened Firefox battle.
+- Other browsers, headless operation with `showBattle=true`, Windows, and macOS: **not verified**.
+- Demo video, social post, and final form remain deferred and **not verified** as recorded above.
+
+### Installed-Kiro desktop environment correction
+
+The first installed-Kiro calls after adding `showBattle` proved that Kiro had refreshed the schema:
+the ordinary battle succeeded with `viewerRequested=false`, while two requests containing
+`showBattle=true` reached the server but returned sanitized `VIEWER_UNAVAILABLE` before Bot startup.
+This was not recorded as live-view success.
+
+| Command/observation | Exit code/state | Result |
+|---|---:|---|
+| Kiro `run_battle` without `showBattle` | MCP success | Genuine round completed on dynamic loopback endpoint `ws://127.0.0.1:44293`; recording and cleanup succeeded; response truthfully reported both viewer flags false. |
+| two installed-Kiro calls with `showBattle=true` | MCP tool failure | Both returned `VIEWER_UNAVAILABLE`; no battle or visual success was claimed. |
+| `ps -eo pid,ppid,comm,args` filtered to `KiroRoyaleApplication mcp-stdio` | `0` | Located Kiro-launched MCP PID `2133153`, direct parent Kiro PID `1678809`. |
+| filtered `/proc/2133153/environ` inspection | `0` | MCP child contained `PATH` but none of `DISPLAY`, `WAYLAND_DISPLAY`, `DBUS_SESSION_BUS_ADDRESS`, `XDG_RUNTIME_DIR`, or `XDG_SESSION_TYPE`. No unrelated environment values were read or printed. |
+| same allowlisted inspection of `/proc/1678809/environ` | `0` | Direct Kiro parent contained `DISPLAY=:1`, `WAYLAND_DISPLAY=wayland-1`, `XDG_RUNTIME_DIR=/run/user/1000`, the matching D-Bus address, and `XDG_SESSION_TYPE=wayland`. |
+| `sh -n scripts/kiro-royale-mcp.sh && ./gradlew test` | `0` | Hardened launcher syntax passed and all `21` focused tests passed. |
+| `kill 2133153` | `0` | Stopped only the stale Kiro Royale MCP child so the next Kiro reconnect loads the updated launcher; the Kiro IDE remained open. |
+
+The launcher now restores only those five allowlisted desktop variables from its direct Kiro
+parent, validates them against narrow display/Wayland/session/current-UID runtime patterns, and
+never imports the complete parent environment. `showBattle` remains the only MCP-controlled switch;
+the URL, port, executable, and restored variable names are application-owned.
+
+The later installed-Kiro retry after the endpoint correction succeeded and is recorded below. The
+earlier failures remain here as diagnostic evidence rather than being overwritten.
+
+### Firefox localhost and rapid-retry correction
+
+The installed-Kiro retry opened Firefox but remained on `Connecting`; its completed result reported
+`websocketUrl=ws://127.0.0.1:7654` and `viewerConnected=false`. This was treated as a real failure,
+not visual proof.
+
+| Command/observation | Exit code/state | Result |
+|---|---:|---|
+| `getent ahosts localhost` | `0` | This host returned IPv6 `::1` before IPv4 `127.0.0.1`; the hosted viewer uses `ws://localhost:7654`. |
+| `timeout 5s /usr/bin/systemd-socket-activate '--listen=[::1]:7654' --inetd --now /usr/bin/true` | `0` | Proved the official server socket activator accepts an IPv6-loopback listener. |
+| initial viewer run with the Java runner still using `ws://localhost:7654` | `1` | The external-server handshake failed; no battle success was claimed. |
+| corrected `./gradlew viewerBattle` with browser `ws://localhost:7654`, listener `[::1]:7654`, and runner `ws://[::1]:7654` | `0` | Firefox connected mechanically, a genuine official one-round battle completed, recording `runtime/recordings/direct-1784316000138/game-2026-07-17-22-20-02.battle.gz` was `30,642` bytes, cleanup completed, and both viewer flags were true. |
+| `ss -tan state time-wait` filtered to port `7654` after an immediate repeat | `0` | Observed server-side `[::1]:7654` entries in `TIME_WAIT`, explaining the next fixed-port bind failure. |
+| final `./gradlew test` | `0` | All `21` focused tests passed after adding the bounded fixed-port reuse wait. |
+| final `./gradlew mcpViewerProof` | `0` | Official MCP stdio discovery still returned exactly four tools; `run_battle(showBattle=true)` completed genuinely in `17,384 ms`, created the `32,189`-byte recording `runtime/recordings/direct-1784316144066/game-2026-07-17-22-22-25.battle.gz`, reported both viewer flags true, completed cleanup, and retained protocol-clean stdout. |
+| owner-requested repeat `./gradlew mcpViewerProof` | `0` | A fresh Firefox tab connected and the official MCP client completed another genuine round in `15,329 ms`; recording `runtime/recordings/direct-1784316241040/game-2026-07-17-22-24-02.battle.gz` was `26,214` bytes, cleanup completed, `viewerRequested=true`, `viewerConnected=true`, and the full proof finished in `16,376 ms`. |
+| installed Kiro `run_battle` with `showBattle=true` plus owner observation | MCP success; human verified | Kiro returned `OFFICIAL_BATTLE_RUNNER_COMPLETION`, `roundsPlayed=1`, `websocketUrl=ws://[::1]:7654`, recording `runtime/recordings/direct-1784316304930/game-2026-07-17-22-25-20.battle.gz`, `cleanupComplete=true`, `viewerRequested=true`, `viewerConnected=true`, and two genuine ranked results. The owner confirmed that the automatically opened Firefox tab visibly displayed this battle. |
+
+Viewer-enabled sessions now keep the browser's upstream-compatible hostname URL while binding the
+official service to IPv6 loopback and giving the Java runner the explicit IPv6 URL. Immediate
+retries wait no more than 65 seconds for the application-owned fixed port to become reusable.
+Installed-Kiro automatic live viewing after the final endpoint correction is verified on the
+exercised Firefox/Linux desktop. Other browsers and operating systems remain unverified.

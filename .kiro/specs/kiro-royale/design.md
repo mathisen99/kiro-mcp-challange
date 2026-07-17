@@ -273,7 +273,7 @@ It never computes score components, predicts winners, substitutes zero, or reads
 | `get_arena_status` | empty object; additional properties rejected | `BattleService.status()` plus prerequisite probe | yes |
 | `list_bots` | empty object; additional properties rejected | `BotCatalog.list()` | yes |
 | `inspect_bot` | exactly `botId` string | `BotCatalog.inspect(...)` | yes |
-| `run_battle` | only `botIds`, optional `rounds`, optional `record`; additional properties rejected | `BattleService.run(...)` | no |
+| `run_battle` | only `botIds`, optional `rounds`, optional `record`, optional `showBattle`; additional properties rejected | `BattleService.run(...)` | no |
 
 Every successful tool result contains a concise summary plus JSON-compatible structured fields using the representation supported by the verified SDK. Every failure uses one structured sanitized contract. Schema validation occurs before domain invocation, so invalid shape cannot acquire the battle gate or launch a process.
 
@@ -477,13 +477,13 @@ The property-based testing strategy applies to Kiro Royale's pure request normal
 
 ### Property 1: Omitted battle options normalize to safe defaults
 
-For any structurally valid `run_battle` request containing exactly two distinct registered Bot IDs, omission of `rounds` and/or `record` shall normalize the omitted values to `1` and `true` respectively, while any supplied integer round count from 1 through 5 and supplied Boolean recording value shall be preserved.
+For any structurally valid `run_battle` request containing exactly two distinct registered Bot IDs, omission of `rounds`, `record`, and/or `showBattle` shall normalize the omitted values to `1`, `true`, and `false` respectively, while supplied valid option values shall be preserved.
 
 **Validates: Requirements 5.5, 5.6, 5.7, 5.8**
 
 ### Property 2: Only the strict battle request domain can launch an engine
 
-For any JSON-compatible candidate request, the engine shall be invokable if and only if the object contains no keys other than `botIds`, `rounds`, and `record`, contains exactly two distinct registered Bot IDs, has an omitted or integer round count in the inclusive range 1 through 5, and has an omitted or Boolean recording value; every other candidate shall produce a sanitized failure with zero engine invocations.
+For any JSON-compatible candidate request, the engine shall be invokable if and only if the object contains no keys other than `botIds`, `rounds`, `record`, and `showBattle`, contains exactly two distinct registered Bot IDs, has an omitted or integer round count in the inclusive range 1 through 5, and has omitted or Boolean recording/viewer values; every other candidate shall produce a sanitized failure with zero engine invocations.
 
 **Validates: Requirements 5.9, 5.10, 5.12, 5.13, 6.5, 6.6, 9.3, 9.4**
 

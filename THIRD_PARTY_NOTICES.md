@@ -11,7 +11,7 @@ Kiro Royale integrates with, builds against, or documents the following third-pa
 | JUnit 5 | BOM `5.13.4` | example and contract tests | [Eclipse Public License 2.0 source](https://github.com/junit-team/junit5/tree/r5.13.4) |
 | jqwik | `1.9.3` | pinned property-testing dependency; optional property tasks were not implemented | [Eclipse Public License 2.0 source](https://github.com/jqwik-team/jqwik/tree/1.9.3) |
 | Tank Royale GUI | `1.0.2` used manually, not bundled | demonstrated official replay playback | [official Apache-2.0 release](https://github.com/robocode-dev/tank-royale/releases/tag/v1.0.2) |
-| Tank Royale Viewer | not bundled; compatibility not verified | documented third-party passive live-view option only | [upstream project and its license](https://github.com/jandurovec/tank-royale-viewer) |
+| Tank Royale Viewer | not bundled; Firefox/Linux compatibility verified | fixed trusted passive live-view URL opened only when `showBattle=true` | [upstream project and its MIT license](https://github.com/jandurovec/tank-royale-viewer) |
 
 Downloaded Gradle distributions, Maven artifacts, the Tank Royale GUI, official server extraction, compiled Bots, and recordings are generated/downloaded locally and excluded from the tracked repository. The Gradle Wrapper bootstrap JAR is the deliberate tracked binary exception.
 

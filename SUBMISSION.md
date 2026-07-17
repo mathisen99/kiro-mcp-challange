@@ -21,7 +21,7 @@ This file separates locally exercised evidence from publication/video claims tha
 | Genuine scores | **verified locally** | Results carried `OFFICIAL_BATTLE_RUNNER_COMPLETION` and all required official score fields. Winner/score repeatability is not claimed. |
 | MCP discovery | **verified locally** | Official Java MCP client discovered exactly `get_arena_status`, `list_bots`, `inspect_bot`, and `run_battle`. |
 | Kiro MCP connection | **verified manually** | Installed Kiro displayed `kiro-royale` connected and invoked all four tools in Stage 3. The isolated snapshot also passed repository-relative `mcpProof`; installed Kiro was not reopened against the snapshot. |
-| Live passive viewer | **not verified** | No hosted passive-viewer connection/observation was demonstrated. |
+| Live passive viewer | **verified on Firefox/Linux through installed Kiro** | `viewerBattle` and `mcpViewerProof` passed with `showBattle=true`. Installed Kiro then invoked the same field, automatically opened Firefox, returned `viewerConnected=true`, and the owner confirmed the genuine battle was visible without manually loading a replay. |
 | Replay creation | **verified locally** | Direct, MCP, Kiro, and smoke paths created contained non-empty `.battle.gz` recordings when requested. |
 | Replay playback | **verified manually** | The official Tank Royale GUI 1.0.2 loaded and played the exact Stage 3 Kiro-triggered recording. |
 | Demo recording | **not verified** | No final demo video has been recorded or reviewed. |
@@ -90,7 +90,7 @@ Built Kiro Royale: a custom Java MCP server that lets Kiro inspect editable Robo
 
 ## Demonstrated limitations
 
-The submission is the synchronous four-tool MVP only. It supports exactly two fixed reviewed Bots, 1–5 rounds, one active battle, loopback-only local execution, and official-GUI replay as the demonstrated visual path. It does not claim a live viewer, async jobs, remote Bot import, arbitrary execution, sandboxing, a custom viewer, tournaments, leaderboards, persistence, or deterministic winners/scores.
+The submission is the synchronous four-tool MVP only. It supports exactly two fixed reviewed Bots, 1–5 rounds, one active battle, loopback-only local execution, automatic opt-in viewing through the trusted hosted passive viewer, and official-GUI replay as a fallback. It does not claim async jobs, remote Bot import, arbitrary execution, sandboxing, a custom viewer, tournaments, leaderboards, persistence, or deterministic winners/scores.
 
 ## Attribution and license status
 

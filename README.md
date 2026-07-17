@@ -14,9 +14,11 @@ The locally demonstrated path is:
 4. Kiro Royale starts the official Tank Royale server on loopback and launches both real Bot processes.
 5. The official Battle Runner completes the match and returns genuine score components.
 6. Kiro Royale verifies a contained `.battle.gz` recording and cleans up owned processes.
-7. The same Kiro-triggered recording is loaded and played in the official Tank Royale GUI.
+7. With `showBattle: true`, Kiro Royale opens the trusted passive web viewer, gives it a bounded
+   pre-battle connection window, and reports whether a loopback client was observed. A recording
+   remains available as fallback.
 
-The installed-Kiro and official-GUI replay flow was exercised successfully. Passive hosted live-viewer observation was **not verified**; replay is the demonstrated visual-proof path. See [`STATUS.md`](STATUS.md) for commands, exit codes, observed scores, and evidence boundaries.
+The installed-Kiro and official-GUI replay flow was exercised successfully. Automatic passive-viewer launch is implemented and unit-tested, and the owner visibly observed the automatically opened Firefox viewer display a genuine `showBattle: true` battle. Replay remains the fallback visual-proof path. See [`STATUS.md`](STATUS.md) for commands, exit codes, observed scores, and evidence boundaries.
 
 ## Architecture
 
@@ -33,7 +35,7 @@ Kiro Royale Java application
         |
         v
 Official Battle Runner 1.0.2
-  +-- official server bound to 127.0.0.1
+  +-- official server bound to IPv4 or IPv6 loopback
   +-- real kiro-bot process
   +-- real sample-opponent process
   +-- official completion results
@@ -174,11 +176,28 @@ Input:
 {
   "botIds": ["kiro-bot", "sample-opponent"],
   "rounds": 1,
-  "record": true
+  "record": true,
+  "showBattle": true
 }
 ```
 
 Exactly two distinct registered Bot IDs are required. `rounds` is an integer from 1 through 5; omitted `rounds` defaults to `1`. Omitted `record` defaults to `true`. Successful responses include a concise summary and structured genuine results. Failures are sanitized and contain no fabricated score or recording claim.
+
+`showBattle` defaults to `false` so headless and automated runs do not open windows. When it is
+`true`, Kiro Royale keeps the viewer on its documented default `ws://localhost:7654`, binds the
+fixed listener to IPv6 loopback because the exercised Firefox host resolves `localhost` to `::1`
+first, gives the Java Battle Runner the unambiguous equivalent `ws://[::1]:7654`, and opens
+the fixed trusted URL `https://jandurovec.github.io/tank-royale-viewer/`, and gives the browser a
+10-second pre-battle connection window. Success adds `viewerRequested: true` and reports
+`viewerConnected` as the kernel-level observation state. A successful URL launch is not falsely
+described as a verified connection: if Firefox connects slightly later, the battle still proceeds
+and can be displayed. If the browser cannot open or port 7654 is busy, the call fails before the
+battle with a sanitized error.
+
+Firefox WebSockets can leave fixed port 7654 temporarily in `TIME_WAIT` after a visible battle.
+An immediate viewer-enabled retry therefore waits up to 65 seconds for the IPv6 loopback port to
+become reusable instead of failing spuriously; the battle then starts normally within the existing
+finite MCP deadline.
 
 ## Visual verification
 
@@ -192,9 +211,29 @@ Exactly two distinct registered Bot IDs are required. `rounds` is an integer fro
 
 Stage 3 used this flow successfully with the exact Kiro-triggered recording. File existence alone is not replay proof.
 
-### Passive hosted viewer — not verified
+### Automatic passive hosted viewer
 
-The intended live alternative is the third-party [Tank Royale Viewer](https://github.com/jandurovec/tank-royale-viewer), connected only to an actual loopback WebSocket URL reported by Kiro Royale. This repository does not bundle, control, or automatically open that viewer. No passive live-viewer observation is claimed; use the demonstrated replay fallback for reproducible visual proof.
+Call `run_battle` with `showBattle: true` from a graphical Linux desktop. Kiro Royale opens the
+third-party [Tank Royale Viewer](https://github.com/jandurovec/tank-royale-viewer), waits briefly
+for a client on the fixed loopback endpoint, reports whether one was observed, and then starts the
+battle. The viewer is passive and cannot control the battle. If you previously changed its saved
+Server URL, open its gear menu once and reset it to `ws://localhost:7654`.
+
+The same production path can be checked outside Kiro with:
+
+```sh
+./gradlew viewerBattle
+```
+
+To verify the entire official MCP stdio path with automatic viewing enabled:
+
+```sh
+./gradlew mcpViewerProof
+```
+
+The automatic launch contract is covered by focused tests. On 2026-07-17 the owner confirmed that
+the automatically opened Firefox viewer visibly displayed the genuine battle. Use the demonstrated
+official-GUI replay fallback if the live path is unavailable.
 
 ## Tests and release preflight
 
@@ -235,7 +274,14 @@ Do not replace bundled Bots with downloaded or unreviewed executables. Do not ex
 - **Bot validation reports missing compiled classes/runtime** — run `./gradlew clean build` from the repository root.
 - **Kiro does not reconnect after a build** — use Kiro's MCP reconnect control after `./gradlew installDist`; do not add arguments or an absolute path to `mcp.json`.
 - **Battle already active** — wait for the synchronous call and cleanup to finish; requests are not queued.
-- **No live viewer image** — passive live viewing is not verified. Keep recording enabled and use the same-battle official-GUI replay flow.
+- **`VIEWER_UNAVAILABLE`** — ensure `/usr/bin/xdg-open` and a graphical X11/Wayland session are available, close anything using local port 7654, and reset the viewer's saved Server URL to `ws://localhost:7654`. Viewer-enabled battles bind `[::1]:7654` to match this host's IPv6-first `localhost`; headless battles retain dynamic IPv4 loopback ports. Keep recording enabled and use the same-battle official-GUI replay flow when running headlessly.
+- **A repeat viewer battle pauses on “Connecting”** — allow the same MCP call to continue. The
+  application waits up to 65 seconds for the previous Firefox WebSocket's fixed port to leave
+  `TIME_WAIT`; do not repeatedly cancel and retry the request.
+- **Viewer works from a terminal but Kiro returns `VIEWER_UNAVAILABLE`** — reconnect the MCP server
+  after updating this repository. Kiro supplies MCP children a reduced environment; the fixed
+  launcher restores only validated desktop-session variables from its direct Kiro parent so
+  `/usr/bin/xdg-open` can reach the same graphical session.
 - **Recording not found after `clean`** — runtime recordings are generated and ignored; a later clean or manual runtime cleanup may remove prior evidence. Run a new recorded battle.
 - **SLF4J no-provider warning** — the exercised SDK emits this warning on stderr. It is non-fatal and does not contaminate MCP stdout.
 
@@ -243,7 +289,7 @@ Do not replace bundled Bots with downloaded or unreviewed executables. Do not ex
 
 - Exactly four synchronous MCP tools, two fixed bundled Bots, 1–5 rounds, and one active battle.
 - Linux socket activation is the only verified safe server-start path.
-- Passive live-viewer compatibility is not verified; official-GUI replay is the demonstrated visual path.
+- Automatic passive viewing is verified on the exercised Firefox/Linux desktop; other browsers, headless hosts, Windows, and macOS are not verified. Official-GUI replay remains the fallback.
 - Genuine production timeout/abort/startup/recording-failure/forced-kill branches and live-battle JVM shutdown races are not integration-verified.
 - Optional jqwik Properties 1–16 were not implemented; focused examples and contract tests cover the mandatory Stage 4 gate.
 - No remote Bot import, shell execution, custom viewer, async jobs, tournament, leaderboard, database, telemetry, browser automation, or sandboxing claim.

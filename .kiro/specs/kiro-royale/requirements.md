@@ -133,13 +133,18 @@ This document separates product behavior, repository and process gates, and manu
 9. WHEN `run_battle` receives a valid request, THE Kiro_Royale_Server SHALL require exactly two distinct registered Bot IDs.
 10. WHEN `run_battle` receives a valid request, THE Kiro_Royale_Server SHALL accept an integer round count from 1 through 5 inclusive.
 11. BEFORE `run_battle` starts a battle, THE Kiro_Royale_Server SHALL validate both selected Bundled Bots.
-12. THE `run_battle` input schema SHALL accept only `botIds`, `rounds`, and `record` and SHALL reject additional properties.
+12. THE `run_battle` input schema SHALL accept only `botIds`, `rounds`, `record`, and `showBattle` and SHALL reject additional properties.
 13. IF `run_battle` receives duplicate Bot IDs, fewer or more than two Bot IDs, a non-integer round count, or a round count outside 1 through 5, THEN THE Kiro_Royale_Server SHALL return a Sanitized_Failure without starting a battle.
 14. WHEN `run_battle` completes successfully, THE Kiro_Royale_Server SHALL return Genuine Results ordered by rank.
 15. WHEN `run_battle` completes successfully, THE Kiro_Royale_Server SHALL include rank, name, version, total score, survival score, bullet damage, ram damage, first places, and rounds played for each Genuine_Result.
 16. WHERE battle recording is enabled, WHEN `run_battle` creates a Battle_Recording, THE Kiro_Royale_Server SHALL return the repository-relative recording path.
 17. WHILE a battle is executing, THE Kiro_Royale_Server SHALL report that one battle is active.
 18. IF a second battle request arrives while a battle is executing, THEN THE Kiro_Royale_Server SHALL return a Sanitized_Failure.
+19. WHEN `run_battle` omits `showBattle`, THE Kiro_Royale_Server SHALL NOT open a viewer and SHALL preserve headless execution.
+20. WHEN `run_battle` sets `showBattle` to true, THE Kiro_Royale_Server SHALL open only the configured trusted Passive_Viewer URL and SHALL use its application-owned loopback endpoint.
+21. WHEN `showBattle` is true, THE Kiro_Royale_Server SHALL give the viewer a finite application-owned pre-battle connection window and SHALL record whether an established loopback client was mechanically observed.
+22. IF the trusted viewer cannot be opened, THEN THE Kiro_Royale_Server SHALL return a Sanitized_Failure without starting a battle; absence of a kernel-level connection observation SHALL NOT fabricate failure when the browser launch succeeded and a late connection can still display the battle.
+23. WHEN a viewer-enabled battle completes successfully, THE Kiro_Royale_Server SHALL report separately whether viewing was requested and whether a pre-battle connection was mechanically observed.
 
 ### Requirement 6: Enforce filesystem, network, and process safety
 

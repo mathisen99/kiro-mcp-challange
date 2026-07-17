@@ -15,13 +15,14 @@ public final class KiroRoyaleApplication {
     private KiroRoyaleApplication() {}
 
     public static void main(String[] args) {
-        if (List.of(args).equals(List.of("direct-battle", "--record"))) {
+        if (List.of(args).equals(List.of("direct-battle", "--record"))
+                || List.of(args).equals(List.of("direct-battle", "--record", "--show-battle"))) {
             int exit = DirectBattleDiagnostic.run(args);
             if (exit != 0) System.exit(exit);
             return;
         }
         if (!List.of(args).equals(List.of("mcp-stdio"))) {
-            System.err.println("Usage: kiro-royale mcp-stdio | direct-battle --record");
+            System.err.println("Usage: kiro-royale mcp-stdio | direct-battle --record [--show-battle]");
             System.exit(64);
             return;
         }

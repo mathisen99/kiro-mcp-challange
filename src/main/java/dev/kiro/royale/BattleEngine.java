@@ -7,6 +7,6 @@ import static dev.kiro.royale.Models.*;
 /** Internal application port implemented by the official Battle Runner boundary. */
 public interface BattleEngine extends AutoCloseable {
     Optional<String> readyEndpoint();
-    EngineExecution run(List<ValidatedBot> bots, int rounds, boolean record) throws Exception;
+    EngineExecution run(List<ValidatedBot> bots, int rounds, boolean record, boolean showBattle) throws Exception;
     @Override void close();
 }

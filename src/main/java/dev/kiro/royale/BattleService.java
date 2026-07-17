@@ -50,7 +50,7 @@ public final class BattleService implements AutoCloseable {
             } catch (IllegalStateException exception) {
                 return failure("BOT_INVALID", "A selected bundled bot failed prerequisite validation");
             }
-            EngineExecution execution = engine.run(bots, request.rounds(), request.record());
+            EngineExecution execution = engine.run(bots, request.rounds(), request.record(), request.showBattle());
             List<BattleResult> results;
             try {
                 results = resultMapper.map(execution.completion(), bots);
@@ -66,16 +66,30 @@ public final class BattleService implements AutoCloseable {
             }
             return new BattleSuccess(execution.completion().roundsPlayed(), results, execution.recordingPath(),
                     execution.websocketUrl(), execution.completion().provenance(), execution.processes(),
-                    execution.cleanupComplete(), execution.diagnostics());
+                    execution.cleanupComplete(), execution.diagnostics(), request.showBattle(),
+                    execution.viewerConnected());
         } catch (TimeoutException exception) {
             return failure("BATTLE_TIMEOUT", "The official battle exceeded its finite deadline");
         } catch (BattleEngineException exception) {
+            logSafeFailureFingerprint(exception);
             return failure(exception.safeCode(), exception.safeMessage());
         } catch (RuntimeException exception) {
+            logSafeFailureFingerprint(exception);
             return failure("INTERNAL_ERROR", "The battle could not complete; inspect local diagnostics");
         } catch (Exception exception) {
+            logSafeFailureFingerprint(exception);
             return failure("BATTLE_ABORTED", "The official battle did not complete successfully");
         }
+    }
+
+    private static void logSafeFailureFingerprint(Exception exception) {
+        StackTraceElement origin = exception.getStackTrace().length == 0 ? null : exception.getStackTrace()[0];
+        String location = origin == null ? "unknown" : origin.getClassName() + "." + origin.getMethodName()
+                + ":" + origin.getLineNumber();
+        Throwable cause = exception.getCause();
+        String causeType = cause == null ? "none" : cause.getClass().getName();
+        System.err.println("Battle failure fingerprint: type=" + exception.getClass().getName()
+                + " origin=" + location + " causeType=" + causeType);
     }
 
     private static BattleFailure failure(String code, String message) {

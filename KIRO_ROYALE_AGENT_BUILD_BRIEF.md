@@ -241,6 +241,7 @@ Inputs:
 - exactly two registered bot IDs for the MVP;
 - rounds, default 1, minimum 1, maximum 5;
 - record, default true.
+- showBattle, default false; when true, open only the configured trusted passive viewer and verify its loopback connection before starting Bots.
 
 Behavior:
 

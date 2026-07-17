@@ -13,8 +13,9 @@ public final class DirectBattleDiagnostic {
     }
 
     static int run(String[] args) {
-        if (!List.of(args).equals(List.of("direct-battle", "--record"))) {
-            System.err.println("Usage: direct-battle --record");
+        boolean showBattle = List.of(args).equals(List.of("direct-battle", "--record", "--show-battle"));
+        if (!showBattle && !List.of(args).equals(List.of("direct-battle", "--record"))) {
+            System.err.println("Usage: direct-battle --record [--show-battle]");
             return 64;
         }
         try {
@@ -25,7 +26,8 @@ public final class DirectBattleDiagnostic {
                     System.out.printf("BOT_VALIDATION: id=%s name=%s version=%s status=%s source=%s%n",
                             bot.id().value(), bot.name(), bot.version(), bot.validationStatus(), bot.sourceLabel());
                 }
-                var request = new BattleRequest(List.of(new BotId("kiro-bot"), new BotId("sample-opponent")), 1, true);
+                var request = new BattleRequest(List.of(new BotId("kiro-bot"), new BotId("sample-opponent")),
+                        1, true, showBattle);
                 BattleOutcome outcome = service.run(request);
                 if (outcome instanceof BattleFailure failure) {
                     System.err.printf("DIRECT_BATTLE_FAILED: code=%s message=%s%n", failure.code(), failure.message());
@@ -47,6 +49,8 @@ public final class DirectBattleDiagnostic {
                 }
                 System.out.println("RECORDING: " + success.recordingPath().orElse("none"));
                 System.out.println("CLEANUP_COMPLETE: " + success.cleanupComplete());
+                System.out.println("VIEWER_REQUESTED: " + success.viewerRequested());
+                System.out.println("VIEWER_CONNECTED: " + success.viewerConnected());
                 System.out.println("DIRECT_BATTLE_OK");
                 return 0;
             }

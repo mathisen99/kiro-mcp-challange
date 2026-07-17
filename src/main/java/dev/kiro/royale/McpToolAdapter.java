@@ -37,7 +37,7 @@ public final class McpToolAdapter {
                         emptyObjectSchema(), true, this::listBots),
                 specification("inspect_bot", "Inspect one registered bot by stable ID",
                         inspectSchema(), true, this::inspectBot),
-                specification("run_battle", "Synchronously run two registered bots through the official Battle Runner",
+                specification("run_battle", "Synchronously run two registered bots, optionally opening a verified live viewer before battle",
                         battleSchema(), false, this::runBattle));
     }
 
@@ -81,7 +81,8 @@ public final class McpToolAdapter {
         data.put("botCount", battleService.registry().list().size());
         data.put("battleActive", battleService.battleActive());
         data.put("websocketUrl", battleService.readyWebsocketUrl().orElse(null));
-        data.put("viewerInstructions", "Connect a passive viewer only when websocketUrl is non-null; otherwise use the verified recording fallback.");
+        data.put("viewerUrl", LiveViewerLauncher.VIEWER_URL);
+        data.put("viewerInstructions", "Set showBattle=true to open the trusted passive viewer on ws://localhost:7654 before the battle; use the recording fallback if desktop viewing is unavailable.");
         data.put("recordingDirectory", "runtime/recordings");
         data.put("blockingPrerequisites", List.copyOf(blockers));
         return success("Arena status: " + (blockers.isEmpty() ? "ready" : "blocked"), data);
@@ -117,8 +118,8 @@ public final class McpToolAdapter {
 
     private CallToolResult runBattle(CallToolRequest request) {
         Map<String, Object> arguments = arguments(request);
-        if (!Set.of("botIds", "rounds", "record").containsAll(arguments.keySet())) {
-            return failure("INVALID_REQUEST", "Only botIds, rounds, and record are accepted", false);
+        if (!Set.of("botIds", "rounds", "record", "showBattle").containsAll(arguments.keySet())) {
+            return failure("INVALID_REQUEST", "Only botIds, rounds, record, and showBattle are accepted", false);
         }
         Object rawBotIds = arguments.get("botIds");
         if (!(rawBotIds instanceof List<?> values) || values.size() != 2
@@ -148,8 +149,15 @@ public final class McpToolAdapter {
             }
             record = requested;
         }
+        boolean showBattle = false;
+        if (arguments.containsKey("showBattle")) {
+            if (!(arguments.get("showBattle") instanceof Boolean requested)) {
+                return failure("INVALID_REQUEST", "showBattle must be a Boolean", false);
+            }
+            showBattle = requested;
+        }
         BattleOutcome outcome = battleService.run(new BattleRequest(
-                ids.stream().map(BotId::new).toList(), rounds, record));
+                ids.stream().map(BotId::new).toList(), rounds, record, showBattle));
         if (outcome instanceof BattleFailure failed) {
             return failure(failed.code(), failed.message(), "BATTLE_ACTIVE".equals(failed.code()));
         }
@@ -177,6 +185,8 @@ public final class McpToolAdapter {
         data.put("websocketUrl", completed.websocketUrl());
         data.put("provenance", completed.provenance().name());
         data.put("cleanupComplete", completed.cleanupComplete());
+        data.put("viewerRequested", completed.viewerRequested());
+        data.put("viewerConnected", completed.viewerConnected());
         data.put("processes", processes);
         return success(battleSummary(completed), data);
     }
@@ -190,6 +200,8 @@ public final class McpToolAdapter {
                 .append("websocketUrl=").append(completed.websocketUrl()).append('\n')
                 .append("recordingPath=").append(completed.recordingPath().orElse("none")).append('\n')
                 .append("cleanupComplete=").append(completed.cleanupComplete()).append('\n')
+                .append("viewerRequested=").append(completed.viewerRequested()).append('\n')
+                .append("viewerConnected=").append(completed.viewerConnected()).append('\n')
                 .append("results:");
         for (BattleResult result : completed.results()) {
             summary.append("\n#").append(result.rank()).append(' ')
@@ -253,7 +265,10 @@ public final class McpToolAdapter {
         return objectSchema(Map.of(
                 "botIds", botIds,
                 "rounds", Map.of("type", "integer", "minimum", 1, "maximum", 5, "default", 1),
-                "record", Map.of("type", "boolean", "default", true)), List.of("botIds"));
+                "record", Map.of("type", "boolean", "default", true),
+                "showBattle", Map.of("type", "boolean", "default", false,
+                        "description", "Open the trusted passive web viewer and verify it connects before starting")),
+                List.of("botIds"));
     }
 
     private static Map<String, Object> objectSchema(Map<String, Object> properties, List<String> required) {

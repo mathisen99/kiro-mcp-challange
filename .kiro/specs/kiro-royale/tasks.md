@@ -134,12 +134,12 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
 
   - [ ]* 8.3 Write the jqwik test for Property 1, omitted battle option defaults
     - Create a dedicated property class with at least 100 tries and tag/comment `Feature: kiro-royale, Property 1: Omitted battle options normalize to safe defaults`.
-    - Generate valid two-Bot requests with omitted/present options and verify defaults and preserved valid values.
+    - Generate valid two-Bot requests with omitted/present options and verify the `rounds = 1`, `record = true`, and `showBattle = false` defaults plus preserved valid values.
     - **Property 1: Omitted battle options normalize to safe defaults**
     - **Validates: Requirements 5.5, 5.6, 5.7, 5.8**
 
   - [ ]* 8.4 Write the jqwik test for Property 2, strict launchable request domain
-    - Create a dedicated property class with at least 100 tries and the exact Property 2 tag/comment; generate arbitrary JSON-compatible shapes, types, IDs, bounds, and extra keys.
+    - Create a dedicated property class with at least 100 tries and the exact Property 2 tag/comment; generate arbitrary JSON-compatible shapes, types, IDs, bounds, Boolean `record`/`showBattle` options, and extra keys.
     - Assert that only the strict domain invokes the fake engine and every other value returns sanitized failure with zero invocations.
     - **Property 2: Only the strict battle request domain can launch an engine**
     - **Validates: Requirements 5.9, 5.10, 5.12, 5.13, 6.5, 6.6, 9.3, 9.4**

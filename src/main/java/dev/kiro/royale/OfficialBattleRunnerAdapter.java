@@ -6,6 +6,7 @@ import dev.robocode.tankroyale.runner.BattleSetup;
 import dev.robocode.tankroyale.runner.BotEntry;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +34,7 @@ public final class OfficialBattleRunnerAdapter implements BattleEngine {
     private final Duration botConnectTimeout;
     private final Duration wallClockTimeout;
     private final Duration cleanupGrace;
+    private final LiveViewerLauncher viewerLauncher;
     private final AtomicReference<Session> activeSession = new AtomicReference<>();
     private final AtomicReference<String> readyEndpoint = new AtomicReference<>();
 
@@ -42,16 +44,17 @@ public final class OfficialBattleRunnerAdapter implements BattleEngine {
         this.botConnectTimeout = requireFinitePositive(botConnectTimeout, "bot connect timeout");
         this.wallClockTimeout = requireFinitePositive(wallClockTimeout, "battle wall-clock timeout");
         this.cleanupGrace = requireFinitePositive(cleanupGrace, "cleanup grace period");
+        this.viewerLauncher = new LiveViewerLauncher();
     }
 
     public Optional<String> readyEndpoint() {
         return Optional.ofNullable(readyEndpoint.get());
     }
 
-    public EngineExecution run(List<ValidatedBot> bots, int rounds, boolean record) throws Exception {
+    public EngineExecution run(List<ValidatedBot> bots, int rounds, boolean record, boolean showBattle) throws Exception {
         if (bots.size() != 2) throw new IllegalArgumentException("Exactly two validated bots are required");
         var diagnostics = new BoundedDiagnostics(40, 4096, configuredDiagnosticSecrets());
-        var session = new Session(bots, rounds, record, diagnostics);
+        var session = new Session(bots, rounds, record, showBattle, diagnostics);
         if (!activeSession.compareAndSet(null, session)) throw new IllegalStateException("A battle is already active");
         ExecutorService worker = Executors.newSingleThreadExecutor(r -> {
             Thread thread = new Thread(r, "official-battle-runner");
@@ -88,6 +91,7 @@ public final class OfficialBattleRunnerAdapter implements BattleEngine {
         private final List<ValidatedBot> bots;
         private final int rounds;
         private final boolean record;
+        private final boolean showBattle;
         private final BoundedDiagnostics diagnostics;
         private final AtomicReference<BattleRunner> runnerRef = new AtomicReference<>();
         private final AtomicReference<BattleHandle> handleRef = new AtomicReference<>();
@@ -97,10 +101,12 @@ public final class OfficialBattleRunnerAdapter implements BattleEngine {
         private final ConcurrentHashMap<Long, String> ownedCommands = new ConcurrentHashMap<>();
         private volatile int port;
 
-        private Session(List<ValidatedBot> bots, int rounds, boolean record, BoundedDiagnostics diagnostics) {
+        private Session(List<ValidatedBot> bots, int rounds, boolean record, boolean showBattle,
+                        BoundedDiagnostics diagnostics) {
             this.bots = List.copyOf(bots);
             this.rounds = rounds;
             this.record = record;
+            this.showBattle = showBattle;
             this.diagnostics = diagnostics;
         }
 
@@ -111,8 +117,9 @@ public final class OfficialBattleRunnerAdapter implements BattleEngine {
             String endpoint;
             String listenerBinding;
             try {
-                port = reserveLoopbackPort();
-                endpoint = "ws://127.0.0.1:" + port;
+                port = showBattle ? LiveViewerLauncher.VIEWER_PORT : reserveLoopbackPort();
+                if (showBattle) awaitViewerPortReusable(Duration.ofSeconds(65));
+                endpoint = showBattle ? "ws://[::1]:" + port : "ws://127.0.0.1:" + port;
                 Process serverProcess = startLoopbackOfficialServer(port);
                 serverProcessRef.set(serverProcess);
                 registerOwned(serverProcess.toHandle(), String.join(" ", loopbackServerCommand(port)));
@@ -125,6 +132,15 @@ public final class OfficialBattleRunnerAdapter implements BattleEngine {
             diagnostics.add("listenerBinding=" + listenerBinding);
             diagnostics.add("botConnectTimeout=" + botConnectTimeout.toSeconds() + "s");
             diagnostics.add("wallClockTimeout=" + wallClockTimeout.toSeconds() + "s");
+
+            boolean viewerConnected = false;
+            if (showBattle) {
+                try {
+                    viewerConnected = viewerLauncher.launchAndAwaitConnection(Duration.ofSeconds(10), diagnostics);
+                } catch (Exception exception) {
+                    throw new BattleEngineException(BattleEngineException.Kind.VIEWER_UNAVAILABLE, exception);
+                }
+            }
 
             BattleRunner runner = BattleRunner.create(builder -> {
                 builder.externalServer(endpoint);
@@ -169,7 +185,8 @@ public final class OfficialBattleRunnerAdapter implements BattleEngine {
                 }
                 cleanup();
                 return new EngineExecution(completion, endpoint, recordingPath, processEvidence(),
-                        ownedProcesses.stream().noneMatch(ProcessHandle::isAlive), diagnostics.snapshot());
+                        ownedProcesses.stream().noneMatch(ProcessHandle::isAlive), diagnostics.snapshot(),
+                        viewerConnected);
             } finally {
                 try {
                     var handle = handleRef.get();
@@ -282,7 +299,8 @@ public final class OfficialBattleRunnerAdapter implements BattleEngine {
                 throw new IllegalStateException("Loopback socket activation is unavailable on this host");
             }
             Path java = Path.of(System.getProperty("java.home"), "bin", "java");
-            return List.of(socketActivator.toString(), "--listen=127.0.0.1:" + serverPort,
+            String listenAddress = showBattle ? "[::1]" : "127.0.0.1";
+            return List.of(socketActivator.toString(), "--listen=" + listenAddress + ":" + serverPort,
                     "--inetd", "--now", java.toString(), "-jar",
                     paths.runtimeRoot().resolve("official-server/1.0.2/robocode-tankroyale-server.jar").toString(),
                     "--port", "inherit");
@@ -300,6 +318,24 @@ public final class OfficialBattleRunnerAdapter implements BattleEngine {
                 Thread.sleep(25);
             }
             throw new IllegalStateException("Official loopback listener was not ready within 10 seconds");
+        }
+
+        private void awaitViewerPortReusable(Duration timeout) throws Exception {
+            long deadline = System.nanoTime() + timeout.toNanos();
+            boolean waited = false;
+            while (System.nanoTime() < deadline) {
+                try (var socket = new ServerSocket()) {
+                    socket.setReuseAddress(false);
+                    socket.bind(new InetSocketAddress(InetAddress.getByName("::1"),
+                            LiveViewerLauncher.VIEWER_PORT), 1);
+                    if (waited) diagnostics.add("fixed viewer port became reusable after prior connection cleanup");
+                    return;
+                } catch (IOException unavailable) {
+                    waited = true;
+                    Thread.sleep(100);
+                }
+            }
+            throw new IllegalStateException("Fixed viewer port did not become reusable within the finite deadline");
         }
     }
 

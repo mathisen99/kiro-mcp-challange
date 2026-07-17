@@ -91,6 +91,16 @@ tasks.register('directBattle', JavaExec) {
     systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
 }
 
+tasks.register('viewerBattle', JavaExec) {
+    group = 'verification'
+    description = 'Opens the trusted passive viewer, verifies its loopback connection, then runs one genuine battle.'
+    dependsOn 'build'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'dev.kiro.royale.DirectBattleDiagnostic'
+    args 'direct-battle', '--record', '--show-battle'
+    systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
+}
+
 tasks.named('test') {
     dependsOn 'buildBundledBots', 'installDist'
     systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
@@ -127,6 +137,16 @@ tasks.register('mcpProof', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'dev.kiro.royale.Stage2McpProof'
     workingDir = layout.projectDirectory.asFile
+    systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
+}
+
+tasks.register('mcpViewerProof', JavaExec) {
+    group = 'verification'
+    description = 'Runs the official MCP client with showBattle=true and one genuine visible battle.'
+    dependsOn 'installDist'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'dev.kiro.royale.Stage2McpProof'
+    args '--show-battle'
     systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
 }
 

@@ -23,7 +23,10 @@ public final class Stage2McpProof {
     private Stage2McpProof() {}
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 0) throw new IllegalArgumentException("The Stage 2 proof accepts no arguments");
+        boolean showBattle = List.of(args).equals(List.of("--show-battle"));
+        if (args.length != 0 && !showBattle) {
+            throw new IllegalArgumentException("The MCP proof accepts only optional --show-battle");
+        }
         long proofStarted = System.nanoTime();
         RepositoryPaths paths = RepositoryPaths.locate();
         var stderr = new BoundedDiagnostics(80);
@@ -77,8 +80,10 @@ public final class Stage2McpProof {
             System.out.println("MCP_INSPECT_BOT_OK: primaryEditableSource=" + inspected.get("primaryEditableSource"));
 
             long battleStarted = System.nanoTime();
-            Map<String, Object> battle = successful(client.callTool(call("run_battle", Map.of(
-                    "botIds", List.of("kiro-bot", "sample-opponent")))), "run_battle");
+            Map<String, Object> battleArguments = new LinkedHashMap<>();
+            battleArguments.put("botIds", List.of("kiro-bot", "sample-opponent"));
+            if (showBattle) battleArguments.put("showBattle", true);
+            Map<String, Object> battle = successful(client.callTool(call("run_battle", battleArguments)), "run_battle");
             long battleMillis = Duration.ofNanos(System.nanoTime() - battleStarted).toMillis();
             require(Boolean.TRUE.equals(battle.get("success")), "Battle success flag was not true");
             require("OFFICIAL_BATTLE_RUNNER_COMPLETION".equals(string(battle, "provenance")), "Battle provenance was not official");
@@ -96,6 +101,12 @@ public final class Stage2McpProof {
             }
             require(identities.equals(Set.of("Kiro Bot\u00001.0", "Sample Opponent\u00001.0")), "Official result identities mismatch");
             require(Boolean.TRUE.equals(battle.get("cleanupComplete")), "Battle cleanup did not complete");
+            require(Boolean.valueOf(showBattle).equals(battle.get("viewerRequested")),
+                    "Battle did not report the requested viewer state");
+            require(battle.get("viewerConnected") instanceof Boolean,
+                    "Battle did not report the viewer connection observation state");
+            if (!showBattle) require(Boolean.FALSE.equals(battle.get("viewerConnected")),
+                    "Headless battle incorrectly reported a viewer connection");
             for (Map<String, Object> process : maps(battle.get("processes"), "processes")) {
                 require(Boolean.FALSE.equals(process.get("aliveAfterCleanup")), "An owned battle process survived cleanup");
             }
@@ -112,6 +123,8 @@ public final class Stage2McpProof {
             }
             System.out.println("MCP_RECORDING_OK: path=" + recordingPath + " bytes=" + Files.size(recording));
             System.out.println("MCP_CLEANUP_OK: ownedProcesses=" + maps(battle.get("processes"), "processes").size());
+            System.out.println("MCP_VIEWER_OK: requested=" + battle.get("viewerRequested")
+                    + " connected=" + battle.get("viewerConnected"));
             System.out.println("MCP_PROTOCOL_STDOUT_VALID: official client parsed handshake, discovery, and four tool responses");
         }
         long proofMillis = Duration.ofNanos(System.nanoTime() - proofStarted).toMillis();
@@ -128,7 +141,8 @@ public final class Stage2McpProof {
     }
 
     private static Map<String, Object> successful(CallToolResult result, String tool) {
-        require(result != null && !Boolean.TRUE.equals(result.isError()), tool + " returned an MCP tool error");
+        require(result != null && !Boolean.TRUE.equals(result.isError()), tool + " returned an MCP tool error: "
+                + (result == null ? "null result" : result.structuredContent()));
         boolean hasSummary = result.content() != null && result.content().stream()
                 .filter(TextContent.class::isInstance).map(TextContent.class::cast)
                 .anyMatch(content -> content.text() != null && !content.text().isBlank());

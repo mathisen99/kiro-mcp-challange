@@ -82,6 +82,7 @@ class Stage4FocusedUnitTest {
             var tools = adapter.specifications();
             assertError(call(tools.get(3), "run_battle", Map.of("botIds", List.of("kiro-bot", "kiro-bot"))));
             assertError(call(tools.get(3), "run_battle", Map.of("botIds", ids(), "rounds", 1.5)));
+            assertError(call(tools.get(3), "run_battle", Map.of("botIds", ids(), "showBattle", "yes")));
             assertError(call(tools.get(3), "run_battle", Map.of("botIds", ids(), "command", "sh")));
             assertError(call(tools.get(3), "run_battle", Map.of("botIds", ids(), "host", "0.0.0.0")));
             assertError(call(tools.get(0), "get_arena_status", Map.of("extra", true)));
@@ -142,6 +143,26 @@ class Stage4FocusedUnitTest {
     }
 
     @Test
+    void explicitShowBattleIsPropagatedAndReportedWithoutChangingTheDefault() throws Exception {
+        FakeEngine engine = new FakeEngine();
+        try (BattleService service = service(RepositoryPaths.locate(), engine)) {
+            var battleTool = new McpToolAdapter(RepositoryPaths.locate(), service).specifications().get(3);
+            CallToolResult defaultResult = call(battleTool, "run_battle",
+                    Map.of("botIds", ids(), "record", false));
+            CallToolResult viewerResult = call(battleTool, "run_battle",
+                    Map.of("botIds", ids(), "record", false, "showBattle", true));
+
+            assertFalse(Boolean.TRUE.equals(defaultResult.isError()));
+            assertFalse(Boolean.TRUE.equals(viewerResult.isError()));
+            assertEquals(List.of(false, true), engine.showBattleFlags);
+            assertEquals(false, asMap(defaultResult).get("viewerRequested"));
+            assertEquals(false, asMap(defaultResult).get("viewerConnected"));
+            assertEquals(true, asMap(viewerResult).get("viewerRequested"));
+            assertEquals(true, asMap(viewerResult).get("viewerConnected"));
+        }
+    }
+
+    @Test
     void finiteTimeoutsBoundedRedactedDiagnosticsAndModeStdoutArchitectureAreEnforced() throws Exception {
         RepositoryPaths paths = RepositoryPaths.locate();
         assertThrows(IllegalArgumentException.class, () -> new OfficialBattleRunnerAdapter(paths,
@@ -164,12 +185,17 @@ class Stage4FocusedUnitTest {
                 "src/main/java/dev/kiro/royale/DirectBattleDiagnostic.java"));
         String runner = Files.readString(paths.repositoryRoot().resolve(
                 "src/main/java/dev/kiro/royale/OfficialBattleRunnerAdapter.java"));
+        String launcher = Files.readString(paths.repositoryRoot().resolve("scripts/kiro-royale-mcp.sh"));
         assertFalse(mcpBootstrap.contains("System.out.print"));
         assertTrue(direct.contains("System.out.println"));
         assertTrue(runner.contains("new ProcessBuilder(command)"));
         assertFalse(runner.contains(".environment("));
-        assertTrue(runner.contains("--listen=127.0.0.1:"));
+        assertTrue(runner.contains("showBattle ? \"[::1]\" : \"127.0.0.1\""));
+        assertTrue(runner.contains("\"--listen=\" + listenAddress + \":\" + serverPort"));
         assertFalse(runner.contains("builder.embeddedServer"));
+        assertTrue(launcher.contains("/proc/$PPID/environ"));
+        assertFalse(launcher.contains("env >"));
+        assertFalse(launcher.contains("export $("));
     }
 
     private static BattleService service(RepositoryPaths paths, BattleEngine engine) {
@@ -203,16 +229,19 @@ class Stage4FocusedUnitTest {
         private final AtomicInteger closeCalls = new AtomicInteger();
         private final java.util.ArrayList<Integer> rounds = new java.util.ArrayList<>();
         private final java.util.ArrayList<Boolean> recordFlags = new java.util.ArrayList<>();
+        private final java.util.ArrayList<Boolean> showBattleFlags = new java.util.ArrayList<>();
         private BattleEngineException failure;
         private RuntimeException runtimeFailure;
         private boolean timeout;
 
         @Override public Optional<String> readyEndpoint() { return Optional.empty(); }
 
-        @Override public EngineExecution run(List<ValidatedBot> bots, int requestedRounds, boolean record) throws Exception {
+        @Override public EngineExecution run(List<ValidatedBot> bots, int requestedRounds, boolean record,
+                                             boolean showBattle) throws Exception {
             invocations.incrementAndGet();
             rounds.add(requestedRounds);
             recordFlags.add(record);
+            showBattleFlags.add(showBattle);
             if (timeout) throw new TimeoutException("hostile timeout detail");
             if (failure != null) throw failure;
             if (runtimeFailure != null) throw runtimeFailure;
@@ -221,7 +250,7 @@ class Stage4FocusedUnitTest {
             return new EngineExecution(new EngineCompletion(true, true, requestedRounds, results,
                     CompletionProvenance.OFFICIAL_BATTLE_RUNNER_COMPLETION), "ws://127.0.0.1:1",
                     record ? Optional.of("runtime/recordings/fake.battle.gz") : Optional.empty(),
-                    List.of(), true, List.of());
+                    List.of(), true, List.of(), showBattle);
         }
 
         private static EngineResult result(int rank, ValidatedBot bot) {

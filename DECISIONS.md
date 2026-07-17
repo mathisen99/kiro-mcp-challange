@@ -212,3 +212,53 @@ The launcher accepts no arguments and executes the installed distribution in fix
 - `./gradlew realSmoke` passed one dedicated integration test using production registry validation, the production official Battle Runner adapter, the official loopback server, and both real bundled Bot processes for exactly one round. It observed `OFFICIAL_BATTLE_RUNNER_COMPLETION`, ranks `1` and `2`, the configured names/versions, all required score fields, endpoint `ws://127.0.0.1:32943`, a `33,742`-byte recording, and complete cleanup of three owned processes.
 
 **Not verified:** optional Properties 1–16 (Tasks 8.3–8.18), genuine production timeout/abort/startup/recording-failure/forced-kill branches, a live-battle JVM-shutdown race, passive live-viewer compatibility, cross-platform socket activation and controlled-process commands, deterministic winners/scores, and all Stage 5 publication/demo/hygiene claims.
+
+## ADR-009 — Explicit automatic live-view launch after MVP completion
+
+**Decision:** retain exactly four MCP tools and extend the already approval-required synchronous
+`run_battle` request with optional Boolean `showBattle`, defaulting to `false`. When true, use the
+third-party viewer's documented/default `ws://localhost:7654` endpoint, open only its fixed HTTPS
+origin through `/usr/bin/xdg-open`, and give it a bounded pre-battle connection window. Record an
+established loopback client when mechanically observed, but do not convert an otherwise successful
+browser launch into a false failure when Firefox connects outside that observation window. Continue
+using a dynamic loopback port when the option is false.
+
+**Reason:** Tank Royale GUI 1.0.2 accepts only `-v`/`--version` startup arguments and exposes replay
+selection through its file chooser, so it has no supported automatic replay-file launch contract.
+The selected passive viewer is specifically built for live observation, auto-connects to
+`ws://localhost:7654`, and does not control battles. Connection verification avoids claiming that
+a successfully spawned browser process necessarily displayed the arena. The separate human visual
+observation remains the actual display proof. Explicit opt-in preserves
+headless MCP proof, tests, and smoke runs and makes the visible side effect part of the user's
+approved tool request.
+
+**Verified inputs:** the upstream viewer `main` tree at commit
+`479f020cdb4c33a55126eef63a2685f6aa725d21` defines the default URL in `src/settings.ts`; the local
+official GUI 1.0.2 manifest and `GuiAppKt` bytecode confirmed the unsupported replay-argument
+boundary. Focused automated verification and live human evidence are recorded separately in
+`STATUS.md`.
+
+**Installed-Kiro environment correction:** the installed Kiro process contained valid X11/Wayland,
+D-Bus, and runtime-directory variables, but its direct MCP child contained only `PATH` from that
+desktop set. The repository launcher now reads only `DISPLAY`, `WAYLAND_DISPLAY`,
+`DBUS_SESSION_BUS_ADDRESS`, `XDG_RUNTIME_DIR`, and `XDG_SESSION_TYPE` from its direct parent on the
+already Linux-specific `/proc` host. It validates display/socket/runtime shapes against the current
+UID before exporting them and never copies the full parent environment. This keeps desktop launch
+fixed and opt-in without accepting an MCP caller environment or committing machine-specific values.
+
+**Firefox endpoint correction:** installed-Kiro launch then opened Firefox, but the viewer remained
+on `Connecting` and `viewerConnected=false` while the genuine battle completed. `getent` showed
+this host resolves `localhost` to IPv6 `::1` before IPv4 `127.0.0.1`, whereas the fixed viewer
+battle listener was IPv4-only. `/usr/bin/systemd-socket-activate` successfully exercised
+`--listen=[::1]:7654`. Viewer-enabled sessions therefore use the viewer's exact
+`ws://localhost:7654` browser endpoint with an IPv6-loopback listener. The Java Battle Runner is
+given the unambiguous equivalent `ws://[::1]:7654` because its external-server validation did not
+receive a handshake when given the hostname. Default/headless sessions preserve the proven dynamic
+IPv4-loopback behavior. Both remain loopback-only.
+
+**Fixed-port reuse correction:** immediately repeating the now-working viewer battle exposed
+server-side `[::1]:7654` entries in Linux `TIME_WAIT`, and the next socket activator could not bind.
+Viewer-enabled sessions now perform an application-owned IPv6 bind probe with address reuse disabled
+and wait at most 65 seconds for the fixed port to become reusable before starting the official
+server. The existing 120-second battle wall clock and 150-second MCP request deadline remain finite;
+dynamic headless ports do not use this wait.

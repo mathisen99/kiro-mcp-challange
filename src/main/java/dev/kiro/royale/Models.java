@@ -26,7 +26,11 @@ public final class Models {
 
     public record ValidatedBot(BotDescriptor descriptor, Path canonicalDirectory, List<String> launchArguments) {}
 
-    public record BattleRequest(List<BotId> botIds, int rounds, boolean record) {}
+    public record BattleRequest(List<BotId> botIds, int rounds, boolean record, boolean showBattle) {
+        public BattleRequest(List<BotId> botIds, int rounds, boolean record) {
+            this(botIds, rounds, record, false);
+        }
+    }
 
     public enum CompletionProvenance { OFFICIAL_BATTLE_RUNNER_COMPLETION }
 
@@ -46,14 +50,28 @@ public final class Models {
 
     public record EngineExecution(
             EngineCompletion completion, String websocketUrl, Optional<String> recordingPath,
-            List<ProcessEvidence> processes, boolean cleanupComplete, List<String> diagnostics) {}
+            List<ProcessEvidence> processes, boolean cleanupComplete, List<String> diagnostics,
+            boolean viewerConnected) {
+        public EngineExecution(EngineCompletion completion, String websocketUrl, Optional<String> recordingPath,
+                               List<ProcessEvidence> processes, boolean cleanupComplete, List<String> diagnostics) {
+            this(completion, websocketUrl, recordingPath, processes, cleanupComplete, diagnostics, false);
+        }
+    }
 
     public sealed interface BattleOutcome permits BattleSuccess, BattleFailure {}
 
     public record BattleSuccess(
             int roundsPlayed, List<BattleResult> results, Optional<String> recordingPath,
             String websocketUrl, CompletionProvenance provenance, List<ProcessEvidence> processes,
-            boolean cleanupComplete, List<String> diagnostics) implements BattleOutcome {}
+            boolean cleanupComplete, List<String> diagnostics, boolean viewerRequested,
+            boolean viewerConnected) implements BattleOutcome {
+        public BattleSuccess(int roundsPlayed, List<BattleResult> results, Optional<String> recordingPath,
+                             String websocketUrl, CompletionProvenance provenance, List<ProcessEvidence> processes,
+                             boolean cleanupComplete, List<String> diagnostics) {
+            this(roundsPlayed, results, recordingPath, websocketUrl, provenance, processes,
+                    cleanupComplete, diagnostics, false, false);
+        }
+    }
 
     public record BattleFailure(String code, String message, List<String> diagnostics) implements BattleOutcome {}
 }
