@@ -7,7 +7,7 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
 ## Tasks
 
 - [ ] 1. Stage 0 — verify the environment, official APIs, dependencies, and build
-  - [ ] 1.1 Verify current official integration facts without implementing adapters
+  - [x] 1.1 Verify current official integration facts without implementing adapters
     - Run `java -version` and verify that the selected runtime and compiler are Java 21.
     - Check current official Tank Royale, Battle Runner, Java Bot API, MCP Java SDK stdio server, and jqwik sources; verify artifact coordinates, releases, required Java level, and the specific API capabilities identified as uncertain in the design.
     - Record source URLs and candidate facts for later evidence, but do not create `OfficialBattleRunnerAdapter`, `McpStdioAdapter`, Bot launch code, or assumed external signatures in this task.
@@ -20,7 +20,7 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
     - Ensure Wrapper scripts and JAR are version-controlled project files rather than downloaded runtime artifacts.
     - _Requirements: 1.5, 2.4, 2.6, 2.7, 2.8_
 
-  - [ ] 1.3 Record only verified Stage 0 decisions in `DECISIONS.md`
+  - [x] 1.3 Record only verified Stage 0 decisions in `DECISIONS.md`
     - Replace version-resolution TODOs with the exact Java, Gradle Wrapper, MCP Java SDK, Tank Royale, Battle Runner, Java Bot API, and jqwik versions that resolved, including commands, official sources, and verification date.
     - Record verified stdio construction/tool registration APIs, Battle Runner lifecycle/result/recording/process APIs, Bot configuration format, loopback/endpoint behavior, and any incompatibility affecting the one-JVM decision; leave unsupported facts explicitly unresolved rather than guessing.
     - _Requirements: 1.5, 2.2, 2.3, 2.4, 2.5_

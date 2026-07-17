@@ -34,3 +34,6 @@ server.properties
 *.iml
 .DS_Store
 Thumbs.db
+
+# Kiro local task execution/session metadata
+.kiro/specs/**/tasks.meta.json

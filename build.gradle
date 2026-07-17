@@ -1,0 +1,42 @@
+plugins {
+    id 'application'
+}
+
+group = 'dev.kiro.royale'
+version = '0.1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+dependencies {
+    implementation 'io.modelcontextprotocol.sdk:mcp:2.0.0'
+    implementation 'dev.robocode.tankroyale:robocode-tankroyale-runner:1.0.2'
+    implementation 'dev.robocode.tankroyale:robocode-tankroyale-bot-api:1.0.2'
+
+    testImplementation platform('org.junit:junit-bom:5.13.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'net.jqwik:jqwik:1.9.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'dev.kiro.royale.Stage0DependencyProbe'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+tasks.register('stage0Probe', JavaExec) {
+    group = 'verification'
+    description = 'Verifies Stage 0 dependency classes and documented API members without starting external services.'
+    classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+    mainClass = 'dev.kiro.royale.Stage0DependencyProbe'
+}
