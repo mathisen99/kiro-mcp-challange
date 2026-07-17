@@ -4,8 +4,9 @@ Kiro Royale is a planned custom MCP server that lets Kiro launch and analyze **r
 Robocode Tank Royale battles**.
 
 > **Current repository state:** implementation scaffold only. The documentation,
-> Kiro spec, stage prompts, and safety constraints are ready; the Java application,
-> bots, Gradle Wrapper, and verified MCP launcher still need to be implemented.
+> approved requirements, stage prompts, and safety constraints are ready; Kiro still
+> needs to create and approve the design and task plan. The Java application, bots,
+> Gradle Wrapper, and verified MCP launcher have not been implemented.
 
 ## The demo goal
 
@@ -24,9 +25,13 @@ Read in this order:
 
 1. [`AGENTS.md`](AGENTS.md)
 2. [`KIRO_ROYALE_AGENT_BUILD_BRIEF.md`](KIRO_ROYALE_AGENT_BUILD_BRIEF.md)
-3. [`.kiro/specs/kiro-royale/tasks.md`](.kiro/specs/kiro-royale/tasks.md)
+3. [`.kiro/specs/kiro-royale/requirements.md`](.kiro/specs/kiro-royale/requirements.md)
 4. [`STATUS.md`](STATUS.md)
-5. [`agent-prompts/00-orchestrator.md`](agent-prompts/00-orchestrator.md)
+5. [`DECISIONS.md`](DECISIONS.md)
+
+Next, continue the requirements-first workflow in Kiro to create and review
+`design.md`, followed by `tasks.md`. Use the stage prompts only after those files
+exist and agree with the approved requirements.
 
 Then assign one stage at a time to a coding agent. The first technical milestone is
 a direct, real Battle Runner match—before MCP abstractions.
@@ -46,7 +51,7 @@ creating build files.
 
 ## Repository map
 
-- `.kiro/` — workspace MCP starter config, specification, and steering
+- `.kiro/` — disabled workspace MCP starter configuration and Kiro specification
 - `agent-prompts/` — copy-paste prompts for each implementation stage
 - `bots/` — placeholders for the two bundled bots
 - `docs/` — architecture, scope, risks, testing, demo, and submission guidance
@@ -65,7 +70,8 @@ creating build files.
 - record the mandatory demo video;
 - complete the submission checklist.
 
-## Suggested first agent command
+## Suggested first implementation prompt
 
-Use the prompt in [`agent-prompts/01-real-battle-spike.md`](agent-prompts/01-real-battle-spike.md).
-Do not ask the agent to build the whole platform at once.
+After Kiro creates and approves `design.md` and `tasks.md`, use
+[`agent-prompts/00-orchestrator.md`](agent-prompts/00-orchestrator.md). It must
+complete only the next incomplete stage and stop for evidence review.

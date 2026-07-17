@@ -22,6 +22,9 @@ Allowed:
 - select 1–5 rounds;
 - request recording.
 
+The `run_battle` schema accepts only `botIds`, `rounds`, and `record`, requires two
+distinct registered bot IDs, and rejects additional properties.
+
 Forbidden:
 
 - arbitrary paths;
@@ -33,8 +36,13 @@ Forbidden:
 
 ## Local networking
 
-Bind the embedded server to loopback when the API permits it. Do not expose the
-battle server publicly for the demo.
+Bind the managed server to loopback. If the resolved API cannot guarantee a
+loopback-only service, record the blocker and do not expose the server or claim the
+security requirement is satisfied.
+
+Use finite Bot connection and battle wall-clock timeouts that MCP callers cannot
+override. Bound captured child-process output and always clean up processes after
+success, failure, timeout, or shutdown.
 
 ## Secrets
 

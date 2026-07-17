@@ -35,9 +35,11 @@ Official references:
 
 ## MCP Java SDK
 
-- Upstream latest release reported `v2.0.0`.
+- The official GitHub Releases API reported `v2.0.0` as the latest non-prerelease
+  release on the snapshot date.
 - The core SDK includes stdio server transport.
-- Verify the exact Gradle dependency form against the current official quickstart.
+- Verify the exact Gradle dependency form and resolve the artifact during Stage 0
+  before pinning it; a release page alone is not dependency-resolution evidence.
 
 Official references:
 
@@ -48,13 +50,15 @@ Official references:
 ## Passive viewer
 
 - Hosted static viewer is available from the viewer repository's GitHub Pages link.
-- It is a passive observer and does not control battles.
-- Default connection is `ws://localhost:7654`.
+- It is a third-party passive observer and does not control battles.
+- Its documented default connection is `ws://localhost:7654`, but Kiro Royale must
+  expose and use the actual loopback URL selected by the Battle Runner.
 - No local Node.js installation is needed when using the hosted build.
 
 Reference:
 
 - https://github.com/jandurovec/tank-royale-viewer
+- https://jandurovec.github.io/tank-royale-viewer/
 
 ## Verification rule
 

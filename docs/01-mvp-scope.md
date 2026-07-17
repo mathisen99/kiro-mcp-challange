@@ -9,13 +9,13 @@
 - genuine scores;
 - Kiro workspace configuration;
 - live passive viewer or real replay fallback;
+- battle recording for the default `run_battle` request and replay fallback;
 - focused tests;
 - public README;
 - mandatory demo video.
 
 ## Should ship when straightforward
 
-- battle recording;
 - one small result JSON file;
 - a clean diagnostic Gradle task;
 - a second before/after battle in the demo.

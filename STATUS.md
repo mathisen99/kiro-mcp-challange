@@ -4,7 +4,8 @@ Last updated: 2026-07-17
 
 ## Current state
 
-Documentation scaffold created. No application code has been implemented or verified.
+Requirements reviewed and corrected. Design and tasks have not been created. No
+application code has been implemented or verified.
 
 ## Stage tracker
 
@@ -19,8 +20,8 @@ Documentation scaffold created. No application code has been implemented or veri
 
 - [x] The project plan requires a real custom MCP server.
 - [x] The plan treats the demo video as mandatory.
-- [x] The starter Kiro MCP entry is disabled until a launcher exists.
-- [x] Runtime paths are intended to be ignored.
+- [x] The starter Kiro MCP entry is present and disabled until its launcher is verified.
+- [x] Generated runtime paths are excluded by `.gitignore` while `runtime/.gitkeep` remains trackable.
 
 ## Not yet verified
 
@@ -32,6 +33,8 @@ Documentation scaffold created. No application code has been implemented or veri
 - [ ] live viewer connection
 - [ ] Kiro tool calls
 - [ ] replay creation
+- [ ] design review
+- [ ] task-plan review
 
 ## Evidence log
 

@@ -10,7 +10,7 @@ The final README should contain:
 3. what MCP connects to;
 4. why Kiro could not perform the battle without this integration;
 5. architecture diagram;
-6. Java and Arch Linux prerequisites;
+6. Java and operating-system/tool prerequisites actually exercised by the project;
 7. clone and build commands;
 8. first direct smoke test;
 9. Kiro MCP configuration;

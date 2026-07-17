@@ -7,14 +7,17 @@ that launches a **real** Robocode Tank Royale battle and returns genuine results
 
 ## Required reading
 
-Before editing code, read:
+Before editing code, always read:
 
 1. `KIRO_ROYALE_AGENT_BUILD_BRIEF.md`
 2. `.kiro/specs/kiro-royale/requirements.md`
-3. `.kiro/specs/kiro-royale/design.md`
-4. `.kiro/specs/kiro-royale/tasks.md`
-5. `STATUS.md`
-6. `DECISIONS.md`
+3. `STATUS.md`
+4. `DECISIONS.md`
+
+Also read `.kiro/specs/kiro-royale/design.md` and
+`.kiro/specs/kiro-royale/tasks.md` after the requirements-first Kiro workflow has
+created them. Their absence during requirements review is expected and must not be
+treated as permission to invent them or skip requirements approval.
 
 ## Operating rules
 

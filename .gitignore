@@ -1,0 +1,36 @@
+# Gradle and Java build output
+.gradle/
+build/
+out/
+target/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.exe
+
+# Generated Kiro Royale runtime data
+runtime/*
+!runtime/.gitkeep
+*.battle.gz
+*.log
+server.properties
+
+# Local secrets and databases
+.env
+.env.*
+!.env.example
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Editor and operating-system state
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

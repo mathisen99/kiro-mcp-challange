@@ -27,11 +27,17 @@ from coexisting.
 
 ## ADR-003 — Passive hosted viewer
 
-**Status:** accepted for the MVP.
+**Status:** provisional until Stage 3 compatibility is exercised.
 
-**Decision:** use the existing passive web viewer rather than building or vendoring it.
+**Decision:** attempt to use the existing third-party passive web viewer rather than
+building or vendoring one. Use official-GUI replay playback if live compatibility
+cannot be demonstrated.
 
 **Reason:** the viewer is presentation infrastructure, not the custom integration.
+
+**Verification required:** connect the viewer to the actual loopback WebSocket URL
+before a Battle Runner match and observe the Kiro-triggered battle. Repository
+availability alone does not prove compatibility.
 
 ## Version resolution record
 

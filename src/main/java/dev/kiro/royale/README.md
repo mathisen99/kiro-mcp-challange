@@ -3,5 +3,5 @@
 The implementation agent should create the application here after verifying the
 current MCP Java SDK and Battle Runner APIs.
 
-Suggested package components are documented in
-`.kiro/specs/kiro-royale/design.md`.
+Do not create package components until Kiro has generated and approved
+`.kiro/specs/kiro-royale/design.md` and `.kiro/specs/kiro-royale/tasks.md`.

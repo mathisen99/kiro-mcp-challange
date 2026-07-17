@@ -7,6 +7,7 @@ Add only focused tests for:
 - bot path containment;
 - unknown bot IDs;
 - invalid round bounds;
+- duplicate bot IDs, non-integer rounds, and unexpected input properties;
 - sanitized failures.
 
 Add one real integration smoke test that runs one round with both bundled bots and

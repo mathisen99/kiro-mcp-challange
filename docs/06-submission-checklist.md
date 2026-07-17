@@ -8,7 +8,7 @@
 - [ ] real score components return
 - [ ] failure is never replaced with fake data
 - [ ] Kiro can invoke the tools
-- [ ] viewer or replay proves visual execution
+- [ ] live viewer or successful official-GUI replay playback proves visual execution
 
 ## Repository
 
@@ -32,6 +32,7 @@
 - [ ] installation
 - [ ] tool examples
 - [ ] viewer instructions
+- [ ] third-party viewer attribution and replay instructions
 - [ ] testing commands
 - [ ] untrusted bot warning
 - [ ] attribution

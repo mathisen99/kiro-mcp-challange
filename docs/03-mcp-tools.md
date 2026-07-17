@@ -1,31 +1,36 @@
 # MCP tool contracts
 
-The implementation may use the SDK's structured result support. Keep human text
-brief and provide machine-readable fields.
+Keep human text brief and provide machine-readable JSON-compatible fields using
+the resolved SDK's supported tool-result representation.
 
 ## `get_arena_status`
 
-No input.
+No input. Reject unexpected input properties.
 
 Suggested output:
 
 ```json
 {
   "ready": true,
+  "applicationVersion": "actual application version",
   "javaVersion": "21.x",
   "robocodeVersion": "resolved-version",
   "botRoot": "bots",
   "botCount": 2,
   "battleActive": false,
-  "websocketUrl": "ws://127.0.0.1:7654",
+  "websocketUrl": null,
+  "viewerInstructions": "actual instructions for the current server state",
   "recordingDirectory": "runtime/recordings",
-  "problems": []
+  "blockingPrerequisites": []
 }
 ```
 
+`websocketUrl` is the actual loopback URL when the managed server is available;
+otherwise it is `null`. Never report a guessed or stale port.
+
 ## `list_bots`
 
-No input.
+No input. Reject unexpected input properties.
 
 Return only registered roots. Suggested fields:
 
@@ -54,7 +59,8 @@ Input:
 ```
 
 Return metadata, relevant relative files, editable entry source, run/build
-information, and validation problems.
+information, and validation problems. Reject additional properties and unknown
+Bot IDs.
 
 ## `run_battle`
 
@@ -68,12 +74,19 @@ Input:
 }
 ```
 
+`rounds` defaults to 1 and `record` defaults to `true`. If `record` is `false`, do
+not require or claim a recording.
+
 Rules:
 
-- exactly two bot IDs for MVP;
+- exactly two distinct registered bot IDs for MVP;
 - rounds 1–5;
-- no arbitrary paths;
+- reject non-integer rounds and duplicate bot IDs;
+- accept only `botIds`, `rounds`, and `record`; reject additional properties;
+- validate both bots before starting;
+- no arbitrary paths, commands, environment overrides, hosts, or URLs;
 - one active battle at a time;
+- finite server-connect and battle wall-clock timeouts;
 - real Battle Runner only.
 
 Suggested output:
@@ -91,12 +104,14 @@ Suggested output:
       "survival": 0,
       "bulletDamage": 0,
       "ramDamage": 0,
-      "firstPlaces": 0
+      "firstPlaces": 0,
+      "roundsPlayed": 1
     }
   ],
   "recordingPath": "runtime/recordings/actual-file.battle.gz"
 }
 ```
 
-The numeric example values above describe shape only. Never return placeholder
-values during a real call.
+The numeric example values above describe shape only. Every production rank and
+score component must come from Battle Runner completion data. Never return these
+example values or any other placeholder values during a real call.

@@ -26,7 +26,13 @@ Show:
 
 Call `run_battle` for one round.
 
-Immediately show the passive viewer displaying the live battle.
+Immediately show the third-party passive viewer displaying the live battle. Open
+and connect the viewer to the actual loopback WebSocket URL before recording this
+shot.
+
+If live viewing cannot be verified, show the recording from this same battle
+loading and playing in the official Tank Royale GUI. Showing only the recording
+file is insufficient.
 
 ### 35–50 seconds
 
@@ -46,6 +52,7 @@ another battle.
 - [ ] readable terminal/editor scale
 - [ ] no secrets or personal paths visible
 - [ ] viewer already open
+- [ ] actual viewer WebSocket URL verified, or replay fallback rehearsed
 - [ ] battle duration tested beforehand
 - [ ] notifications disabled
 - [ ] result output fits on screen

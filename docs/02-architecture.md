@@ -20,7 +20,7 @@ Kiro Royale Java process
   +-- result mapping
   |
   v
-Embedded local Tank Royale server
+Managed local Tank Royale server process
   |
   +-- kiro-bot process
   +-- sample-opponent process
@@ -46,6 +46,11 @@ Embedded local Tank Royale server
 - Battle Runner;
 - Tank Royale Viewer.
 
+The selected Tank Royale Viewer is a third-party passive observer. It is not part
+of the custom MCP server and must not control battle execution. The actual
+loopback WebSocket URL comes from the managed server configuration; do not assume
+port 7654 in implementation code.
+
 ## Failure model
 
 Failures are first-class results:
@@ -56,6 +61,7 @@ Failures are first-class results:
 - connection timeout;
 - server port unavailable;
 - battle aborted;
+- battle wall-clock timeout;
 - viewer unavailable;
 - recording failure.
 
@@ -79,3 +85,6 @@ runtime/
 ├── recordings/
 └── results/
 ```
+
+The repository `.gitignore` must keep generated contents under these directories
+untracked while preserving `runtime/.gitkeep`.

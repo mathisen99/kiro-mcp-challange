@@ -10,7 +10,8 @@ suite.
 1. A canonical bot path outside `bots/` is rejected.
 2. Unknown bot IDs are rejected.
 3. Rounds below 1 or above 5 are rejected.
-4. Internal exceptions become sanitized tool errors.
+4. Duplicate bot IDs, non-integer rounds, and unexpected fields are rejected.
+5. Internal exceptions become sanitized tool errors.
 
 ## Real smoke test
 
@@ -34,6 +35,7 @@ Record evidence for:
 - MCP tools visible in Kiro;
 - battle launched from Kiro;
 - scores returned to Kiro.
+- successful replay playback in the official GUI when live viewing is not verified.
 
 ## Avoid
 
