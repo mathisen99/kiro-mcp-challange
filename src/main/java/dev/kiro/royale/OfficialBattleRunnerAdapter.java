@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static dev.kiro.royale.Models.*;
 
 /** Thin Stage 1 boundary around the official Battle Runner 1.0.2 API. */
-public final class OfficialBattleRunnerAdapter implements AutoCloseable {
+public final class OfficialBattleRunnerAdapter implements BattleEngine {
     private final RepositoryPaths paths;
     private final Duration botConnectTimeout;
     private final Duration wallClockTimeout;
@@ -50,7 +50,7 @@ public final class OfficialBattleRunnerAdapter implements AutoCloseable {
 
     public EngineExecution run(List<ValidatedBot> bots, int rounds, boolean record) throws Exception {
         if (bots.size() != 2) throw new IllegalArgumentException("Exactly two validated bots are required");
-        var diagnostics = new BoundedDiagnostics(40);
+        var diagnostics = new BoundedDiagnostics(40, 4096, configuredDiagnosticSecrets());
         var session = new Session(bots, rounds, record, diagnostics);
         if (!activeSession.compareAndSet(null, session)) throw new IllegalStateException("A battle is already active");
         ExecutorService worker = Executors.newSingleThreadExecutor(r -> {
@@ -65,7 +65,7 @@ public final class OfficialBattleRunnerAdapter implements AutoCloseable {
             diagnostics.add("battle wall-clock timeout after " + wallClockTimeout.toSeconds() + "s");
             session.abort();
             future.cancel(true);
-            throw new IllegalStateException("Official battle timed out", exception);
+            throw exception;
         } catch (ExecutionException exception) {
             Throwable cause = exception.getCause();
             if (cause instanceof Exception checked) throw checked;
@@ -108,12 +108,18 @@ public final class OfficialBattleRunnerAdapter implements AutoCloseable {
             Path recordingDirectory = record
                     ? paths.runtimePath("recordings", "direct-" + Instant.now().toEpochMilli())
                     : null;
-            port = reserveLoopbackPort();
-            String endpoint = "ws://127.0.0.1:" + port;
-            Process serverProcess = startLoopbackOfficialServer(port);
-            serverProcessRef.set(serverProcess);
-            registerOwned(serverProcess.toHandle(), String.join(" ", loopbackServerCommand(port)));
-            String listenerBinding = awaitLoopbackListener(port, serverProcess);
+            String endpoint;
+            String listenerBinding;
+            try {
+                port = reserveLoopbackPort();
+                endpoint = "ws://127.0.0.1:" + port;
+                Process serverProcess = startLoopbackOfficialServer(port);
+                serverProcessRef.set(serverProcess);
+                registerOwned(serverProcess.toHandle(), String.join(" ", loopbackServerCommand(port)));
+                listenerBinding = awaitLoopbackListener(port, serverProcess);
+            } catch (Exception exception) {
+                throw new BattleEngineException(BattleEngineException.Kind.SERVER_CONNECTION_FAILED, exception);
+            }
             readyEndpoint.set(endpoint);
             diagnostics.add("official socket-activated server endpoint=" + endpoint);
             diagnostics.add("listenerBinding=" + listenerBinding);
@@ -155,7 +161,12 @@ public final class OfficialBattleRunnerAdapter implements AutoCloseable {
                         .toList();
                 var completion = new EngineCompletion(true, completionEvent.get(), official.getNumberOfRounds(),
                         engineResults, CompletionProvenance.OFFICIAL_BATTLE_RUNNER_COMPLETION);
-                Optional<String> recordingPath = verifyRecording(recordingDirectory);
+                Optional<String> recordingPath;
+                try {
+                    recordingPath = verifyRecording(recordingDirectory);
+                } catch (IOException exception) {
+                    throw new BattleEngineException(BattleEngineException.Kind.RECORDING_FAILED, exception);
+                }
                 cleanup();
                 return new EngineExecution(completion, endpoint, recordingPath, processEvidence(),
                         ownedProcesses.stream().noneMatch(ProcessHandle::isAlive), diagnostics.snapshot());
@@ -228,16 +239,9 @@ public final class OfficialBattleRunnerAdapter implements AutoCloseable {
         private void abort() { cleanup(); }
 
         private void waitForOwnedProcesses() {
-            long deadline = System.nanoTime() + cleanupGrace.toNanos();
-            while (System.nanoTime() < deadline && ownedProcesses.stream().anyMatch(ProcessHandle::isAlive)) {
-                try { Thread.sleep(25); } catch (InterruptedException exception) { Thread.currentThread().interrupt(); break; }
+            if (!OwnedProcessCleanup.terminate(ownedProcesses, cleanupGrace)) {
+                diagnostics.add("owned process cleanup exceeded its bounded grace periods");
             }
-            ownedProcesses.stream().filter(ProcessHandle::isAlive).forEach(ProcessHandle::destroy);
-            long forceDeadline = System.nanoTime() + cleanupGrace.toNanos();
-            while (System.nanoTime() < forceDeadline && ownedProcesses.stream().anyMatch(ProcessHandle::isAlive)) {
-                try { Thread.sleep(25); } catch (InterruptedException exception) { Thread.currentThread().interrupt(); break; }
-            }
-            ownedProcesses.stream().filter(ProcessHandle::isAlive).forEach(ProcessHandle::destroyForcibly);
         }
 
         private List<ProcessEvidence> processEvidence() {
@@ -331,6 +335,13 @@ public final class OfficialBattleRunnerAdapter implements AutoCloseable {
     }
 
     private static String bound(String value, int max) { return value.length() <= max ? value : value.substring(0, max) + "...[truncated]"; }
+
+    private static Set<String> configuredDiagnosticSecrets() {
+        String configured = System.getProperty("kiro.royale.diagnosticSecrets", "");
+        if (configured.isBlank()) return Set.of();
+        return java.util.Arrays.stream(configured.split(",", -1))
+                .filter(value -> !value.isEmpty()).collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
 
     static String inspectListenerBinding(int port) {
         String hexPort = String.format("%04X", port);

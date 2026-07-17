@@ -3,20 +3,28 @@ package dev.kiro.royale;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import static dev.kiro.royale.Models.*;
 
-/** Shared Stage 1 use case; the later MCP adapter must delegate to this same service. */
+/** Shared application use case used unchanged by direct, MCP, and smoke adapters. */
 public final class BattleService implements AutoCloseable {
     private final BotRegistry registry;
     private final BattleCoordinator coordinator;
-    private final OfficialBattleRunnerAdapter engine;
+    private final BattleEngine engine;
     private final GenuineResultMapper resultMapper;
 
     public BattleService(RepositoryPaths paths) {
-        this.registry = new BotRegistry(paths);
-        this.coordinator = new BattleCoordinator();
-        this.engine = new OfficialBattleRunnerAdapter(paths, Duration.ofSeconds(30), Duration.ofSeconds(120), Duration.ofSeconds(5));
-        this.resultMapper = new GenuineResultMapper();
+        this(new BotRegistry(paths), new BattleCoordinator(),
+                new OfficialBattleRunnerAdapter(paths, Duration.ofSeconds(30), Duration.ofSeconds(120), Duration.ofSeconds(5)),
+                new GenuineResultMapper());
+    }
+
+    BattleService(BotRegistry registry, BattleCoordinator coordinator, BattleEngine engine,
+                  GenuineResultMapper resultMapper) {
+        this.registry = java.util.Objects.requireNonNull(registry, "registry");
+        this.coordinator = java.util.Objects.requireNonNull(coordinator, "coordinator");
+        this.engine = java.util.Objects.requireNonNull(engine, "engine");
+        this.resultMapper = java.util.Objects.requireNonNull(resultMapper, "resultMapper");
     }
 
     public BotRegistry registry() { return registry; }
@@ -43,16 +51,28 @@ public final class BattleService implements AutoCloseable {
                 return failure("BOT_INVALID", "A selected bundled bot failed prerequisite validation");
             }
             EngineExecution execution = engine.run(bots, request.rounds(), request.record());
-            var results = resultMapper.map(execution.completion(), bots);
-            if (!execution.cleanupComplete()) return new BattleFailure("CLEANUP_FAILED", "Owned battle processes did not stop", execution.diagnostics());
+            List<BattleResult> results;
+            try {
+                results = resultMapper.map(execution.completion(), bots);
+            } catch (IllegalStateException exception) {
+                return failure("BATTLE_ABORTED", "The official battle completion was invalid");
+            }
+            if (!execution.cleanupComplete()) return failure("CLEANUP_FAILED", "Owned battle processes did not stop");
             if (request.record() && execution.recordingPath().isEmpty()) {
-                return new BattleFailure("RECORDING_FAILED", "The required official recording was not verified", execution.diagnostics());
+                return failure("RECORDING_FAILED", "The required official recording was not verified");
+            }
+            if (!request.record() && execution.recordingPath().isPresent()) {
+                return failure("INTERNAL_ERROR", "The battle boundary returned an inconsistent recording state");
             }
             return new BattleSuccess(execution.completion().roundsPlayed(), results, execution.recordingPath(),
                     execution.websocketUrl(), execution.completion().provenance(), execution.processes(),
                     execution.cleanupComplete(), execution.diagnostics());
-        } catch (java.util.concurrent.TimeoutException exception) {
+        } catch (TimeoutException exception) {
             return failure("BATTLE_TIMEOUT", "The official battle exceeded its finite deadline");
+        } catch (BattleEngineException exception) {
+            return failure(exception.safeCode(), exception.safeMessage());
+        } catch (RuntimeException exception) {
+            return failure("INTERNAL_ERROR", "The battle could not complete; inspect local diagnostics");
         } catch (Exception exception) {
             return failure("BATTLE_ABORTED", "The official battle did not complete successfully");
         }

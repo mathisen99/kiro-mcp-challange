@@ -194,3 +194,21 @@ The launcher accepts no arguments and executes the installed distribution in fix
 **Visual-proof decision:** passive live-viewer proof remains unverified. The final Kiro-triggered battle produced `runtime/recordings/direct-1784305918236/game-2026-07-17-19-31-59.battle.gz`, verified as a regular `30,141`-byte valid gzip file. The official Tank Royale GUI `1.0.2` portable JAR was downloaded from the official `v1.0.2` release under ignored `runtime/` and matched published SHA-256 `f69df7c1a3a47befa6d11bf71f60faa7a1452b98ecf0a417c0c16ac0864e6ab2`. The human reviewer loaded and ran that exact replay and visibly observed both Bots moving. Their basic back-and-forth behavior is consistent with the intentionally simple bundled strategies.
 
 **Not verified:** passive hosted viewer compatibility, exact Kiro call duration, competitive strategy quality, demo recording, and Stage 4/final-submission claims.
+
+## ADR-008 — Stage 4 focused hardening and genuine smoke gate
+
+**Status:** accepted and execution-verified on 2026-07-17 for the demonstrated Linux vertical slice.
+
+**Decision:** retain the synchronous four-tool architecture and harden only its existing boundaries. `BattleService` now depends on an internal `BattleEngine` port, while `OfficialBattleRunnerAdapter` remains the sole production implementation. This permits controlled boundary/lifecycle tests without creating a second production battle path.
+
+**Execution-verified safety decisions:**
+
+- Repository, Bot, and runtime directories are resolved through canonical real paths. Registered Bot directories and required config/source/launch files must remain beneath the canonical `bots/` root. Runtime directory creation rejects traversal and symbolic-link components before creating generated descendants. A fixed supported-host symlink escape example passed.
+- Bot-connect, wall-clock, and cleanup durations remain application-owned, positive, finite, and absent from all MCP schemas. The real smoke used the existing production values of `30s`, `120s`, and `5s`; controlled tests verified timeout classification and bounded cleanup behavior.
+- Diagnostics now have both line and per-line character bounds and redact configured non-empty secret values before retention. MCP boundary failures expose only fixed allowlisted codes/messages and no raw exception text, result list, or recording claim.
+- Production process launch remains `new ProcessBuilder(command)` with an application-owned argument list, no caller environment mutation, and the official service command fixed to `--listen=127.0.0.1:<port>`. MCP mode has no ordinary `System.out.print*` writer; the real official SDK transport test parsed protocol responses while deliberate startup diagnostics arrived through stderr.
+- The exact production tool inventory remains four. The real stdio contract test verified strict schemas, dual text/structured success, read-only runtime behavior, and clean client/server closure. Controlled fixed local processes verified bounded idempotent cleanup after normal exit, non-zero exit, timeout-style termination, and shutdown-style repeated cleanup; these controlled cases are contract evidence, not genuine battle evidence.
+- `./gradlew clean test` passed `20` tests: `18` focused example/regression tests and `2` MCP transport/lifecycle contract tests. No optional jqwik property task was implemented or executed.
+- `./gradlew realSmoke` passed one dedicated integration test using production registry validation, the production official Battle Runner adapter, the official loopback server, and both real bundled Bot processes for exactly one round. It observed `OFFICIAL_BATTLE_RUNNER_COMPLETION`, ranks `1` and `2`, the configured names/versions, all required score fields, endpoint `ws://127.0.0.1:32943`, a `33,742`-byte recording, and complete cleanup of three owned processes.
+
+**Not verified:** optional Properties 1–16 (Tasks 8.3–8.18), genuine production timeout/abort/startup/recording-failure/forced-kill branches, a live-battle JVM-shutdown race, passive live-viewer compatibility, cross-platform socket activation and controlled-process commands, deterministic winners/scores, and all Stage 5 publication/demo/hygiene claims.

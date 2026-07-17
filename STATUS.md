@@ -4,9 +4,7 @@ Last updated: 2026-07-17
 
 ## Current state
 
-Stage 0, its human checkpoint, Stage 1, and Stage 2 are complete. Stage 2 now exposes exactly four strict stdio MCP tools over the same proven `BattleService` and official Battle Runner adapter. The finite official Java MCP client proof completed initialization, exact tool discovery, all three read-only calls, and one genuine synchronous one-round battle with a non-empty recording and owned-process cleanup.
-
-Stage 2 and Stage 3 are **COMPLETE**. Installed Kiro connected to the enabled repository-root launcher and invoked all four tools. The Kiro-triggered synchronous battle returned genuine score components without timing out, and the same battle's recording was visibly played in the checksum-verified official Tank Royale GUI as Replay Proof. Live passive-viewer proof remains not verified because the replay fallback was selected.
+Stage 0 through Stage 4 are **COMPLETE**. Stage 4 hardened the demonstrated synchronous four-tool path, passed 20 focused example/contract tests through `./gradlew clean test`, and passed the dedicated genuine one-round `realSmoke` test with official completion provenance, two real bundled Bot processes, ordered official score components, a contained non-empty recording, loopback-only endpoint evidence, and complete cleanup of three owned processes. Optional property Tasks 8.3–8.18 were deliberately skipped and remain `not verified`; Stage 5 is unblocked.
 
 ## Stage tracker
 
@@ -14,7 +12,7 @@ Stage 2 and Stage 3 are **COMPLETE**. Installed Kiro connected to the enabled re
 - [x] Stage 1 — direct real Battle Runner battle
 - [x] Stage 2 — custom MCP server
 - [x] Stage 3 — Kiro and viewer integration
-- [ ] Stage 4 — focused hardening and smoke test
+- [x] Stage 4 — focused hardening and smoke test
 - [ ] Stage 5 — documentation, video, and submission
 
 ## Verified facts in this repository
@@ -456,3 +454,92 @@ The downloaded official GUI, checksum, Bots, recordings, and other generated art
 - Competitive Bot quality: intentionally out of MVP scope; only genuine functional behavior is claimed.
 - Concurrent overlap, timeout, abort, startup-failure, recording-failure, forced-kill, and JVM-shutdown branches: **not verified** by this successful path.
 - Demo recording, Stage 4 hardening/real smoke gate, final tracked-file hygiene, and submission publication: **not verified**.
+
+## Stage 4 hardening and test evidence gate — 2026-07-17
+
+**Gate state: COMPLETE.** All mandatory focused example/contract tests and the dedicated genuine one-round integration smoke passed after the demonstrated Stage 3 path. Optional jqwik Tasks 8.3–8.18 were not requested, were not implemented, and remain individually `not verified`.
+
+### Exact commands and exit codes
+
+| Command | Exit code | Observation |
+|---|---:|---|
+| `./gradlew clean test` | `1` | Initial Stage 4 run compiled production/tests and executed all 20 tests; one focused assertion exposed that an unexpected engine `IllegalStateException` was classified as `BATTLE_ABORTED` instead of `INTERNAL_ERROR`. The real stdio and controlled-process contract tests already passed. |
+| `./gradlew clean test` | `0` | Rerun after narrowing completion-validation handling: clean application/Bot build and all `20` focused example/contract tests passed. |
+| `./gradlew realSmoke` | `0` | Dedicated production smoke ran one genuine official round with both real bundled Bots; `1` smoke test passed. |
+| `git status --short` | `0` | Captured the complete Stage 4 source/evidence working-tree inventory; the pre-existing task-state file modification was preserved. |
+
+The two successful Gradle commands were executed sequentially as the shell command `./gradlew clean test && ./gradlew realSmoke`; because the second command ran and the combined command exited `0`, both component exit codes were `0`.
+
+### Focused suite counts and observations
+
+- Property tests: `0` executed. Optional Tasks 8.3–8.18 were skipped by request and are not represented by example tests.
+- Focused example/regression tests: `18` passed (`6` Stage 1 core regressions, `4` existing MCP handler regressions, and `8` new Stage 4 hardening examples).
+- MCP transport/lifecycle contract tests: `2` passed.
+- Total from `./gradlew clean test`: `20` tests, `0` failures, `0` errors, `0` skipped.
+- The focused examples exercised canonical Bot symlink escape, runtime symlink escape without outside file creation, unknown Bot IDs, invalid Bot validation before engine invocation, rounds `0`, `1`, `5`, and `6`, duplicate IDs, non-integer rounds, unexpected properties, command/host-shaped fields, `record=false`, typed boundary failures, unexpected-exception sanitization, timeout classification, shutdown close, positive finite timeout construction, bounded/redacted diagnostics, endpoint-not-ready `null`, exact mode stdout architecture, argument-list process launch, no process-environment mutation, and loopback-only launch configuration.
+- The official SDK stdio transport contract discovered exactly `[get_arena_status, inspect_bot, list_bots, run_battle]`, verified `additionalProperties=false` for every schema, received nonblank text plus structured success, parsed deliberate server startup diagnostics on stderr without protocol contamination, and observed no runtime tree side effects from read-only calls.
+- Controlled fixed local process tests exercised normal exit, non-zero exit, timeout-style termination, and repeated shutdown-style cleanup. Every owned test process stopped within bounded cleanup and repeated cleanup was idempotent. These are contract tests only; they are not genuine battle evidence.
+- The expected SLF4J no-provider warning remained on stderr during the transport test. It did not contaminate stdout or fail protocol parsing.
+
+### Genuine real-smoke observations
+
+- `RealBattleSmokeTest` count: `1` passed, `0` failures/errors/skips; test execution time `17.475s` (`17.484s` suite time).
+- The smoke depended on the clean focused test gate, application JAR/classes, and `buildBundledBots`; production validation reported both fixed registered Bots valid before launch.
+- It invoked the production `BattleService`, internal `BattleEngine` port's sole production implementation `OfficialBattleRunnerAdapter`, official Tank Royale server/runner `1.0.2`, and two real bundled Bot processes. No mock engine or fixture result was used.
+- Official lifecycle output reported one round/two Bots, Bot boot, game start, successful battle start, and battle-finished cleanup. Completion provenance was `OFFICIAL_BATTLE_RUNNER_COMPLETION`.
+- Actual verified endpoint: `ws://127.0.0.1:32943`.
+- Rank 1: Sample Opponent `1.0`; total `60`, survival `50`, bullet damage `0`, ram damage `0`, first places `1`, rounds played `1`.
+- Rank 2: Kiro Bot `1.0`; total `0`, survival `0`, bullet damage `0`, ram damage `0`, first places `0`, rounds played `1`.
+- These values are this smoke execution's genuine official results only; score/winner repeatability is not claimed.
+- Recording: `runtime/recordings/direct-1784307249797/game-2026-07-17-19-54-10.battle.gz`, regular, contained, and non-empty at `33,742` bytes.
+- Cleanup: `3` owned processes were observed; every returned `aliveAfterCleanup` value was false and `cleanupComplete=true`. No surviving owned process was reported.
+
+### Complete changed-file inventory
+
+Stage 4 implementation and evidence files:
+
+- `build.gradle` — makes the focused suite build the installed distribution, excludes the tagged real smoke from normal tests, and adds the dedicated ordered `realSmoke` task.
+- `src/main/java/dev/kiro/royale/BattleEngine.java` — internal application boundary used by production and controlled tests.
+- `src/main/java/dev/kiro/royale/BattleEngineException.java` — fixed typed safe engine failure categories.
+- `src/main/java/dev/kiro/royale/OwnedProcessCleanup.java` — bounded idempotent cleanup for registered owned handles.
+- `src/main/java/dev/kiro/royale/RepositoryPaths.java` — canonical repository/Bot/runtime roots and symlink-safe runtime directory creation.
+- `src/main/java/dev/kiro/royale/BotRegistry.java` — canonical containment of registered directories and required config/source/launch files with generic internal failures.
+- `src/main/java/dev/kiro/royale/BoundedDiagnostics.java` — line/character bounds and configured-secret redaction.
+- `src/main/java/dev/kiro/royale/BattleService.java` — injectable internal engine port, typed timeout/engine/internal failure handling, and truthful `record=false` consistency.
+- `src/main/java/dev/kiro/royale/OfficialBattleRunnerAdapter.java` — production engine implementation, corrected timeout propagation, typed startup/recording failures, bounded cleanup utility, and configured diagnostic redaction.
+- `src/test/java/dev/kiro/royale/Stage4FocusedUnitTest.java` — eight mandatory focused hardening examples.
+- `src/test/java/dev/kiro/royale/McpTransportLifecycleContractTest.java` — two real-stdio/controlled-lifecycle contract tests.
+- `src/test/java/dev/kiro/royale/RealBattleSmokeTest.java` — tagged genuine one-round production integration smoke.
+- `DECISIONS.md` — ADR-008 records only execution-verified Stage 4 safety, transport, lifecycle, and smoke facts.
+- `STATUS.md` — this evidence gate.
+
+Pre-existing working-tree state preserved but not edited by this Stage 4 execution:
+
+- `.kiro/specs/kiro-royale/tasks.md` — orchestrator-owned task-state transition (`[-]` parent state); this execution subagent did not update task status.
+
+Generated `.gradle/**`, `build/**`, `runtime/bots/**`, `runtime/official-server/**`, `runtime/recordings/**`, and `.jqwik-database` entries remain ignored validation/runtime artifacts and are not source changes.
+
+### Remaining failures and unverified claims
+
+- Mandatory Stage 4 blocker: **none**. Stage 5 is unblocked.
+- Initial focused-suite failure: **resolved** by ensuring only result-mapper validation maps to `BATTLE_ABORTED`; unexpected engine runtime exceptions now map to sanitized `INTERNAL_ERROR`.
+- Task 8.3 / Property 1, omitted battle defaults: **not verified** by jqwik.
+- Task 8.4 / Property 2, strict launchable request domain: **not verified** by jqwik.
+- Task 8.5 / Property 3, canonical registered Bot containment: **not verified** by jqwik; fixed examples passed only.
+- Task 8.6 / Property 4, ordered two-result mapping: **not verified** by jqwik; fixed regressions and real smoke passed only.
+- Task 8.7 / Property 5, lossless genuine result mapping: **not verified** by jqwik; fixed regressions and real smoke passed only.
+- Task 8.8 / Property 6, rejection of non-genuine completion: **not verified** by jqwik.
+- Task 8.9 / Property 7, contained artifacts/truthful recordings: **not verified** by jqwik; fixed examples and real smoke passed only.
+- Task 8.10 / Property 8, exclusive active ownership: **not verified** by jqwik; atomic fixed regression passed only.
+- Task 8.11 / Property 9, complete truthful arena status: **not verified** by jqwik; endpoint-null fixed example passed only.
+- Task 8.12 / Property 10, safe lossless Bot listing: **not verified** by jqwik.
+- Task 8.13 / Property 11, safe lossless Bot inspection: **not verified** by jqwik.
+- Task 8.14 / Property 12, dual success representations: **not verified** by jqwik; real transport examples passed only.
+- Task 8.15 / Property 13, immutable finite positive timeouts: **not verified** by jqwik; fixed constructor examples passed only.
+- Task 8.16 / Property 14, bounded captured output: **not verified** by jqwik; fixed bounded diagnostics examples passed only.
+- Task 8.17 / Property 15, configured-secret redaction: **not verified** by jqwik; fixed overlapping-secret example passed only.
+- Task 8.18 / Property 16, sanitized result-free failures: **not verified** by jqwik; fixed typed/unexpected examples passed only.
+- Genuine production timeout, abort, Bot startup failure, server startup failure, recording failure, forced-kill fallback, and live-battle JVM-shutdown race: **not verified**. Controlled boundary/process tests do not establish those official-runner branches.
+- Passive hosted live-viewer proof remains **not verified**; Stage 3 used same-battle official-GUI Replay Proof.
+- Cross-platform socket activation, Windows/macOS Bot launch, and `/usr/bin/true`, `/usr/bin/false`, `/usr/bin/sleep` availability outside the exercised Linux host: **not verified**.
+- Demo recording, public repository/video publication, fresh-checkout-like reproduction, and final tracked-file hygiene: **not verified** Stage 5 work.

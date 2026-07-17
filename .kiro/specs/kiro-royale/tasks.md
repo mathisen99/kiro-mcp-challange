@@ -119,14 +119,14 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
     - Mark Stage 3 complete only when Kiro invoked every tool and one valid form of Visual Proof was manually demonstrated; otherwise block all Stage 4 leaves.
     - _Requirements: 1.1, 1.4, 1.7–1.12, 4.8, 8.1–8.14_
 
-- [ ] 8. Stage 4 — harden and test only the demonstrated path
-  - [ ] 8.1 Complete focused production hardening around the proven vertical slice
+- [x] 8. Stage 4 — harden and test only the demonstrated path
+  - [x] 8.1 Complete focused production hardening around the proven vertical slice
     - Finish canonical real-path/symlink containment, strict request decoding, immutable positive finite timeouts, atomic no-queue battle ownership, truthful recording verification, lossless official-result validation, bounded stream capture, secret redaction, allowlisted failure sanitization, and idempotent owned-process cleanup.
     - Add static/architecture checks that process launch uses argument lists, network binding is loopback-only, generated files remain under `runtime/`, MCP inputs cannot alter commands/environments/network/timeouts, and MCP mode has no ordinary stdout writers.
     - Do not add excluded stretch features, generalized execution, async jobs, a custom viewer, persistence, or simultaneous battles.
     - _Requirements: 5.9–5.18, 6.1–6.15, 7.1–7.8, 12.1, 12.2_
 
-  - [ ] 8.2 Add the mandatory focused example-based unit suite
+  - [x] 8.2 Add the mandatory focused example-based unit suite
     - Add small JUnit tests for canonical path escape, unknown Bot ID, rounds `0`, `1`, `5`, and `6`, duplicate IDs, non-integer rounds, unexpected properties, invalid Bot short-circuiting the engine, representative typed failures, and internal-exception sanitization.
     - Include controlled timeout/shutdown cleanup, `record=false`, endpoint-not-ready `null`, exact tool inventory, no-input/inspection extra-property rejection, and direct-vs-MCP stdout behavior without duplicating generated property coverage.
     - Run the focused test task and require success before the real smoke test.
@@ -228,18 +228,18 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
     - **Property 16: Boundary failures are sanitized and result-free**
     - **Validates: Requirements 7.3, 7.4, 7.5, 7.6, 7.7, 9.5**
 
-  - [ ] 8.19 Add focused MCP transport and lifecycle contract tests
+  - [x] 8.19 Add focused MCP transport and lifecycle contract tests
     - Test exactly four discovered tools, strict schemas, structured/text success, no stdout contamination under deliberate diagnostics, runtime-only side effects, and bounded controlled-process cleanup on success, timeout, failure, and shutdown.
     - Use fakes only at application boundaries and never label these tests as genuine battle, Kiro, viewer, or smoke evidence.
     - _Requirements: 4.1–4.5, 5.1, 6.7–6.15, 7.7_
 
-  - [ ] 8.20 Implement and execute the real one-round integration smoke test
+  - [x] 8.20 Implement and execute the real one-round integration smoke test
     - Add a dedicated Gradle smoke task/test that builds the application and both Bots, validates both through production code, invokes the production official Battle Runner adapter on loopback, launches both real processes, and runs exactly one round with finite timeouts.
     - Assert the verified official completion/provenance, exactly two ascending results, configured names/versions, required score mapping, optional real non-empty contained recording, and no surviving owned child processes; prohibit mocks, fixture results, and repeatability assertions.
     - Execute `./gradlew clean test` and the dedicated real smoke command; both must pass after the Stage 3 full path has worked.
     - _Requirements: 3.11, 7.1, 7.8, 9.6–9.13_
 
-  - [ ] 8.21 Record the Stage 4 hardening/test evidence gate
+  - [x] 8.21 Record the Stage 4 hardening/test evidence gate
     - Add the `STATUS.md` Stage 4 entry with exact clean test and real smoke commands and exit codes, property/unit/contract counts, real completion/result/recording/cleanup observations, changed files, remaining failures, and any skipped optional property task labeled `not verified`.
     - Record any newly verified safety/lifecycle decision in `DECISIONS.md`; do not rewrite prior decisions based only on mocks.
     - Mark Stage 4 complete only when the mandatory focused tests and real smoke pass; otherwise block Stage 5.

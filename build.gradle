@@ -92,8 +92,28 @@ tasks.register('directBattle', JavaExec) {
 }
 
 tasks.named('test') {
-    dependsOn 'buildBundledBots'
+    dependsOn 'buildBundledBots', 'installDist'
     systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
+    useJUnitPlatform {
+        excludeTags 'real-smoke'
+    }
+}
+
+tasks.register('realSmoke', Test) {
+    group = 'verification'
+    description = 'Runs the genuine one-round official Battle Runner smoke test with both bundled bots.'
+    dependsOn 'test', 'jar', 'buildBundledBots'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
+    useJUnitPlatform {
+        includeTags 'real-smoke'
+    }
+    testLogging {
+        events 'passed', 'failed'
+        showStandardStreams = true
+    }
+    shouldRunAfter 'test'
 }
 
 tasks.named('installDist') {

@@ -38,42 +38,40 @@ public final class BotRegistry {
 
     public BotInspection inspect(BotId id) {
         var registration = registrations.get(id);
-        if (registration == null) throw new IllegalArgumentException("Unknown bot ID: " + id.value());
+        if (registration == null) throw new IllegalArgumentException("Unknown bot ID");
         return inspectRegistration(registration);
     }
 
     public ValidatedBot resolveValidated(BotId id) {
         var registration = registrations.get(id);
-        if (registration == null) throw new IllegalArgumentException("Unknown bot ID: " + id.value());
+        if (registration == null) throw new IllegalArgumentException("Unknown bot ID");
         var inspection = inspectRegistration(registration);
         if (!inspection.validationIssues().isEmpty()) {
-            throw new IllegalStateException(id.value() + " is invalid: " + String.join("; ", inspection.validationIssues()));
+            throw new IllegalStateException("Registered bot failed validation");
         }
         try {
-            Path directory = paths.botRoot().resolve(registration.directory()).toRealPath();
+            Path directory = canonicalContainedDirectory(registration);
             return new ValidatedBot(inspection.descriptor(), directory, inspection.runArguments());
         } catch (IOException exception) {
-            throw new IllegalStateException(id.value() + " cannot be resolved", exception);
+            throw new IllegalStateException("Registered bot cannot be resolved", exception);
         }
     }
 
     private BotInspection inspectRegistration(Registration registration) {
         var issues = new java.util.ArrayList<String>();
-        Path directory = paths.botRoot().resolve(registration.directory()).normalize();
+        Path configuredDirectory = paths.botRoot().resolve(registration.directory()).normalize();
         Path canonical = null;
         try {
-            canonical = directory.toRealPath();
-            if (!canonical.startsWith(paths.botRoot())) issues.add("canonical directory escapes bots root");
+            canonical = canonicalContainedDirectory(registration);
         } catch (IOException exception) {
-            issues.add("bot directory is missing or unreadable");
+            issues.add("canonical directory escapes bots root or is unreadable");
         }
 
-        Path config = directory.resolve(registration.directory() + ".json");
-        if (!Files.isRegularFile(config)) {
-            issues.add("required bot configuration is missing");
-        } else {
+        Path config = configuredDirectory.resolve(registration.directory() + ".json");
+        Path canonicalConfig = canonicalRegularFile(config, canonical, "required bot configuration", issues);
+        if (canonicalConfig != null) {
             try {
-                BotInfo info = BotInfo.fromFile(config.toString());
+                BotInfo info = BotInfo.fromFile(canonicalConfig.toString());
                 if (!registration.expectedName().equals(info.getName())) issues.add("configured name does not match registry");
                 if (!registration.expectedVersion().equals(info.getVersion())) issues.add("configured version does not match registry");
             } catch (RuntimeException exception) {
@@ -81,19 +79,24 @@ public final class BotRegistry {
             }
         }
 
-        Path source = directory.resolve(registration.sourceFile()).normalize();
-        if (!source.startsWith(directory) || !Files.isRegularFile(source)) issues.add("primary strategy source is missing");
-        Path script = directory.resolve(registration.directory() + (isWindows() ? ".cmd" : ".sh"));
-        if (!Files.isRegularFile(script)) issues.add("reviewed launch script is missing");
+        Path source = configuredDirectory.resolve(registration.sourceFile()).normalize();
+        canonicalRegularFile(source, canonical, "primary strategy source", issues);
+        Path script = configuredDirectory.resolve(registration.directory() + (isWindows() ? ".cmd" : ".sh"));
+        canonicalRegularFile(script, canonical, "reviewed launch script", issues);
 
-        Path classes = paths.runtimeRoot().resolve("bots/classes").resolve(registration.id().value());
+        Path classes = paths.runtimeRoot().resolve("bots/classes").resolve(registration.id().value()).normalize();
         Path classFile = classes.resolve(registration.mainClass().replace('.', '/') + ".class");
-        if (!Files.isRegularFile(classFile)) issues.add("compiled bot class is missing; run buildBundledBots");
+        if (!classFile.startsWith(paths.runtimeRoot()) || !Files.isRegularFile(classFile)) {
+            issues.add("compiled bot class is missing; run buildBundledBots");
+        }
         Path lib = paths.runtimeRoot().resolve("bots/lib");
         boolean apiJarPresent = false;
         if (Files.isDirectory(lib)) {
             try (var entries = Files.list(lib)) {
-                apiJarPresent = entries.anyMatch(path -> path.getFileName().toString().startsWith("robocode-tankroyale-bot-api-") && path.getFileName().toString().endsWith(".jar"));
+                apiJarPresent = entries.filter(Files::isRegularFile).anyMatch(path ->
+                        path.normalize().startsWith(paths.runtimeRoot())
+                                && path.getFileName().toString().startsWith("robocode-tankroyale-bot-api-")
+                                && path.getFileName().toString().endsWith(".jar"));
             } catch (IOException ignored) {
                 // issue added below
             }
@@ -107,6 +110,34 @@ public final class BotRegistry {
         List<String> buildArguments = List.of("./gradlew", "buildBundledBots");
         List<String> runArguments = List.of("bots/" + registration.directory() + "/" + script.getFileName());
         return new BotInspection(descriptor, List.of(sourceDisplay), sourceDisplay, buildArguments, runArguments, List.copyOf(issues));
+    }
+
+    private Path canonicalContainedDirectory(Registration registration) throws IOException {
+        Path configured = paths.botRoot().resolve(registration.directory()).normalize();
+        if (!configured.startsWith(paths.botRoot())) throw new IOException("Configured bot path escaped bots root");
+        Path canonical = configured.toRealPath();
+        if (!Files.isDirectory(canonical) || !canonical.startsWith(paths.botRoot())) {
+            throw new IOException("Canonical bot path escaped bots root");
+        }
+        return canonical;
+    }
+
+    private static Path canonicalRegularFile(Path configured, Path owner, String label, List<String> issues) {
+        if (owner == null || !configured.normalize().startsWith(owner)) {
+            issues.add(label + " is missing or unsafe");
+            return null;
+        }
+        try {
+            Path canonical = configured.toRealPath();
+            if (!canonical.startsWith(owner) || !Files.isRegularFile(canonical)) {
+                issues.add(label + " is missing or unsafe");
+                return null;
+            }
+            return canonical;
+        } catch (IOException exception) {
+            issues.add(label + " is missing or unsafe");
+            return null;
+        }
     }
 
     private static boolean isWindows() {
