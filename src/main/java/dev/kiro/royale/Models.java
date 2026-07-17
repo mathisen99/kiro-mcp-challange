@@ -2,6 +2,7 @@ package dev.kiro.royale;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /** Stage 1 internal data contracts; none depend on MCP types. */
@@ -64,12 +65,12 @@ public final class Models {
             int roundsPlayed, List<BattleResult> results, Optional<String> recordingPath,
             String websocketUrl, CompletionProvenance provenance, List<ProcessEvidence> processes,
             boolean cleanupComplete, List<String> diagnostics, boolean viewerRequested,
-            boolean viewerConnected) implements BattleOutcome {
+            boolean viewerConnected, Map<String, String> sourceHashes) implements BattleOutcome {
         public BattleSuccess(int roundsPlayed, List<BattleResult> results, Optional<String> recordingPath,
                              String websocketUrl, CompletionProvenance provenance, List<ProcessEvidence> processes,
                              boolean cleanupComplete, List<String> diagnostics) {
             this(roundsPlayed, results, recordingPath, websocketUrl, provenance, processes,
-                    cleanupComplete, diagnostics, false, false);
+                    cleanupComplete, diagnostics, false, false, Map.of());
         }
     }
 

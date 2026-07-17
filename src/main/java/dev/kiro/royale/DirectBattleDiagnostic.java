@@ -38,6 +38,8 @@ public final class DirectBattleDiagnostic {
                 System.out.println("OFFICIAL_COMPLETION_EVENT: observed");
                 System.out.println("WEBSOCKET_ENDPOINT: " + success.websocketUrl());
                 success.diagnostics().forEach(line -> System.out.println("LIFECYCLE: " + line));
+                success.sourceHashes().forEach((id, hash) ->
+                        System.out.println("SOURCE_SHA256: id=" + id + " hash=" + hash));
                 for (var process : success.processes()) {
                     System.out.printf("OWNED_PROCESS: pid=%d role=%s aliveAfterCleanup=%s command=%s%n",
                             process.pid(), process.role(), process.aliveAfterCleanup(), process.command());

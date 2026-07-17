@@ -37,7 +37,7 @@ public final class McpToolAdapter {
                         emptyObjectSchema(), true, this::listBots),
                 specification("inspect_bot", "Inspect one registered bot by stable ID",
                         inspectSchema(), true, this::inspectBot),
-                specification("run_battle", "Synchronously run two registered bots, optionally opening a verified live viewer before battle",
+                specification("run_battle", "Compile the current registered sources, then synchronously run both bots with an optional live viewer",
                         battleSchema(), false, this::runBattle));
     }
 
@@ -159,7 +159,8 @@ public final class McpToolAdapter {
         BattleOutcome outcome = battleService.run(new BattleRequest(
                 ids.stream().map(BotId::new).toList(), rounds, record, showBattle));
         if (outcome instanceof BattleFailure failed) {
-            return failure(failed.code(), failed.message(), "BATTLE_ACTIVE".equals(failed.code()));
+            return failure(failed.code(), failed.message(), "BATTLE_ACTIVE".equals(failed.code()),
+                    failed.diagnostics());
         }
         BattleSuccess completed = (BattleSuccess) outcome;
         List<Map<String, Object>> results = completed.results().stream().map(result -> {
@@ -187,6 +188,7 @@ public final class McpToolAdapter {
         data.put("cleanupComplete", completed.cleanupComplete());
         data.put("viewerRequested", completed.viewerRequested());
         data.put("viewerConnected", completed.viewerConnected());
+        data.put("sourceHashes", completed.sourceHashes());
         data.put("processes", processes);
         return success(battleSummary(completed), data);
     }
@@ -202,6 +204,7 @@ public final class McpToolAdapter {
                 .append("cleanupComplete=").append(completed.cleanupComplete()).append('\n')
                 .append("viewerRequested=").append(completed.viewerRequested()).append('\n')
                 .append("viewerConnected=").append(completed.viewerConnected()).append('\n')
+                .append("sourceHashes=").append(completed.sourceHashes()).append('\n')
                 .append("results:");
         for (BattleResult result : completed.results()) {
             summary.append("\n#").append(result.rank()).append(' ')
@@ -233,12 +236,20 @@ public final class McpToolAdapter {
     }
 
     private static CallToolResult failure(String code, String message, boolean retryable) {
+        return failure(code, message, retryable, List.of());
+    }
+
+    private static CallToolResult failure(String code, String message, boolean retryable,
+                                          List<String> diagnostics) {
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("success", false);
         data.put("code", code);
         data.put("message", message);
         data.put("retryable", retryable);
-        return CallToolResult.builder().addTextContent(code + ": " + message)
+        if (!diagnostics.isEmpty()) data.put("diagnostics", diagnostics);
+        String text = code + ": " + message + (diagnostics.isEmpty() ? ""
+                : "\n" + String.join("\n", diagnostics));
+        return CallToolResult.builder().addTextContent(text)
                 .structuredContent(data).isError(true).build();
     }
 

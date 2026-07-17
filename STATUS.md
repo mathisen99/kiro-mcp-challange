@@ -591,7 +591,7 @@ The script ended with `RELEASE_VERIFICATION_OK: local automated path passed` and
 
 - `.kiro/settings/mcp.json` was inspected and remains enabled with repository-relative `./scripts/kiro-royale-mcp.sh`, no arguments, and auto-approval only for the three read-only tools. No change was necessary.
 - `build.gradle`, `settings.gradle`, the Gradle Wrapper scripts/JAR/properties, and exact pinned dependencies were inspected and remained valid. No build/Wrapper version change was necessary.
-- `.gitignore` now excludes credential/key formats, environment files except `.env.example`, downloaded archives/native binaries, Gradle/build output, logs/results/recordings/process state, databases, crash dumps, jqwik local state, and Kiro task-session metadata while preserving source/tests/config and the Wrapper JAR.
+- `.gitignore` now excludes credential/key formats, all environment files, downloaded archives/native binaries, Gradle/build output, logs/results/recordings/process state, databases, crash dumps, jqwik local state, and Kiro task-session metadata while preserving source/tests/config and the Wrapper JAR.
 - The README includes the pitch, MCP purpose, architecture, exercised prerequisites, pinned build, direct proof, Kiro configuration, all four tool examples, demonstrated official-GUI replay flow, unverified passive-viewer alternative, test/smoke/preflight commands, troubleshooting, limitations, attribution, and the local-code/user-permissions warning.
 - `SUBMISSION.md` contains placeholders and separate evidence states for build, two-Bot validation, real battle, genuine scores, MCP discovery, Kiro, live viewer, replay creation/playback, demo recording, video duration/accessibility, deadline, license, and clean tracked-file review.
 - The repository owner selected MIT. `LICENSE` contains the canonical grant for copyright 2026 Tommy Mathisen, while `THIRD_PARTY_NOTICES.md` records pinned external projects and source/license links.
@@ -907,3 +907,87 @@ Changed files for this improvement: `LiveViewerLauncher.java`, `OfficialBattleRu
 `Stage4FocusedUnitTest.java`, `README.md`, `KIRO_ROYALE_AGENT_BUILD_BRIEF.md`, the Kiro requirements
 and design, `DECISIONS.md`, and `STATUS.md`. The owner observed the automatically opened Firefox
 viewer and confirmed that the five-second hold made the victory screen comfortably readable.
+
+## Post-MVP credible basic Bot strategies — 2026-07-17
+
+**State: IMPLEMENTED AND VERIFIED MECHANICALLY AND VISUALLY.** The
+two bundled Bots remain small and deterministic but now aim at scanned coordinates, fire only when
+their guns are aligned, maintain independent radar movement, strafe/orbit, and recover from hits or
+walls. Kiro Bot additionally uses simple linear target prediction and distance-based firepower.
+
+| Command/observation | Exit code/state | Result |
+|---|---:|---|
+| pinned Bot API `javap` inspection | `0` | Confirmed the exercised API exposes independent body/gun/radar adjustment, per-turn `go`, coordinate-bearing helpers, scanned position/direction/speed, gun heat, bullet speed, arena dimensions, and non-blocking intent setters used by the revised strategies. |
+| `./gradlew clean test directBattle` | `0` | Clean application and both Bot compilations passed, as did the focused suite. A genuine official one-round direct battle completed on `ws://127.0.0.1:44343`; Sample Opponent recorded `14` bullet damage and Kiro Bot recorded `28`, with `0` ram damage for both. Recording `runtime/recordings/direct-1784317026888/game-2026-07-17-22-37-07.battle.gz` was `286,444` bytes and all three owned processes were cleaned up. |
+| `./gradlew viewerBattle` | `0` | Firefox connected on `ws://[::1]:7654`; a genuine visible round completed with Kiro Bot rank 1 / total `151` / survival `50` / bullet damage `76`, and Sample Opponent rank 2 / total `11` / bullet damage `11`. Ram damage was `0` for both. Recording `runtime/recordings/direct-1784317069587/game-2026-07-17-22-37-50.battle.gz` was `63,804` bytes, the five-second result hold ran, and cleanup completed. |
+| final `./gradlew buildBundledBots` | `0` | Both reviewed Java Bot sources recompiled successfully after the collision-response movement cleanup. |
+| final `git diff --check` | `0` | The strategy and evidence changes contain no whitespace errors. |
+
+Non-zero bullet damage for both Bots in both genuine executions proves that both revised strategies
+successfully aimed and hit the opponent; it does not prove deterministic winners, scores, or
+competitive strength. The owner observed the live run and confirmed that the behavior looked much
+better than the original near-spawn wandering. Changed files: both Bot Java sources, manifests, Bot READMEs,
+project `README.md`, `DECISIONS.md`, and `STATUS.md`.
+
+## Post-MVP Kiro-authored compile-and-battle loop — 2026-07-17
+
+**State: IMPLEMENTED AND VERIFIED THROUGH INSTALLED KIRO.** Kiro
+now receives always-included steering for an explicit inspect → meaningful source edit →
+`run_battle` workflow. The MCP server remains downstream from Kiro and exposes exactly four tools;
+it does not pretend to invoke the selected model. Before every accepted battle, `run_battle`
+compiles only the current fixed registered sources through the local JDK, installs contained
+runtime classes, and returns their SHA-256 hashes.
+
+| Command/observation | Exit code/state | Result |
+|---|---:|---|
+| initial `./gradlew compileJava` | `0` | The fixed-registry compiler boundary, compile-failure model, and source-hash result projection compiled successfully. |
+| `./gradlew test` | `0` | All `23` focused/contract tests passed: `11` Stage 4 focused, `6` Stage 1 core, `4` Stage 2 MCP contract, and `2` MCP transport/lifecycle tests. New coverage compiled both production registered sources to contained runtime outputs, verified 64-character hashes, and proved `BOT_COMPILE_FAILED` diagnostics leave engine invocations at zero. |
+| `./gradlew clean test mcpViewerProof` | `0` | From a clean runtime, all `23` tests passed and the official MCP client still discovered exactly four tools. `run_battle(showBattle=true)` automatically recompiled both sources, returned hashes `kiro-bot=8d2a5069d5f88d91d7b03dcc57d316a53bb141ea62e03280bde82c459c676f00` and `sample-opponent=65acd0019029ed44d160b2e902bc0b2da4fd94dd1ba2f137c331f646496b1b97`, completed a genuine round in `19,347 ms`, and finished the full proof in `20,371 ms`. Kiro Bot recorded `62` bullet damage; Sample Opponent recorded `7`; recording `runtime/recordings/direct-1784317841255/game-2026-07-17-22-50-43.battle.gz` was `96,499` bytes; viewer connection, five-second result hold, protocol parsing, and cleanup all succeeded. |
+| final `./gradlew test` | `0` | All `24` focused/contract tests passed after adding a real malformed-Java case in a temporary contained repository. The production compiler returned bounded repository-redacted diagnostics and installed no invalid class. |
+| stale installed-Kiro MCP child inspection and `kill 2178683` | `0` | Located and stopped only the pre-build Kiro Royale MCP child so installed Kiro can reconnect to the compiler-enabled distribution; the Kiro IDE remained open. |
+| final `git diff --check` | `0` | The complete strategy, compiler, steering, test, and evidence diff contains no whitespace errors. |
+| installed Kiro LLM-authored edit and `run_battle(showBattle=true)` | MCP success; human supplied | Kiro included `bot-development.md`, inspected `kiro-bot`, read the primary source, made a meaningful source edit, and left Sample Opponent unchanged. Automatic compilation succeeded on the first attempt. The genuine official round returned Kiro Bot source hash `35c5246c5a8ec863f794c3517b5cc64cd011b2cbf0c94bc973db84989791278f`, Sample Opponent hash `65acd0019029ed44d160b2e902bc0b2da4fd94dd1ba2f137c331f646496b1b97`, recording `runtime/recordings/direct-1784318164142/game-2026-07-17-22-56-05.battle.gz`, `viewerConnected=true`, and `cleanupComplete=true`. Sample Opponent ranked first with total `178` / bullet damage `98`; the generated Kiro Bot ranked second with total `72` / bullet damage `72`. |
+| local `sha256sum bots/kiro-bot/src/main/java/dev/kiro/royale/bots/KiroBot.java` | `0` | Returned exactly `35c5246c5a8ec863f794c3517b5cc64cd011b2cbf0c94bc973db84989791278f`, independently matching the hash returned by installed Kiro's MCP battle. |
+| `./gradlew test --rerun-tasks` after the Kiro edit | `0` | Forced recompilation of the application, Kiro-generated Bot, fixed opponent, distribution, and all `24` focused/contract tests; all executed successfully. |
+
+Security boundary: callers still provide only stable Bot IDs and battle options. Source text, paths,
+commands, compiler options, environment values, hosts, and remote repositories remain absent from
+MCP input. Temporary and final compilation outputs remain ignored beneath `runtime/bots`; source
+changes observed during compilation abort safely. Compiler errors expose at most eight bounded,
+repository-redacted diagnostics.
+
+Changed files for this combined improvement include the two Bot sources/manifests/READMEs,
+`BotCompiler.java`, `RegisteredBotCompiler.java`, registry/service/models/MCP/direct/proof classes,
+focused tests, `.kiro/steering/bot-development.md`, product steering, requirements/design/build
+brief, `README.md`, `DECISIONS.md`, and `STATUS.md`. Installed Kiro generating a meaningful source
+edit, compiling it automatically, running it genuinely, and receiving a matching changed hash is
+**verified**. Cross-user sharing and safe execution of untrusted remote Bot code remain outside the
+MVP and **not verified**.
+
+## Final repository cleanup and release verification — 2026-07-17
+
+**State: PASSED.** The exact staged publication snapshot passed the finite release gate after the
+Kiro-authored workflow, strategy updates, documentation refresh, and placeholder cleanup.
+
+| Command/observation | Exit code/state | Result |
+|---|---:|---|
+| repository-wide stale-reference scan and `git diff --check` | `0` | No stale `.env.example`, `runtime/.gitkeep`, scaffold-state, or obsolete live-viewer claims remained in active documentation; the diff contained no whitespace errors. |
+| `git add -A` | `0` | Staged the complete user-authorized project change so tracked-file hygiene evaluated the exact proposed commit. |
+| `./scripts/verify-release.sh` | `0` | `RELEASE_HYGIENE_OK` and `RELEASE_VERIFICATION_OK`; all required source/configuration was tracked, all generated/sensitive examples were ignored, no generated runtime or environment file was tracked, and active configuration contained no developer-home path. |
+| release gate: `./gradlew clean build` | `0` | Clean application distribution, both bundled Bots, and tests built successfully. |
+| release gate: `./gradlew clean test` | `0` | All `24` focused/contract tests passed from clean outputs. |
+| release gate: `./gradlew clean directBattle` | `0` | Genuine official round completed on `ws://127.0.0.1:39719`; Sample Opponent scored `171` total / `92` bullet damage and Kiro Bot scored `49` / `49`. Both source hashes matched the installed-Kiro revision, recording `runtime/recordings/direct-1784318651821/game-2026-07-17-23-04-12.battle.gz` was `102,426` bytes, and all three owned processes were dead after cleanup. |
+| release gate: `./gradlew mcpProof` | `0` | Official client parsed protocol-clean stdio, discovered exactly `[get_arena_status, inspect_bot, list_bots, run_battle]`, and completed a genuine round. Sample Opponent scored `175` total / `96` bullet damage; Kiro Bot scored `34` / `34`; recording `runtime/recordings/direct-1784318667949/game-2026-07-17-23-04-28.battle.gz` was `71,984` bytes; source hashes matched; cleanup completed. |
+| release gate: `./gradlew realSmoke` | `0` | Genuine official round completed on `ws://127.0.0.1:42425`; Sample Opponent scored `184` total / `103` bullet damage and Kiro Bot scored `60` / `60`; recording `runtime/recordings/direct-1784318680071/game-2026-07-17-23-04-40.battle.gz` was `64,183` bytes; cleanup completed. |
+
+Cleanup removed `.env.example` because the project has no environment configuration,
+`runtime/.gitkeep` because runtime directories are created on demand and ignored, and the two
+package-level Java README stubs because they only described a scaffold that no longer exists.
+These tracked deletions remain recoverable from Git history. `agent-prompts/`, numbered `docs/`,
+specifications, steering, and recorded evidence remain because they explain the requirements-first
+challenge workflow and implemented security boundaries. The release script now rejects any tracked
+environment or runtime file and requires the Kiro Bot-development steering and registered compiler.
+
+This final automated run did not exercise installed Kiro, the live viewer, or replay playback;
+those are verified separately above. Fresh-checkout review, publication/public accessibility,
+demo video, deadline submission, and video duration remain **not verified**.

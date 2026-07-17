@@ -11,6 +11,8 @@ import static dev.kiro.royale.Models.*;
 
 /** Static catalog for exactly the two reviewed bundled bots. */
 public final class BotRegistry {
+    record CompilationTarget(BotId id, Path source, String mainClass, Path outputDirectory) {}
+
     private record Registration(
             BotId id, String directory, String expectedName, String expectedVersion,
             String sourceFile, String mainClass, String sourceLabel) {}
@@ -55,6 +57,21 @@ public final class BotRegistry {
         } catch (IOException exception) {
             throw new IllegalStateException("Registered bot cannot be resolved", exception);
         }
+    }
+
+    CompilationTarget compilationTarget(BotId id) throws IOException {
+        Registration registration = registrations.get(id);
+        if (registration == null) throw new IllegalArgumentException("Unknown bot ID");
+        Path directory = canonicalContainedDirectory(registration);
+        Path source = directory.resolve(registration.sourceFile()).normalize().toRealPath();
+        if (!source.startsWith(directory) || !Files.isRegularFile(source)) {
+            throw new IOException("Registered Bot source is missing or unsafe");
+        }
+        Path classesRoot = paths.runtimePath("bots", "classes");
+        Path output = classesRoot.resolve(id.value()).normalize();
+        if (!output.startsWith(paths.runtimeRoot())) throw new IOException("Bot output escaped runtime");
+        if (Files.isSymbolicLink(output)) throw new IOException("Bot output is an unsafe symbolic link");
+        return new CompilationTarget(id, source, registration.mainClass(), output);
     }
 
     private BotInspection inspectRegistration(Registration registration) {

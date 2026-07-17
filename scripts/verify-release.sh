@@ -34,8 +34,10 @@ for path in \
   LICENSE \
   THIRD_PARTY_NOTICES.md \
   .kiro/settings/mcp.json \
+  .kiro/steering/bot-development.md \
   scripts/kiro-royale-mcp.sh \
   src/main/java/dev/kiro/royale/KiroRoyaleApplication.java \
+  src/main/java/dev/kiro/royale/RegisteredBotCompiler.java \
   src/test/java/dev/kiro/royale/RealBattleSmokeTest.java
 do
   git ls-files --error-unmatch "$path" >/dev/null 2>&1 || fail "required tracked file missing: $path"
@@ -73,9 +75,9 @@ done
 # No tracked generated artifact may be present. The Wrapper bootstrap JAR is the explicit exception.
 git ls-files | while IFS= read -r path; do
   case "$path" in
-    .env|.env.*) [ "$path" = '.env.example' ] || fail "tracked environment file: $path" ;;
+    .env|.env.*) fail "tracked environment file: $path" ;;
     .gradle/*|build/*|out/*|target/*) fail "tracked build output: $path" ;;
-    runtime/*) [ "$path" = 'runtime/.gitkeep' ] || fail "tracked runtime artifact: $path" ;;
+    runtime/*) fail "tracked runtime artifact: $path" ;;
     *.battle.gz|*.log|*.db|*.db-journal|*.sqlite|*.sqlite3|*.zip|*.tar|*.tar.gz|*.tgz|*.exe|*.dll|*.so|*.dylib|*.class)
       fail "tracked generated/binary artifact: $path" ;;
     *.jar) [ "$path" = 'gradle/wrapper/gradle-wrapper.jar' ] || fail "tracked JAR outside Wrapper: $path" ;;

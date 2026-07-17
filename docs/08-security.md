@@ -46,5 +46,5 @@ success, failure, timeout, or shutdown.
 
 ## Secrets
 
-The core project should not need secrets. Keep `.env.example` non-sensitive and
-do not commit `.env`.
+The core project does not need secrets or an environment file. Do not commit
+`.env`, credentials, tokens, or private keys.

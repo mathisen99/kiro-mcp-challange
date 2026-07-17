@@ -220,6 +220,10 @@ Responsibilities:
 - apply defaults (`rounds = 1`, `record = true`) before domain validation;
 - require exactly two distinct registered IDs and rounds in `[1, 5]`;
 - atomically enforce one active battle;
+- invoke `RegisteredBotCompiler` for only the selected fixed registrations, compile their current
+  canonical sources with the local JDK 21 compiler and pinned Bot API into contained ignored runtime
+  directories, and retain their SHA-256 hashes;
+- stop before engine invocation with bounded line/column diagnostics when compilation fails;
 - validate both Bots before external work;
 - allocate contained log/result/recording paths;
 - invoke `BattleEngine` once with validated application-owned launch metadata;
@@ -228,6 +232,13 @@ Responsibilities:
 - verify an enabled recording before claiming it;
 - persist optional lightweight diagnostic result JSON under `runtime/results/` without making it authoritative;
 - always perform cleanup and release the active gate.
+
+`RegisteredBotCompiler` is an internal port/adapter boundary, not an MCP tool. It receives stable
+`BotId` values only and resolves source, main class, classpath, language level, temporary directory,
+and final output through application-owned registry/configuration. It never accepts source text,
+paths, options, commands, or environment values from MCP. It compiles all selected sources before
+installing outputs, rejects source changes observed during compilation, and returns SHA-256 hashes
+for the compiled revisions. Compilation diagnostics are bounded and repository paths are redacted.
 
 ### One-active-battle coordinator
 
@@ -438,7 +449,11 @@ Success responses use stable camel-case JSON-compatible fields and a short summa
       "roundsPlayed": 1
     }
   ],
-  "recordingPath": "runtime/recordings/application-owned-name.battle.gz"
+  "recordingPath": "runtime/recordings/application-owned-name.battle.gz",
+  "sourceHashes": {
+    "kiro-bot": "<sha256>",
+    "sample-opponent": "<sha256>"
+  }
 }
 ```
 

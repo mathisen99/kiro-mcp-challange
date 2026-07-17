@@ -8,6 +8,8 @@ Kiro Royale is a one-day MVP that connects Kiro to genuine Robocode Tank Royale 
 - Run exactly two distinct registered bots for 1–5 rounds; use stable bot IDs rather than caller-provided paths or commands.
 - Execute production battles only through the official Battle Runner with real bot processes. Never substitute fixtures, randomness, mocks, or hardcoded scores.
 - Return ranks and score components only from official successful-completion data.
+- For an LLM-coded battle, have Kiro inspect and meaningfully edit the registered `kiro-bot` source
+  before `run_battle`; the tool compiles only fixed registered sources and returns their SHA-256 hashes.
 - Keep the MVP focused: no leaderboard, remote bot import, custom viewer, tournaments, database, concurrent battles, or asynchronous jobs without documented timeout evidence.
 
 ## Delivery rule

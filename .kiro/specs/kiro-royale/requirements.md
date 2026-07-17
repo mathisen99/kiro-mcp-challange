@@ -144,8 +144,11 @@ This document separates product behavior, repository and process gates, and manu
 20. WHEN `run_battle` sets `showBattle` to true, THE Kiro_Royale_Server SHALL open only the configured trusted Passive_Viewer URL and SHALL use its application-owned loopback endpoint.
 21. WHEN `showBattle` is true, THE Kiro_Royale_Server SHALL give the viewer a finite application-owned pre-battle connection window and SHALL record whether an established loopback client was mechanically observed.
 22. WHEN a viewer-enabled Genuine_Battle completes, THE Kiro_Royale_Server SHALL keep the loopback viewer session available for a finite application-owned post-result interval before cleanup so the victory result can be read.
-22. IF the trusted viewer cannot be opened, THEN THE Kiro_Royale_Server SHALL return a Sanitized_Failure without starting a battle; absence of a kernel-level connection observation SHALL NOT fabricate failure when the browser launch succeeded and a late connection can still display the battle.
-23. WHEN a viewer-enabled battle completes successfully, THE Kiro_Royale_Server SHALL report separately whether viewing was requested and whether a pre-battle connection was mechanically observed.
+23. IF the trusted viewer cannot be opened, THEN THE Kiro_Royale_Server SHALL return a Sanitized_Failure without starting a battle; absence of a kernel-level connection observation SHALL NOT fabricate failure when the browser launch succeeded and a late connection can still display the battle.
+24. WHEN a viewer-enabled battle completes successfully, THE Kiro_Royale_Server SHALL report separately whether viewing was requested and whether a pre-battle connection was mechanically observed.
+25. BEFORE `run_battle` validates or launches a selected Bot, THE Kiro_Royale_Server SHALL compile the current application-registered source into its fixed ignored runtime output using the local JDK compiler.
+26. IF a selected registered source does not compile, THEN THE Kiro_Royale_Server SHALL return `BOT_COMPILE_FAILED` with bounded repair diagnostics and SHALL NOT invoke the Battle_Runner.
+27. WHEN `run_battle` completes successfully, THE Kiro_Royale_Server SHALL return a SHA-256 hash for each exact registered source revision compiled for that battle.
 
 ### Requirement 6: Enforce filesystem, network, and process safety
 
@@ -168,6 +171,7 @@ This document separates product behavior, repository and process gates, and manu
 13. THE Kiro_Royale_System SHALL configure a strictly positive finite Bot connection timeout that cannot be overridden by an MCP caller.
 14. THE Kiro_Royale_System SHALL configure a strictly positive finite battle wall-clock timeout that cannot be overridden by an MCP caller.
 15. WHEN child-process output or diagnostic detail exceeds a configured finite limit, THE Kiro_Royale_System SHALL bound or truncate the captured content without corrupting MCP protocol output.
+16. WHEN `run_battle` compiles Bot source, THE compiler SHALL accept only application-registered canonical source files, the pinned runtime classpath, Java 21, and contained ignored output directories; MCP callers SHALL NOT provide source text, paths, compiler options, or commands.
 
 ### Requirement 7: Preserve genuine results and explicit failure semantics
 

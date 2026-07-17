@@ -6,6 +6,7 @@ Its primary strategy source is
 `buildBundledBots` task compiles it under `runtime/bots`; the fixed launch scripts
 contain no caller-provided command data.
 
-The strategy follows a predictable patrol arc, scans with the gun, fires on scans,
-and evades perpendicular to incoming bullets. Bots execute local code with the
-current user's permissions.
+The strategy continuously sweeps or locks its independent radar, predicts a moving target's
+near-future position, fires only when the gun is aligned, strafes across the opponent's firing
+line, and reverses after hits or wall contact. The small firepower, aim, and movement methods are
+intentionally easy for Kiro to tune. Bots execute local code with the current user's permissions.

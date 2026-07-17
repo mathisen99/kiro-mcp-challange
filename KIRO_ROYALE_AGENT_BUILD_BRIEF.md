@@ -245,6 +245,8 @@ Inputs:
 
 Behavior:
 
+- compile only the current application-registered Bot sources with the local JDK before launch;
+- return their SHA-256 hashes on success, or bounded repair diagnostics without starting a battle when compilation fails;
 - validate both bots;
 - reject unknown IDs and unsafe paths;
 - start the real Battle Runner;
@@ -303,16 +305,19 @@ kiro-royale/
 │   │   ├── requirements.md
 │   │   ├── design.md
 │   │   └── tasks.md
-│   └── steering/kiro-royale.md
+│   └── steering/
+│       ├── bot-development.md
+│       ├── product.md
+│       ├── structure.md
+│       └── tech.md
 ├── agent-prompts/
 ├── bots/
 │   ├── kiro-bot/
 │   └── sample-opponent/
 ├── docs/
-├── runtime/                  # ignored except .gitkeep
+├── runtime/                  # ignored; created on demand
 ├── src/main/java/dev/kiro/royale/
 ├── src/test/java/dev/kiro/royale/
-├── .env.example
 ├── .gitignore
 ├── AGENTS.md
 ├── DECISIONS.md

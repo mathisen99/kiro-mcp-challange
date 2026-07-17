@@ -37,7 +37,7 @@ public final class KiroRoyaleApplication {
             var transport = new StdioServerTransportProvider(mapper, System.in, System.out);
             McpSyncServer server = McpServer.sync(transport)
                     .serverInfo("kiro-royale", McpToolAdapter.APPLICATION_VERSION)
-                    .instructions("Use stable registered bot IDs; run_battle is synchronous and executes local reviewed bot code.")
+                    .instructions("For an LLM-coded battle, inspect kiro-bot, edit its reported primary source with normal workspace tools, then call run_battle. The tool compiles only the current fixed registered sources before synchronous execution and returns their SHA-256 hashes.")
                     .requestTimeout(Duration.ofSeconds(150))
                     .capabilities(ServerCapabilities.builder().tools(false).build())
                     .strictToolNameValidation(true)

@@ -4,7 +4,7 @@
 
 - `KIRO_ROYALE_AGENT_BUILD_BRIEF.md` — overall MVP constraints and staged execution brief.
 - `.kiro/specs/kiro-royale/requirements.md` — approved behavior and acceptance criteria.
-- `.kiro/specs/kiro-royale/design.md` — planned architecture and security boundaries.
+- `.kiro/specs/kiro-royale/design.md` — implemented architecture and security boundaries.
 - `.kiro/specs/kiro-royale/tasks.md` — strict Stage 0–5 implementation sequence.
 - `STATUS.md` — evidence-backed implementation truth; update after every stage and label unexercised claims `not verified`.
 - `DECISIONS.md` — accepted decisions and facts verified through execution; do not record guesses as resolved decisions.
@@ -19,9 +19,9 @@ Read these files before editing implementation code. If narrative files disagree
 .kiro/steering/                 Always-included AI project guidance
 agent-prompts/                  Stage-oriented implementation prompts
 docs/                           Planning, testing, security, demo, and submission guidance
-src/main/java/dev/kiro/royale/  Main Java application (currently a placeholder)
-src/test/java/dev/kiro/royale/  Focused Java tests (currently a placeholder)
-bots/kiro-bot/                  Simple editable bundled bot
+src/main/java/dev/kiro/royale/  Implemented Java MCP/compiler/Battle Runner application
+src/test/java/dev/kiro/royale/  Focused contracts plus genuine integration smoke test
+bots/kiro-bot/                  Primary LLM-editable bundled bot
 bots/sample-opponent/           Predictable bundled opponent
 runtime/                        Ignored generated logs, results, and recordings
 scripts/                        Transparent helpers for verified repeatable commands only

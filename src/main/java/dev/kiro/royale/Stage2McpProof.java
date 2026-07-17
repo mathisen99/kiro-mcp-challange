@@ -103,6 +103,15 @@ public final class Stage2McpProof {
             require(Boolean.TRUE.equals(battle.get("cleanupComplete")), "Battle cleanup did not complete");
             require(Boolean.valueOf(showBattle).equals(battle.get("viewerRequested")),
                     "Battle did not report the requested viewer state");
+            require(battle.get("sourceHashes") instanceof Map<?, ?>,
+                    "Battle sourceHashes was not an object");
+            Map<String, Object> sourceHashes = stringObjectMap(
+                    (Map<?, ?>) battle.get("sourceHashes"), "sourceHashes");
+            require(sourceHashes.keySet().equals(Set.of("kiro-bot", "sample-opponent")),
+                    "Battle source hash identities were incomplete");
+            require(sourceHashes.values().stream().allMatch(value -> value instanceof String hash
+                            && hash.matches("[0-9a-f]{64}")),
+                    "Battle source hashes were not SHA-256 values");
             require(battle.get("viewerConnected") instanceof Boolean,
                     "Battle did not report the viewer connection observation state");
             if (!showBattle) require(Boolean.FALSE.equals(battle.get("viewerConnected")),
@@ -125,6 +134,7 @@ public final class Stage2McpProof {
             System.out.println("MCP_CLEANUP_OK: ownedProcesses=" + maps(battle.get("processes"), "processes").size());
             System.out.println("MCP_VIEWER_OK: requested=" + battle.get("viewerRequested")
                     + " connected=" + battle.get("viewerConnected"));
+            System.out.println("MCP_SOURCE_HASHES_OK: " + sourceHashes);
             System.out.println("MCP_PROTOCOL_STDOUT_VALID: official client parsed handshake, discovery, and four tool responses");
         }
         long proofMillis = Duration.ofNanos(System.nanoTime() - proofStarted).toMillis();

@@ -2,6 +2,7 @@ package dev.kiro.royale;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import static dev.kiro.royale.Models.*;
@@ -12,19 +13,30 @@ public final class BattleService implements AutoCloseable {
     private final BattleCoordinator coordinator;
     private final BattleEngine engine;
     private final GenuineResultMapper resultMapper;
+    private final BotCompiler compiler;
 
     public BattleService(RepositoryPaths paths) {
-        this(new BotRegistry(paths), new BattleCoordinator(),
+        this(paths, new BotRegistry(paths));
+    }
+
+    private BattleService(RepositoryPaths paths, BotRegistry registry) {
+        this(registry, new BattleCoordinator(),
                 new OfficialBattleRunnerAdapter(paths, Duration.ofSeconds(30), Duration.ofSeconds(120), Duration.ofSeconds(5)),
-                new GenuineResultMapper());
+                new GenuineResultMapper(), new RegisteredBotCompiler(paths, registry));
     }
 
     BattleService(BotRegistry registry, BattleCoordinator coordinator, BattleEngine engine,
                   GenuineResultMapper resultMapper) {
+        this(registry, coordinator, engine, resultMapper, BotCompiler.noOp());
+    }
+
+    BattleService(BotRegistry registry, BattleCoordinator coordinator, BattleEngine engine,
+                  GenuineResultMapper resultMapper, BotCompiler compiler) {
         this.registry = java.util.Objects.requireNonNull(registry, "registry");
         this.coordinator = java.util.Objects.requireNonNull(coordinator, "coordinator");
         this.engine = java.util.Objects.requireNonNull(engine, "engine");
         this.resultMapper = java.util.Objects.requireNonNull(resultMapper, "resultMapper");
+        this.compiler = java.util.Objects.requireNonNull(compiler, "compiler");
     }
 
     public BotRegistry registry() { return registry; }
@@ -42,6 +54,14 @@ public final class BattleService implements AutoCloseable {
         BattleCoordinator.Lease lease = coordinator.tryAcquire();
         if (lease == null) return failure("BATTLE_ACTIVE", "Another battle is already active");
         try (lease) {
+            Map<String, String> sourceHashes;
+            try {
+                sourceHashes = compiler.compile(request.botIds());
+            } catch (BotCompilationException exception) {
+                return new BattleFailure("BOT_COMPILE_FAILED",
+                        "The current registered Bot source did not compile; fix the reported Java errors and retry",
+                        exception.diagnostics());
+            }
             List<ValidatedBot> bots;
             try {
                 bots = request.botIds().stream().map(registry::resolveValidated).toList();
@@ -67,7 +87,7 @@ public final class BattleService implements AutoCloseable {
             return new BattleSuccess(execution.completion().roundsPlayed(), results, execution.recordingPath(),
                     execution.websocketUrl(), execution.completion().provenance(), execution.processes(),
                     execution.cleanupComplete(), execution.diagnostics(), request.showBattle(),
-                    execution.viewerConnected());
+                    execution.viewerConnected(), sourceHashes);
         } catch (TimeoutException exception) {
             return failure("BATTLE_TIMEOUT", "The official battle exceeded its finite deadline");
         } catch (BattleEngineException exception) {

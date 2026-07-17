@@ -163,6 +163,72 @@ class Stage4FocusedUnitTest {
     }
 
     @Test
+    void compileFailureIsActionableAndStopsBeforeEngineInvocation() throws Exception {
+        FakeEngine engine = new FakeEngine();
+        BotCompiler failingCompiler = ids -> {
+            throw new BotCompilationException(List.of("kiro-bot:42:9 cannot find symbol"));
+        };
+        RepositoryPaths paths = RepositoryPaths.locate();
+        try (BattleService service = new BattleService(new BotRegistry(paths), new BattleCoordinator(), engine,
+                new GenuineResultMapper(), failingCompiler)) {
+            BattleFailure failure = assertInstanceOf(BattleFailure.class,
+                    service.run(new BattleRequest(VALID_IDS, 1, false)));
+            assertEquals("BOT_COMPILE_FAILED", failure.code());
+            assertEquals(List.of("kiro-bot:42:9 cannot find symbol"), failure.diagnostics());
+            assertEquals(0, engine.invocations.get());
+
+            CallToolResult result = call(new McpToolAdapter(paths, service).specifications().get(3),
+                    "run_battle", Map.of("botIds", ids(), "record", false));
+            assertError(result);
+            assertEquals(List.of("kiro-bot:42:9 cannot find symbol"), asMap(result).get("diagnostics"));
+            assertEquals(0, engine.invocations.get());
+        }
+    }
+
+    @Test
+    void productionCompilerBuildsOnlyRegisteredSourcesAndReturnsTheirHashes() throws Exception {
+        RepositoryPaths paths = RepositoryPaths.locate();
+        BotRegistry registry = new BotRegistry(paths);
+        Map<String, String> hashes = new RegisteredBotCompiler(paths, registry).compile(VALID_IDS);
+        assertEquals(Set.of("kiro-bot", "sample-opponent"), hashes.keySet());
+        assertTrue(hashes.values().stream().allMatch(hash -> hash.matches("[0-9a-f]{64}")));
+        for (BotId id : VALID_IDS) {
+            assertTrue(Files.isRegularFile(registry.compilationTarget(id).outputDirectory().resolve(
+                    registry.compilationTarget(id).mainClass().replace('.', '/') + ".class")));
+        }
+    }
+
+    @Test
+    void productionCompilerReturnsBoundedSafeDiagnosticsWithoutInstallingInvalidSource(
+            @TempDir Path temporary) throws Exception {
+        Path root = temporary.resolve("repository");
+        Path source = root.resolve("bots/kiro-bot/src/main/java/dev/kiro/royale/bots/KiroBot.java");
+        Files.createDirectories(source.getParent());
+        Files.createDirectories(root.resolve("bots/sample-opponent"));
+        Path lib = root.resolve("runtime/bots/lib");
+        Files.createDirectories(lib);
+        Files.writeString(source, "package dev.kiro.royale.bots; public final class KiroBot { broken }");
+
+        Path realLib = RepositoryPaths.locate().runtimeRoot().resolve("bots/lib");
+        try (var entries = Files.list(realLib)) {
+            Path apiJar = entries.filter(path -> path.getFileName().toString()
+                    .startsWith("robocode-tankroyale-bot-api-")).findFirst().orElseThrow();
+            Files.copy(apiJar, lib.resolve(apiJar.getFileName()));
+        }
+
+        RepositoryPaths paths = RepositoryPaths.fromRoot(root);
+        BotRegistry registry = new BotRegistry(paths);
+        BotCompilationException failure = assertThrows(BotCompilationException.class,
+                () -> new RegisteredBotCompiler(paths, registry).compile(List.of(new BotId("kiro-bot"))));
+        assertFalse(failure.diagnostics().isEmpty());
+        assertTrue(failure.diagnostics().size() <= 8);
+        assertTrue(failure.diagnostics().stream().allMatch(line -> line.length() <= 400));
+        assertTrue(failure.diagnostics().stream().noneMatch(line -> line.contains(root.toString())));
+        assertFalse(Files.exists(root.resolve(
+                "runtime/bots/classes/kiro-bot/dev/kiro/royale/bots/KiroBot.class")));
+    }
+
+    @Test
     void finiteTimeoutsBoundedRedactedDiagnosticsAndModeStdoutArchitectureAreEnforced() throws Exception {
         RepositoryPaths paths = RepositoryPaths.locate();
         assertThrows(IllegalArgumentException.class, () -> new OfficialBattleRunnerAdapter(paths,

@@ -20,6 +20,15 @@ The locally demonstrated path is:
 
 The installed-Kiro and official-GUI replay flow was exercised successfully. Automatic passive-viewer launch is implemented and unit-tested, and the owner visibly observed the automatically opened Firefox viewer display a genuine `showBattle: true` battle. Replay remains the fallback visual-proof path. See [`STATUS.md`](STATUS.md) for commands, exit codes, observed scores, and evidence boundaries.
 
+### Bundled Bot behavior
+
+`kiro-bot` remains a compact, editable teaching strategy, but it now behaves like a basic combat
+Bot: independent radar sweep/lock, linear target prediction, distance-based firepower, alignment
+checks before firing, perpendicular strafing, and collision/hit recovery. `sample-opponent` is a
+simpler deterministic baseline with direct coordinate aiming, radar lock, orbiting movement, and
+fixed reversals. Neither strategy uses randomness or claims competitive sophistication; their
+small named methods are intended for Kiro-assisted tuning between battles.
+
 ## Architecture
 
 ```text
@@ -182,6 +191,27 @@ Input:
 ```
 
 Exactly two distinct registered Bot IDs are required. `rounds` is an integer from 1 through 5; omitted `rounds` defaults to `1`. Omitted `record` defaults to `true`. Successful responses include a concise summary and structured genuine results. Failures are sanitized and contain no fabricated score or recording claim.
+
+Before every accepted battle, the server recompiles the current source of both selected fixed
+registrations with the local JDK 21 compiler. MCP input still cannot provide source, paths, compiler
+options, or commands. A compile error returns `BOT_COMPILE_FAILED` with bounded line/column details
+and starts no battle. Success returns `sourceHashes`, containing the SHA-256 of each exact source
+revision compiled for that result.
+
+### Let the current Kiro model code the Bot
+
+The MCP server cannot call back into Kiro's selected LLM. Instead, Kiro writes the strategy using
+its normal workspace editing tools before it calls MCP; `run_battle` then automatically compiles and
+runs that edit. Use a prompt like:
+
+> Inspect `kiro-bot`, design and implement a meaningful new strategy with the current Kiro model,
+> and do not merely run the existing source. Keep `sample-opponent` unchanged. Then call
+> `run_battle` for one recorded round with `showBattle: true`, repair any `BOT_COMPILE_FAILED`
+> diagnostics, and explain the edit, returned source hash, and genuine scores.
+
+The committed `.kiro/steering/bot-development.md` makes this workflow explicit. A plain request to
+rerun the current Bot does not silently modify source; ask Kiro to create, evolve, code, or improve
+the Bot when an LLM-generated revision is desired.
 
 `showBattle` defaults to `false` so headless and automated runs do not open windows. When it is
 `true`, Kiro Royale keeps the viewer on its documented default `ws://localhost:7654`, binds the

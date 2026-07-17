@@ -2,7 +2,7 @@
   "name": "Kiro Bot",
   "version": "1.0",
   "authors": ["Kiro Royale"],
-  "description": "A deliberately simple editable patrol-and-fire strategy.",
+  "description": "An editable radar-lock, predictive-aim, and strafing strategy.",
   "homepage": "",
   "countryCodes": ["us"],
   "platform": "JVM",

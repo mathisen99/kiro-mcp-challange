@@ -1,19 +1,15 @@
 # Technology
 
-## Current state
-
-This repository is an implementation scaffold. Requirements, design, and tasks are present, but there is currently no Gradle build, Wrapper, Java implementation, resolved dependency set, or verified build/test/run command. Treat versions and external API signatures as unresolved until Stage 0 proves them.
-
-## Planned stack
+## Verified stack
 
 - Java 21 in one JVM application.
 - Gradle with a version-controlled Gradle Wrapper.
 - Official Robocode Tank Royale Battle Runner and Java Bot API.
 - Official MCP Java SDK using stdio transport.
-- JUnit Platform; jqwik is planned for focused property tests.
+- JUnit Platform for focused tests; optional jqwik property tasks remain deferred.
 - Two bundled Java bots: `kiro-bot` and `sample-opponent`.
 
-Resolve current official artifacts and APIs through Gradle before implementation, then pin only versions that resolve successfully and record them in `DECISIONS.md`. Do not copy candidate versions from planning documents as verified facts.
+Pinned versions and verified API decisions are recorded in `DECISIONS.md`. Production uses MCP Java SDK `2.0.0`, Tank Royale `1.0.2`, Java 21, and Gradle Wrapper `9.6.1`.
 
 ## Architecture and coding conventions
 
@@ -28,7 +24,7 @@ Resolve current official artifacts and APIs through Gradle before implementation
 
 ## Commands
 
-Commands documented in `.kiro/specs/kiro-royale/tasks.md` are planned until their results appear in `STATUS.md`:
+Run commands from the repository root; exact exercised results are recorded in `STATUS.md`:
 
 ```sh
 java -version
@@ -38,4 +34,7 @@ java -version
 ./gradlew clean test
 ```
 
-Stage-specific dependency probes, direct-battle runs, MCP client proofs, and real smoke-test task names must be added only after implementation and verification. Run commands from the repository root and record exact commands and exit codes in `STATUS.md`.
+The implemented verification tasks are `stage0Probe`, `directBattle`, `viewerBattle`, `mcpProof`,
+`mcpViewerProof`, and `realSmoke`. Run them from the repository root and record exact commands and
+exit codes in `STATUS.md`. `run_battle` recompiles only fixed registered Bot sources with the local
+JDK before genuine execution and returns their SHA-256 hashes.

@@ -87,4 +87,4 @@ runtime/
 ```
 
 The repository `.gitignore` must keep generated contents under these directories
-untracked while preserving `runtime/.gitkeep`.
+untracked. The application creates `runtime/` when needed; no runtime placeholder is tracked.

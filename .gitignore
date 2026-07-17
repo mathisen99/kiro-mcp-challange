@@ -20,7 +20,6 @@ hs_err_pid*
 
 # Generated Kiro Royale runtime logs, results, recordings, tools, and process state
 runtime/*
-!runtime/.gitkeep
 *.battle.gz
 *.log
 *.result.json
@@ -30,7 +29,6 @@ server.properties
 # Local credentials, secrets, environment files, and databases
 .env
 .env.*
-!.env.example
 *.pem
 *.key
 *.p12

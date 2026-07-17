@@ -2,7 +2,7 @@
   "name": "Sample Opponent",
   "version": "1.0",
   "authors": ["Kiro Royale"],
-  "description": "A deterministic event-response opponent.",
+  "description": "A deterministic direct-aim and orbiting opponent.",
   "homepage": "",
   "countryCodes": ["us"],
   "platform": "JVM",

@@ -22,6 +22,7 @@ class Stage2McpContractTest {
                 () -> assertTrue(summary.contains("provenance=OFFICIAL_BATTLE_RUNNER_COMPLETION")),
                 () -> assertTrue(summary.contains("recordingPath=runtime/recordings/example.battle.gz")),
                 () -> assertTrue(summary.contains("cleanupComplete=true")),
+                () -> assertTrue(summary.contains("sourceHashes={}")),
                 () -> assertTrue(summary.contains("#1 Kiro Bot 1.0 totalScore=42 survivalScore=30 bulletDamage=8 ramDamage=4 firstPlaces=1 roundsPlayed=1")),
                 () -> assertTrue(summary.contains("#2 Sample Opponent 1.0 totalScore=10")));
     }

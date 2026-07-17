@@ -268,3 +268,47 @@ passive viewer connection for a fixed five seconds after genuine completion and 
 verification, before owned-process cleanup begins. This bounded application-owned delay gives the
 hosted viewer's victory overlay time to be read. It is not an MCP input, does not affect headless
 battles, and remains inside the existing finite wall-clock deadline.
+
+## ADR-010 — Credible basic bundled Bot strategies
+
+**Status:** implemented and genuine-battle exercised on 2026-07-17.
+
+**Decision:** keep both reviewed Java Bots deterministic and small, while replacing blind firing
+and long blocking patrol commands with per-turn radar, aiming, firing, and movement decisions.
+Kiro Bot uses a bounded linear target projection, distance-based firepower, gun-alignment gating,
+radar lock, perpendicular strafing, and cooldown-limited direction reversal. Sample Opponent uses
+simpler direct coordinate aiming, alignment-gated fire, deterministic orbiting, and fixed/collision
+reversals. No random decisions, remote inputs, new dependencies, or engine changes were added.
+
+**Reason:** the prior strategies often fired without pointing the gun at the scanned coordinates
+and spent most of a round moving near their spawn positions. The revised split makes both Bots
+visibly engage while preserving Kiro Bot as the primary understandable/editable strategy and the
+opponent as a predictable baseline. Genuine direct and viewer battles returned non-zero bullet
+damage for both Bots; scores and winners remain nondeterministic official outcomes.
+
+## ADR-011 — Kiro edits first; fixed-source compilation occurs inside `run_battle`
+
+**Status:** implemented and installed-Kiro edit/battle exercised on 2026-07-17.
+
+**Decision:** do not add an LLM or source-generation MCP tool. Kiro's currently selected model uses
+normal workspace tools to inspect and edit the registered Kiro Bot source before the MCP call.
+`run_battle` then invokes the local JDK compiler for only the two fixed registry sources, using the
+pinned Bot API, Java 21, and ignored contained runtime outputs. Successful responses carry a
+SHA-256 for each compiled source; compilation failure returns bounded line/column diagnostics and
+does not invoke the official engine. Exactly four MCP tools remain.
+
+**Reason:** an MCP server is downstream from Kiro and cannot call back into Kiro's selected model.
+Accepting arbitrary source, paths, compiler options, or commands as MCP input would also break the
+MVP security boundary. The split makes authorship genuine and observable: Kiro produces a real
+workspace diff, while the server proves which source revisions it compiled and fought. Future
+cross-user Bot exchange still requires sandboxing, resource isolation, provenance, and tournament
+policy and remains outside this MVP.
+
+**Installed-Kiro evidence:** with `bot-development.md` included, Kiro first called `inspect_bot`,
+read the registered primary source, and used its selected model to replace the scaffold strategy
+with range-controlled orbiting, scheduled reversals, iterative wall-bounded target prediction,
+distance-sensitive alignment, and energy-aware firepower. It did not modify Sample Opponent.
+`run_battle` compiled that edit on its first attempt and returned Kiro Bot SHA-256
+`35c5246c5a8ec863f794c3517b5cc64cd011b2cbf0c94bc973db84989791278f`, matching the workspace file.
+The genuine visible official round completed with Kiro Bot dealing `72` bullet damage. This proves
+the authorship/compile/battle loop, not that one generated strategy must win.
