@@ -14,6 +14,10 @@ that exact source, runs it against the fixed sample opponent through the officia
 Royale Battle Runner, opens a live viewer when requested, and returns genuine scores plus the
 SHA-256 hash of the source used. No winner or score is fabricated.
 
+## Video demo
+
+[Watch Kiro Royale program a bot and run a real Tank Royale battle on YouTube](https://www.youtube.com/watch?v=lcrK_C6V3F0).
+
 ## Demonstrated scope
 
 The complete flow has been exercised through installed Kiro:
