@@ -32,7 +32,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'dev.kiro.royale.Stage0DependencyProbe'
+    mainClass = 'dev.kiro.royale.KiroRoyaleApplication'
 }
 
 tasks.withType(Test).configureEach {
@@ -93,6 +93,20 @@ tasks.register('directBattle', JavaExec) {
 
 tasks.named('test') {
     dependsOn 'buildBundledBots'
+    systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
+}
+
+tasks.named('installDist') {
+    dependsOn 'buildBundledBots'
+}
+
+tasks.register('mcpProof', JavaExec) {
+    group = 'verification'
+    description = 'Runs the finite official MCP Java client proof through the repository-root launcher and one genuine battle.'
+    dependsOn 'installDist'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'dev.kiro.royale.Stage2McpProof'
+    workingDir = layout.projectDirectory.asFile
     systemProperty 'kiro.royale.repositoryRoot', layout.projectDirectory.asFile.absolutePath
 }
 

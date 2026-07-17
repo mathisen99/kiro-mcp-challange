@@ -105,7 +105,7 @@ public final class BotRegistry {
                 registration.sourceLabel());
         String sourceDisplay = "bots/" + registration.directory() + "/" + registration.sourceFile();
         List<String> buildArguments = List.of("./gradlew", "buildBundledBots");
-        List<String> runArguments = List.of(script.toString());
+        List<String> runArguments = List.of("bots/" + registration.directory() + "/" + script.getFileName());
         return new BotInspection(descriptor, List.of(sourceDisplay), sourceDisplay, buildArguments, runArguments, List.copyOf(issues));
     }
 

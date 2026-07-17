@@ -70,31 +70,31 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
     - Mark Stage 1 complete only after the genuine direct match succeeds; otherwise leave it incomplete and block every Stage 2 leaf task.
     - _Requirements: 1.1, 1.3, 1.4, 1.7–1.12, 3.1–3.11_
 
-- [ ] 4. Stage 2 — expose and prove the same path through MCP
-  - [ ] 4.1 Implement the four strict stdio MCP tools over the proven services
+- [x] 4. Stage 2 — expose and prove the same path through MCP
+  - [x] 4.1 Implement the four strict stdio MCP tools over the proven services
     - Add the verified SDK stdio server adapter and register exactly `get_arena_status`, `list_bots`, `inspect_bot`, and `run_battle` with schemas that reject additional properties and do not accept paths, commands, environments, hosts, URLs, or remote repositories.
     - Implement required status/list/inspection projections, battle defaults and 1–5 round validation, exactly two distinct registered IDs, one-active-battle rejection, concise summaries, structured fields, and sanitized failures.
     - Delegate `run_battle` synchronously to the exact Stage 1 `BattleService`/official adapter path; do not add async jobs or additional tools without observed timeout evidence.
     - _Requirements: 4.1, 4.2, 4.5–4.8, 5.1–5.18, 6.4–6.6, 7.3–7.7, 12.1, 12.2_
 
-  - [ ] 4.2 Implement protocol-safe MCP startup and the repository-root launcher
+  - [x] 4.2 Implement protocol-safe MCP startup and the repository-root launcher
     - Add the MCP runtime mode and repository-relative launcher using the verified Stage 0 SDK/build output; configure logging before server initialization so stdout carries only MCP protocol traffic and diagnostics/child output go to stderr or bounded ignored runtime files.
     - Reject unknown startup modes before external work, share the Stage 1 composition root, and close active application-owned resources on MCP/JVM shutdown.
     - Keep `.kiro/settings/mcp.json` disabled in this task; Stage 3 may enable it only after the launcher passes the MCP client proof.
     - _Requirements: 4.2–4.4, 6.9–6.11, 8.1–8.3_
 
-  - [ ] 4.3 Implement a finite MCP client proof harness
+  - [x] 4.3 Implement a finite MCP client proof harness
     - Add a repository-local Java proof program/Gradle task using the verified MCP client API to launch the repository-root MCP command, complete handshake/tool discovery, invoke all three read-only tools, and invoke `run_battle` once for the two registered Bots and one real round.
     - Make the proof fail on any extra/missing tool, malformed structured response, protocol contamination, sanitized failure, non-official result provenance, wrong identity/cardinality/rank order, or missing requested recording.
     - Keep this as a finite Stage 2 integration proof, not a long-running server, viewer automation, fake battle, or replacement feature-parity CLI.
     - _Requirements: 4.1–4.7, 5.1–5.18, 7.1, 7.8_
 
-  - [ ] 4.4 Execute the MCP client proof against the real launcher and battle path
+  - [x] 4.4 Execute the MCP client proof against the real launcher and battle path
     - Build the distribution and Bots, then run the exact finite MCP client proof command from the repository root; require successful discovery of exactly four tools and a real one-round `run_battle` result from the same official adapter proven in Stage 1.
     - Capture stdout-protocol validation, stderr diagnostics, actual duration for later Kiro-timeout comparison, genuine result fields, recording path, and process cleanup; no mocked or fixture response satisfies this task.
     - _Requirements: 1.3, 4.5–4.7, 5.14–5.16, 7.1, 7.8_
 
-  - [ ] 4.5 Record Stage 2 SDK/launcher decisions and exit evidence
+  - [x] 4.5 Record Stage 2 SDK/launcher decisions and exit evidence
     - Update `DECISIONS.md` with the verified SDK server/client APIs, structured-content representation, final repository-root launcher candidate, and measured synchronous proof duration; do not claim Kiro timeout compatibility yet.
     - Add the `STATUS.md` Stage 2 entry with exact build/proof commands and exit codes, discovered tool names, genuine MCP battle observations, stdout/stderr behavior, changed files, remaining failures, and Kiro/viewer claims marked `not verified`.
     - Mark Stage 2 complete only after the real MCP client proof passes; otherwise leave it incomplete and block `.kiro` enablement and all Stage 3 work.

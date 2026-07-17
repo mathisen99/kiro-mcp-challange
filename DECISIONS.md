@@ -131,11 +131,13 @@ STAGE0_PROBE_OK: MCP, Battle Runner, Java Bot API, and jqwik APIs are available
 
 ## Launcher decision
 
-Final command used by `.kiro/settings/mcp.json`:
+Final Stage 2 repository-root launcher candidate:
 
 ```text
-not verified — Stage 2 must implement and prove the repository-root MCP launcher
+./scripts/kiro-royale-mcp.sh
 ```
+
+The launcher accepts no arguments and executes the installed distribution in fixed `mcp-stdio` mode. It was verified from the repository root after `./gradlew installDist` by the official Java MCP client proof. `.kiro/settings/mcp.json` remains disabled and unchanged in Stage 2; installed-Kiro configuration, startup, and timeout compatibility are **not verified** and belong to Stage 3.
 
 ## ADR-005 — Stage 1 direct Battle Runner integration
 
@@ -158,3 +160,23 @@ not verified — Stage 2 must implement and prove the repository-root MCP launch
 **Official implementation references used for this adapter:** [Battle Runner README v1.0.2](https://github.com/robocode-dev/tank-royale/blob/v1.0.2/runner/README.md), [BattleRunner v1.0.2](https://github.com/robocode-dev/tank-royale/blob/v1.0.2/runner/src/main/kotlin/dev/robocode/tankroyale/runner/BattleRunner.kt), [Java sample bots v1.0.2](https://github.com/robocode-dev/tank-royale/tree/v1.0.2/sample-bots/java), [ServerCli v1.0.2](https://github.com/robocode-dev/tank-royale/blob/v1.0.2/server/src/main/kotlin/dev/robocode/tankroyale/server/cli/ServerCli.kt), and [ServerWebSocketObserver v1.0.2](https://github.com/robocode-dev/tank-royale/blob/v1.0.2/server/src/main/kotlin/dev/robocode/tankroyale/server/connection/ServerWebSocketObserver.kt). External source descriptions are paraphrased.
 
 **Not verified:** replay playback in the official GUI; passive viewer compatibility; MCP server/client behavior; Kiro integration or timeout; booter PID capture as explicit returned process evidence; non-Linux socket activation/listener inspection; Windows Bot launch; timeout/failure/shutdown execution branches; repeated-winner or repeated-score determinism.
+
+## ADR-006 — Stage 2 stdio MCP server and official-client proof
+
+**Status:** accepted and execution-verified on 2026-07-17 for the repository-root official MCP client path.
+
+**Decision:** expose exactly `get_arena_status`, `list_bots`, `inspect_bot`, and synchronous `run_battle` through the official MCP Java SDK `2.0.0`, delegating battle execution to the Stage 1 `BattleService` and `OfficialBattleRunnerAdapter` without a second engine path.
+
+**Execution-verified SDK APIs and representation:**
+
+- Server: `StdioServerTransportProvider(McpJsonMapper, InputStream, OutputStream)`, `McpServer.sync(...)`, strict tool-name and input validation, `SyncToolSpecification`, and `CallToolResult` text plus `structuredContent`.
+- Client proof: `ServerParameters`, `StdioClientTransport`, `McpClient.sync(...)`, `initialize()`, `listTools()`, and `callTool(...)`.
+- Structured content crossed the real stdio JSON-RPC boundary and was decoded by the official client as JSON-compatible maps/lists. Every successful call also carried nonblank text content.
+- Each input schema had `additionalProperties: false`. No-input tools accepted empty objects only; inspection accepted only `botId`; battle accepted only `botIds`, optional integer `rounds` in `1..5`, and optional Boolean `record`. The successful proof omitted both optional battle fields and observed the defaults of one round and recording enabled.
+- Tool discovery returned exactly the four names. No async/status/result tools or other tools were added.
+
+**Protocol and launcher decision:** `./scripts/kiro-royale-mcp.sh` is the repository-root launcher candidate. It accepts no arguments, emits launcher errors only to stderr, and executes the installed distribution with the fixed `mcp-stdio` mode. The server configures stdio transport with stdout as the protocol output; startup and runner diagnostics observed by the client were on stderr. Successful official-client parsing of initialization, discovery, and four calls established that no ordinary stdout contaminated those protocol frames.
+
+**Genuine execution evidence:** `./gradlew mcpProof` completed with exit `0`. The synchronous battle call took `18,281 ms`; the complete proof took `19,284 ms`. It returned official provenance, exactly two ascending results, a `34,640`-byte recording at `runtime/recordings/direct-1784301344444/game-2026-07-17-18-15-45.battle.gz`, and cleanup evidence for three owned battle processes. These are observations from this run only, not deterministic score claims.
+
+**Not verified:** installed Kiro startup, Kiro tool timeout compatibility, Kiro calls, passive viewer compatibility, official-GUI replay playback, and MCP server PID inspection after client shutdown. The `.kiro/settings/mcp.json` entry therefore remains disabled until Stage 3.

@@ -52,8 +52,8 @@ public final class Models {
 
     public record BattleSuccess(
             int roundsPlayed, List<BattleResult> results, Optional<String> recordingPath,
-            String websocketUrl, List<ProcessEvidence> processes, boolean cleanupComplete,
-            List<String> diagnostics) implements BattleOutcome {}
+            String websocketUrl, CompletionProvenance provenance, List<ProcessEvidence> processes,
+            boolean cleanupComplete, List<String> diagnostics) implements BattleOutcome {}
 
     public record BattleFailure(String code, String message, List<String> diagnostics) implements BattleOutcome {}
 }

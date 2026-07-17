@@ -4,15 +4,15 @@ Last updated: 2026-07-17
 
 ## Current state
 
-Stage 0 and its human checkpoint are complete. Stage 1 implementation now builds two genuine bundled Java Bots and directly completed one official one-round Battle Runner match with two real Bot processes, official results, a non-empty recording, and successful owned-process cleanup.
+Stage 0, its human checkpoint, Stage 1, and Stage 2 are complete. Stage 2 now exposes exactly four strict stdio MCP tools over the same proven `BattleService` and official Battle Runner adapter. The finite official Java MCP client proof completed initialization, exact tool discovery, all three read-only calls, and one genuine synchronous one-round battle with a non-empty recording and owned-process cleanup.
 
-Stage 1 is **COMPLETE**. The embedded-server wildcard blocker was resolved by using the pinned official server's supported inherited-socket mode on an application-owned `127.0.0.1` socket, then connecting the official Battle Runner through its supported external-server mode. A fresh direct run verified `listenerBinding=loopback:44943`, genuine results, recording creation, and complete cleanup. Stage 2 is now unblocked; no MCP implementation has begun.
+Stage 2 is **COMPLETE**. The repository-root launcher passed the official-client proof, but `.kiro/settings/mcp.json` remains disabled as required. Stage 3 installed-Kiro connection, Kiro timeout compatibility, and visual proof are not verified.
 
 ## Stage tracker
 
 - [x] Stage 0 — environment and dependency verification
 - [x] Stage 1 — direct real Battle Runner battle
-- [ ] Stage 2 — custom MCP server
+- [x] Stage 2 — custom MCP server
 - [ ] Stage 3 — Kiro and viewer integration
 - [ ] Stage 4 — focused hardening and smoke test
 - [ ] Stage 5 — documentation, video, and submission
@@ -295,3 +295,78 @@ Generated `runtime/bots/**`, `runtime/recordings/**`, `.gradle/**`, `build/**`, 
 - MCP construction, tool discovery/calls, stdout isolation, Kiro connection, and Kiro-triggered battle: **not verified; no MCP implementation exists**.
 - Timeout, abort, startup-failure, recording-failure, forced-kill, and JVM-shutdown branches: **not verified** by the successful battle.
 - Demo recording, publication, Stage 4 smoke test, and clean tracked-file review: **not verified**.
+
+## Stage 2 evidence gate — 2026-07-17
+
+**Gate state: COMPLETE.** The repository-root launcher was exercised by the official MCP Java client. The client discovered exactly four tools, invoked every read-only tool, and invoked the same production battle service for one genuine round. `.kiro/settings/mcp.json` remains unchanged with `disabled: true`; Stage 3 is unblocked but has not begun.
+
+### Exact commands and exit codes
+
+| Command | Exit code |
+|---|---:|
+| `chmod +x "scripts/kiro-royale-mcp.sh" && ./gradlew clean installDist test` | `0` |
+| `./gradlew mcpProof` | `0` |
+
+Both commands ran from the repository root. The first clean command built both bundled Bots, compiled the application and proof harness, installed the distribution used by the launcher, and passed all `9` focused tests. The second task used `io.modelcontextprotocol.client.transport.StdioClientTransport` to start `./scripts/kiro-royale-mcp.sh`; no mock server, fake battle engine, fixture result, or direct-mode shortcut was used.
+
+### MCP discovery and contract observations
+
+- Official-client initialization succeeded with server name `kiro-royale` and version `0.1.0-SNAPSHOT`.
+- Tool discovery returned exactly `[get_arena_status, inspect_bot, list_bots, run_battle]` when sorted. There were no extra async, status, result, command, path, network, or repository tools.
+- Every advertised input schema reported `additionalProperties=false`. The server also enabled SDK input validation and defensively validated handler arguments.
+- `get_arena_status` returned ready, two Bots, `battleActive=false`, and `websocketUrl=null` before a managed battle server existed; it did not invent an endpoint.
+- `list_bots` returned exactly `kiro-bot` and `sample-opponent`, both `VALID`, with repository-relative directories.
+- `inspect_bot` returned `bots/kiro-bot/src/main/java/dev/kiro/royale/bots/KiroBot.java` as the repository-relative primary editable source.
+- The proof's `run_battle` request supplied only the two stable Bot IDs. Omitted `rounds` and `record` therefore exercised the defaults of one round and recording enabled.
+- All four successful responses carried nonblank text plus JSON-compatible structured content decoded by the official client.
+
+### Genuine battle observations through MCP
+
+- The synchronous MCP battle call took `18,281 ms`; the complete initialization/discovery/read/battle proof took `19,284 ms`.
+- Production provenance was `OFFICIAL_BATTLE_RUNNER_COMPLETION`; exactly two results were returned in ascending rank order for the configured identities.
+- Rank 1: Sample Opponent `1.0`; total `60`, survival `50`, bullet damage `0`, ram damage `0`, first places `1`, rounds played `1`.
+- Rank 2: Kiro Bot `1.0`; total `0`, survival `0`, bullet damage `0`, ram damage `0`, first places `0`, rounds played `1`.
+- These are this execution's genuine official values. Winner and score repeatability are not claimed.
+- Recording: `runtime/recordings/direct-1784301344444/game-2026-07-17-18-15-45.battle.gz`, regular and non-empty at `34,640` bytes.
+- The structured result reported `cleanupComplete=true`. The proof validated all three observed owned battle process entries had `aliveAfterCleanup=false`; it ended with `MCP_CLEANUP_OK: ownedProcesses=3`.
+- The official client closed cleanly and Gradle returned exit `0`. MCP server PID termination was not separately inspected after client close.
+
+### Protocol safety and diagnostics
+
+- The official client parsed initialization, discovery, and all four tool responses, ending with `MCP_PROTOCOL_STDOUT_VALID`; ordinary stdout contamination would have broken this protocol exchange.
+- Server diagnostics captured through the client's dedicated stderr handler included the SLF4J NOP warning, the protocol-safe startup notice, and official Battle Runner lifecycle logs (`Starting battle`, `Booting bots`, `Starting game`, `Battle started successfully`, and `Battle finished, cleaning up`).
+- No server diagnostic, Bot output, stack trace, credential, or ordinary status line appeared in the parsed stdout protocol stream.
+- The launcher accepts no caller arguments and executes only the fixed installed application mode. MCP schemas accept no path, executable command, environment override, host, URL, timeout, or remote repository input.
+
+### Complete changed-file inventory
+
+- `build.gradle` — installed-distribution main class, Bot build dependency, and finite `mcpProof` task.
+- `scripts/kiro-royale-mcp.sh` — fixed repository-root launcher with no caller arguments.
+- `src/main/java/dev/kiro/royale/KiroRoyaleApplication.java` — trusted mode selection, protocol-safe stdio server startup, and shutdown cleanup.
+- `src/main/java/dev/kiro/royale/McpToolAdapter.java` — exactly four schemas, projections, synchronous battle delegation, structured/text results, and sanitized failures.
+- `src/main/java/dev/kiro/royale/Stage2McpProof.java` — finite official Java client handshake/discovery/read/battle proof.
+- `src/main/java/dev/kiro/royale/Models.java` — carries verified completion provenance through the shared success model.
+- `src/main/java/dev/kiro/royale/BattleService.java` — exposes actual ready endpoint state and preserves official provenance.
+- `src/main/java/dev/kiro/royale/BotRegistry.java` — inspection run metadata is repository-relative rather than an absolute internal path.
+- `src/main/java/dev/kiro/royale/OfficialBattleRunnerAdapter.java` — publishes the actual endpoint only while its verified loopback listener is ready.
+- `src/test/java/dev/kiro/royale/Stage2McpContractTest.java` — three focused strict-inventory/projection/rejection tests; total suite count is nine.
+- `DECISIONS.md` — verified SDK, representation, launcher, protocol, duration, and battle decisions.
+- `STATUS.md` — this exact Stage 2 evidence.
+
+Generated `build/**`, `.gradle/**`, `runtime/bots/**`, `runtime/official-server/**`, and `runtime/recordings/**` entries are ignored build/runtime evidence, not project source changes. The pre-existing task-state modification in `.kiro/specs/kiro-royale/tasks.md` was preserved; this execution did not transition task status.
+
+### Remaining failures/blockers
+
+- No Stage 2 build, test, launcher, protocol, client, or genuine battle proof command failed.
+- There is no Stage 2 blocker. Stage 3 may manually enable and exercise the already-proven launcher in Kiro.
+- The SDK and server emit an SLF4J no-provider warning to stderr. This does not contaminate stdout or fail the client proof; adding a logging backend was not necessary for the demonstrated path.
+
+### Unexercised claims — not verified
+
+- Installed Kiro displays/connects to the server and invokes any tool: **not verified**. The workspace entry remains disabled.
+- The measured `19,284 ms` proof fits the installed Kiro tool timeout: **not verified**; no Kiro timeout evidence exists, so async infrastructure remains excluded.
+- Passive live viewer connection/observation and the actual URL presented before a viewer-connected battle: **not verified**.
+- Official GUI loading/playback of this recording (Replay Proof): **not verified**. Recording creation, containment, and non-zero size only were verified.
+- MCP server PID absence after client shutdown: **not separately verified**; official transport closure and Gradle completion succeeded.
+- Concurrent second-request rejection during a live battle, timeout, abort, startup-failure, recording-failure, forced-kill, and JVM-shutdown branches: **not verified** by this successful proof.
+- Stage 4 property suite/real smoke test, demo recording, publication, and clean tracked-file review: **not verified**.

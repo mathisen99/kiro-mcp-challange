@@ -34,6 +34,7 @@ public final class OfficialBattleRunnerAdapter implements AutoCloseable {
     private final Duration wallClockTimeout;
     private final Duration cleanupGrace;
     private final AtomicReference<Session> activeSession = new AtomicReference<>();
+    private final AtomicReference<String> readyEndpoint = new AtomicReference<>();
 
     public OfficialBattleRunnerAdapter(RepositoryPaths paths, Duration botConnectTimeout,
                                        Duration wallClockTimeout, Duration cleanupGrace) {
@@ -41,6 +42,10 @@ public final class OfficialBattleRunnerAdapter implements AutoCloseable {
         this.botConnectTimeout = requireFinitePositive(botConnectTimeout, "bot connect timeout");
         this.wallClockTimeout = requireFinitePositive(wallClockTimeout, "battle wall-clock timeout");
         this.cleanupGrace = requireFinitePositive(cleanupGrace, "cleanup grace period");
+    }
+
+    public Optional<String> readyEndpoint() {
+        return Optional.ofNullable(readyEndpoint.get());
     }
 
     public EngineExecution run(List<ValidatedBot> bots, int rounds, boolean record) throws Exception {
@@ -109,6 +114,7 @@ public final class OfficialBattleRunnerAdapter implements AutoCloseable {
             serverProcessRef.set(serverProcess);
             registerOwned(serverProcess.toHandle(), String.join(" ", loopbackServerCommand(port)));
             String listenerBinding = awaitLoopbackListener(port, serverProcess);
+            readyEndpoint.set(endpoint);
             diagnostics.add("official socket-activated server endpoint=" + endpoint);
             diagnostics.add("listenerBinding=" + listenerBinding);
             diagnostics.add("botConnectTimeout=" + botConnectTimeout.toSeconds() + "s");
@@ -204,6 +210,7 @@ public final class OfficialBattleRunnerAdapter implements AutoCloseable {
 
         private void cleanup() {
             if (!cleaned.compareAndSet(false, true)) return;
+            readyEndpoint.set(null);
             BattleHandle handle = handleRef.getAndSet(null);
             if (handle != null) {
                 try { handle.close(); } catch (RuntimeException ignored) { diagnostics.add("battle handle close reported an error"); }

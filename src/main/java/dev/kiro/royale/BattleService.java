@@ -21,6 +21,7 @@ public final class BattleService implements AutoCloseable {
 
     public BotRegistry registry() { return registry; }
     public boolean battleActive() { return coordinator.isActive(); }
+    public java.util.Optional<String> readyWebsocketUrl() { return engine.readyEndpoint(); }
 
     public BattleOutcome run(BattleRequest request) {
         if (request == null) return failure("INVALID_REQUEST", "Battle request is required");
@@ -48,7 +49,8 @@ public final class BattleService implements AutoCloseable {
                 return new BattleFailure("RECORDING_FAILED", "The required official recording was not verified", execution.diagnostics());
             }
             return new BattleSuccess(execution.completion().roundsPlayed(), results, execution.recordingPath(),
-                    execution.websocketUrl(), execution.processes(), execution.cleanupComplete(), execution.diagnostics());
+                    execution.websocketUrl(), execution.completion().provenance(), execution.processes(),
+                    execution.cleanupComplete(), execution.diagnostics());
         } catch (java.util.concurrent.TimeoutException exception) {
             return failure("BATTLE_TIMEOUT", "The official battle exceeded its finite deadline");
         } catch (Exception exception) {
