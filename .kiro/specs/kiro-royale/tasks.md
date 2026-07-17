@@ -100,20 +100,20 @@ Implement the one-day Java 21/Gradle MVP in strict Stage 0 → 1 → 2 → 3 →
     - Mark Stage 2 complete only after the real MCP client proof passes; otherwise leave it incomplete and block `.kiro` enablement and all Stage 3 work.
     - _Requirements: 1.1, 1.4, 1.7–1.12, 4.1–4.8_
 
-- [ ] 5. Stage 3 — configure the proven launcher for Kiro
-  - [ ] 5.1 Enable only the verified repository-relative MCP launcher in Kiro configuration
+- [x] 5. Stage 3 — configure the proven launcher for Kiro
+  - [x] 5.1 Enable only the verified repository-relative MCP launcher in Kiro configuration
     - Update `.kiro/settings/mcp.json` only after Task 4.5 is complete, using the launcher proven from the repository root with no machine-specific absolute path.
     - Enable the server and auto-approve only `get_arena_status`, `list_bots`, and `inspect_bot`; require explicit approval for `run_battle`.
     - Preserve synchronous `run_battle`; if Kiro later exhibits an actual timeout, capture the evidence rather than silently adding excluded async infrastructure.
     - _Requirements: 4.7, 4.8, 8.1–8.4, 10.3, 12.2_
 
-- [ ] 6. Human verification checkpoint — Stage 3 Kiro and visual proof
+- [x] 6. Human verification checkpoint — Stage 3 Kiro and visual proof
   - In the installed Kiro UI, verify that the configured server appears connected and manually invoke all four tools. Confirm `run_battle` returns the genuine ranked score components and note whether its duration fits the actual Kiro timeout.
   - For Live Viewer Proof, connect the third-party passive viewer to the actual reported loopback WebSocket URL before starting the Kiro-triggered battle and confirm that it only observes that battle. If this cannot be demonstrated, load and play the same battle's `.battle.gz` in the official GUI for Replay Proof.
   - Record the exact observations for Task 7.1. Neither code inspection, an existing URL, nor a replay file alone counts as visual proof. Keep Stage 3 incomplete if neither live viewing nor official-GUI replay playback succeeds.
 
-- [ ] 7. Stage 3 — persist the human evidence gate
-  - [ ] 7.1 Record the verified Kiro/viewer outcome in `DECISIONS.md` and `STATUS.md`
+- [x] 7. Stage 3 — persist the human evidence gate
+  - [x] 7.1 Record the verified Kiro/viewer outcome in `DECISIONS.md` and `STATUS.md`
     - In `DECISIONS.md`, finalize the launcher evidence, record observed Kiro timeout compatibility, and mark the passive-viewer decision verified or the official-GUI replay fallback selected; record any actual timeout before proposing async tools.
     - Add the `STATUS.md` Stage 3 entry with exact launcher/build commands and exit codes, Kiro tool invocations, changed files, genuine result observations, actual URL, Live Viewer Proof or same-battle Replay Proof, remaining failures, and each unexercised alternative labeled `not verified`.
     - Mark Stage 3 complete only when Kiro invoked every tool and one valid form of Visual Proof was manually demonstrated; otherwise block all Stage 4 leaves.

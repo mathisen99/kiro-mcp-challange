@@ -137,7 +137,7 @@ Final Stage 2 repository-root launcher candidate:
 ./scripts/kiro-royale-mcp.sh
 ```
 
-The launcher accepts no arguments and executes the installed distribution in fixed `mcp-stdio` mode. It was verified from the repository root after `./gradlew installDist` by the official Java MCP client proof. `.kiro/settings/mcp.json` remains disabled and unchanged in Stage 2; installed-Kiro configuration, startup, and timeout compatibility are **not verified** and belong to Stage 3.
+The launcher accepts no arguments and executes the installed distribution in fixed `mcp-stdio` mode. It was verified from the repository root after `./gradlew installDist` by the official Java MCP client proof. Task 5.1 now configures `.kiro/settings/mcp.json` with this command, no arguments, `disabled: false`, and auto-approval only for `get_arena_status`, `list_bots`, and `inspect_bot`; `run_battle` still requires explicit approval. The [current official Kiro MCP configuration reference](https://kiro.dev/docs/mcp/configuration/) confirms this workspace file location and field shape. Installed-Kiro startup, calls, and timeout compatibility are **not verified** and remain Stage 3 human evidence.
 
 ## ADR-005 — Stage 1 direct Battle Runner integration
 
@@ -179,4 +179,18 @@ The launcher accepts no arguments and executes the installed distribution in fix
 
 **Genuine execution evidence:** `./gradlew mcpProof` completed with exit `0`. The synchronous battle call took `18,281 ms`; the complete proof took `19,284 ms`. It returned official provenance, exactly two ascending results, a `34,640`-byte recording at `runtime/recordings/direct-1784301344444/game-2026-07-17-18-15-45.battle.gz`, and cleanup evidence for three owned battle processes. These are observations from this run only, not deterministic score claims.
 
-**Not verified:** installed Kiro startup, Kiro tool timeout compatibility, Kiro calls, passive viewer compatibility, official-GUI replay playback, and MCP server PID inspection after client shutdown. The `.kiro/settings/mcp.json` entry therefore remains disabled until Stage 3.
+**Stage 2 close state:** installed Kiro startup, Kiro tool timeout compatibility, Kiro calls, passive viewer compatibility, official-GUI replay playback, and MCP server PID inspection after client shutdown were not verified at that gate. Installed-Kiro calls and replay playback were later verified in ADR-007; passive-viewer compatibility and MCP server PID inspection remain unverified.
+
+## ADR-007 — Stage 3 installed Kiro and visual-proof path
+
+**Status:** accepted and execution-verified on 2026-07-17.
+
+**Decision:** retain the synchronous four-tool MCP design and use same-battle official-GUI Replay Proof as the Stage 3 visual fallback. Do not add asynchronous tools or a custom viewer.
+
+**Installed-Kiro evidence:** the installed Kiro IDE showed `kiro-royale` connected with exactly the four expected tools. Kiro invoked `get_arena_status`, `list_bots`, `inspect_bot`, and `run_battle`. The final one-round battle completed within Kiro's actual timeout and returned provenance, actual loopback URL, recording, cleanup state, both ranks, and every required score component in Kiro-visible text. Exact duration was not exposed.
+
+**Compatibility correction:** the first Kiro `run_battle` call succeeded but Kiro surfaced only text content, not the SDK structured-content map. Because the original text contained only a completion count, Kiro could not report genuine score fields. The adapter now includes the genuine result projection in both representations. A focused regression test passed before Kiro reconnected and repeated the call successfully.
+
+**Visual-proof decision:** passive live-viewer proof remains unverified. The final Kiro-triggered battle produced `runtime/recordings/direct-1784305918236/game-2026-07-17-19-31-59.battle.gz`, verified as a regular `30,141`-byte valid gzip file. The official Tank Royale GUI `1.0.2` portable JAR was downloaded from the official `v1.0.2` release under ignored `runtime/` and matched published SHA-256 `f69df7c1a3a47befa6d11bf71f60faa7a1452b98ecf0a417c0c16ac0864e6ab2`. The human reviewer loaded and ran that exact replay and visibly observed both Bots moving. Their basic back-and-forth behavior is consistent with the intentionally simple bundled strategies.
+
+**Not verified:** passive hosted viewer compatibility, exact Kiro call duration, competitive strategy quality, demo recording, and Stage 4/final-submission claims.

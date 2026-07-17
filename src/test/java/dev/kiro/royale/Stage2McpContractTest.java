@@ -3,10 +3,29 @@ package dev.kiro.royale;
 import io.modelcontextprotocol.spec.McpSchema.CallToolRequest;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class Stage2McpContractTest {
+    @Test
+    void battleTextSummaryCarriesTheGenuineFieldsNeededByKiro() {
+        var completed = new Models.BattleSuccess(1, List.of(
+                new Models.BattleResult(1, "Kiro Bot", "1.0", 42, 30, 8, 4, 1, 1),
+                new Models.BattleResult(2, "Sample Opponent", "1.0", 10, 0, 10, 0, 0, 1)),
+                Optional.of("runtime/recordings/example.battle.gz"), "ws://127.0.0.1:12345",
+                Models.CompletionProvenance.OFFICIAL_BATTLE_RUNNER_COMPLETION, List.of(), true, List.of());
+
+        String summary = McpToolAdapter.battleSummary(completed);
+
+        assertAll(
+                () -> assertTrue(summary.contains("provenance=OFFICIAL_BATTLE_RUNNER_COMPLETION")),
+                () -> assertTrue(summary.contains("recordingPath=runtime/recordings/example.battle.gz")),
+                () -> assertTrue(summary.contains("cleanupComplete=true")),
+                () -> assertTrue(summary.contains("#1 Kiro Bot 1.0 totalScore=42 survivalScore=30 bulletDamage=8 ramDamage=4 firstPlaces=1 roundsPlayed=1")),
+                () -> assertTrue(summary.contains("#2 Sample Opponent 1.0 totalScore=10")));
+    }
+
     @Test
     void exposesExactlyFourStrictToolsWithOnlyReadToolsAnnotatedReadOnly() throws Exception {
         RepositoryPaths paths = RepositoryPaths.locate();

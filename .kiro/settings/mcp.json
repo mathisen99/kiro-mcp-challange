@@ -1,11 +1,9 @@
 {
   "mcpServers": {
     "kiro-royale": {
-      "command": "./gradlew",
-      "args": [
-        "runMcp"
-      ],
-      "disabled": true,
+      "command": "./scripts/kiro-royale-mcp.sh",
+      "args": [],
+      "disabled": false,
       "autoApprove": [
         "get_arena_status",
         "list_bots",

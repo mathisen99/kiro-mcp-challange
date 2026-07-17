@@ -178,7 +178,30 @@ public final class McpToolAdapter {
         data.put("provenance", completed.provenance().name());
         data.put("cleanupComplete", completed.cleanupComplete());
         data.put("processes", processes);
-        return success("Official battle completed with " + results.size() + " ranked results", data);
+        return success(battleSummary(completed), data);
+    }
+
+    static String battleSummary(BattleSuccess completed) {
+        StringBuilder summary = new StringBuilder()
+                .append("Official battle completed with ").append(completed.results().size())
+                .append(" ranked results\n")
+                .append("provenance=").append(completed.provenance())
+                .append(" roundsPlayed=").append(completed.roundsPlayed()).append('\n')
+                .append("websocketUrl=").append(completed.websocketUrl()).append('\n')
+                .append("recordingPath=").append(completed.recordingPath().orElse("none")).append('\n')
+                .append("cleanupComplete=").append(completed.cleanupComplete()).append('\n')
+                .append("results:");
+        for (BattleResult result : completed.results()) {
+            summary.append("\n#").append(result.rank()).append(' ')
+                    .append(result.name()).append(' ').append(result.version())
+                    .append(" totalScore=").append(result.totalScore())
+                    .append(" survivalScore=").append(result.survivalScore())
+                    .append(" bulletDamage=").append(result.bulletDamage())
+                    .append(" ramDamage=").append(result.ramDamage())
+                    .append(" firstPlaces=").append(result.firstPlaces())
+                    .append(" roundsPlayed=").append(result.roundsPlayed());
+        }
+        return summary.toString();
     }
 
     private Map<String, Object> botProjection(BotDescriptor bot) {

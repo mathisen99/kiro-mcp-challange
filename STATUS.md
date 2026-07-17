@@ -6,14 +6,14 @@ Last updated: 2026-07-17
 
 Stage 0, its human checkpoint, Stage 1, and Stage 2 are complete. Stage 2 now exposes exactly four strict stdio MCP tools over the same proven `BattleService` and official Battle Runner adapter. The finite official Java MCP client proof completed initialization, exact tool discovery, all three read-only calls, and one genuine synchronous one-round battle with a non-empty recording and owned-process cleanup.
 
-Stage 2 is **COMPLETE**. The repository-root launcher passed the official-client proof, but `.kiro/settings/mcp.json` remains disabled as required. Stage 3 installed-Kiro connection, Kiro timeout compatibility, and visual proof are not verified.
+Stage 2 and Stage 3 are **COMPLETE**. Installed Kiro connected to the enabled repository-root launcher and invoked all four tools. The Kiro-triggered synchronous battle returned genuine score components without timing out, and the same battle's recording was visibly played in the checksum-verified official Tank Royale GUI as Replay Proof. Live passive-viewer proof remains not verified because the replay fallback was selected.
 
 ## Stage tracker
 
 - [x] Stage 0 — environment and dependency verification
 - [x] Stage 1 — direct real Battle Runner battle
 - [x] Stage 2 — custom MCP server
-- [ ] Stage 3 — Kiro and viewer integration
+- [x] Stage 3 — Kiro and viewer integration
 - [ ] Stage 4 — focused hardening and smoke test
 - [ ] Stage 5 — documentation, video, and submission
 
@@ -370,3 +370,89 @@ Generated `build/**`, `.gradle/**`, `runtime/bots/**`, `runtime/official-server/
 - MCP server PID absence after client shutdown: **not separately verified**; official transport closure and Gradle completion succeeded.
 - Concurrent second-request rejection during a live battle, timeout, abort, startup-failure, recording-failure, forced-kill, and JVM-shutdown branches: **not verified** by this successful proof.
 - Stage 4 property suite/real smoke test, demo recording, publication, and clean tracked-file review: **not verified**.
+
+## Task 5.1 Kiro launcher configuration — 2026-07-17
+
+**Task state: COMPLETE; Stage 3 remains INCOMPLETE.** The workspace MCP entry now uses the repository-relative launcher already proven by the Stage 2 official-client run. The entry is enabled, passes no arguments, auto-approves only `get_arena_status`, `list_bots`, and `inspect_bot`, and leaves `run_battle` subject to explicit approval. Synchronous battle execution is unchanged and no async tools were added.
+
+The current official Kiro IDE MCP configuration reference was rechecked on 2026-07-17. It identifies `.kiro/settings/mcp.json` as the workspace-level file and documents `command`, required `args`, `disabled`, and `autoApprove` with the semantics used here. Kiro runtime behavior was not inferred from this static documentation check.
+
+### Exact commands and exit codes
+
+| Command | Exit code |
+|---|---:|
+| `python3 -c 'import json, pathlib, sys; p=pathlib.Path(".kiro/settings/mcp.json"); d=json.loads(p.read_text()); s=d["mcpServers"]["kiro-royale"]; expected={"command":"./scripts/kiro-royale-mcp.sh","args":[],"disabled":False,"autoApprove":["get_arena_status","list_bots","inspect_bot"]}; print("actual="+json.dumps(s, sort_keys=True)); print("expected="+json.dumps(expected, sort_keys=True)); sys.exit(0 if s == expected else 1)'` | `0` |
+| `test -x scripts/kiro-royale-mcp.sh` | `0` |
+
+### Files changed
+
+- `.kiro/settings/mcp.json` — enabled the fixed repository-relative launcher, removed the obsolete Gradle argument, and retained only read-only auto-approvals.
+- `.kiro/specs/kiro-royale/tasks.md` — marked Task 5.1 complete; the pre-existing parent Task 5 state was preserved.
+- `STATUS.md` — records this configuration checkpoint without claiming installed-Kiro behavior.
+- `DECISIONS.md` — records the enabled configuration separately from unverified runtime behavior.
+
+### Remaining failures and unverified claims
+
+- Configuration blocker: **none**.
+- Installed Kiro displaying or connecting to `kiro-royale`: **not verified**.
+- Invocation of any tool from Kiro, including explicit approval and execution of `run_battle`: **not verified**.
+- The synchronous battle duration fitting Kiro's actual timeout: **not verified**; async infrastructure remains excluded.
+- Passive live-viewer observation and official-GUI replay playback: **not verified**.
+- At this configuration-only checkpoint, Stage 3 could not yet be marked complete; the later evidence gate below records the required tool invocations and same-battle replay proof.
+
+## Stage 3 Kiro and replay evidence gate — 2026-07-17
+
+**Gate state: COMPLETE.** The installed Kiro IDE displayed `kiro-royale` as connected with exactly four tools, invoked every tool, completed a real synchronous battle, and visibly replayed that same battle in the official Tank Royale GUI. Replay Proof is the selected Visual Proof; passive live-viewer observation was not exercised.
+
+### Exact commands and exit codes
+
+| Command | Exit code | Observation |
+|---|---:|---|
+| `./gradlew installDist` | `0` | Refreshed the fixed installed distribution used by the Kiro launcher. |
+| `kiro-cli mcp list; kiro-cli mcp status kiro-royale` | `1` | CLI-only session was not logged in; this was not treated as IDE failure. |
+| `/home/mathisen/Mathisen/Scripts/Kiro/kiro-launcher.sh /home/mathisen/Mathisen/Filez/Dev/Mathisen/kiro-mcp-challange` | `0` | Forwarded the repository to the already-running installed Kiro IDE instance. |
+| `/home/mathisen/Mathisen/Scripts/Kiro/Kiro/kiro /home/mathisen/Mathisen/Filez/Dev/Mathisen/kiro-mcp-challange --verbose` | `0` | Reported `Sent env to running instance`, confirming the existing IDE instance accepted the workspace request. |
+| `curl -sSL https://api.github.com/repos/robocode-dev/tank-royale/releases/tags/v1.0.2` | `0` | Located the portable official GUI JAR and published `SHA256SUMS`. |
+| `mkdir -p runtime/tools/tank-royale-gui-1.0.2 && curl -sSL https://github.com/robocode-dev/tank-royale/releases/download/v1.0.2/robocode-tankroyale-gui-1.0.2.jar -o runtime/tools/tank-royale-gui-1.0.2/robocode-tankroyale-gui-1.0.2.jar && curl -sSL https://github.com/robocode-dev/tank-royale/releases/download/v1.0.2/SHA256SUMS -o runtime/tools/tank-royale-gui-1.0.2/SHA256SUMS && cd runtime/tools/tank-royale-gui-1.0.2 && rg 'robocode-tankroyale-gui-1.0.2.jar' SHA256SUMS && sha256sum -c SHA256SUMS --ignore-missing` | `0` | Published checksum `f69df7c1a3a47befa6d11bf71f60faa7a1452b98ecf0a417c0c16ac0864e6ab2` passed. |
+| `./gradlew test installDist` | `1` | First result-text regression test had the `BattleSuccess` fixture arguments in the wrong order; production compilation succeeded but test compilation failed. |
+| `./gradlew test installDist` | `0` | Corrected fixture passed all `10` focused tests and refreshed the installed distribution. |
+| `stat -c '%F %s bytes %n' runtime/recordings/direct-1784305918236/game-2026-07-17-19-31-59.battle.gz` | `0` | Same Kiro-triggered replay is a regular `30,141`-byte file. |
+| `gzip -t runtime/recordings/direct-1784305918236/game-2026-07-17-19-31-59.battle.gz` | `0` | Recording gzip integrity passed. |
+| `java -jar runtime/tools/tank-royale-gui-1.0.2/robocode-tankroyale-gui-1.0.2.jar` | `0` | Opened the checksum-verified official GUI for replay and closed it after the human observation. |
+
+### Installed-Kiro observations
+
+- Human observation: Kiro showed `kiro-royale` as **Connected** and displayed exactly `get_arena_status`, `list_bots`, `inspect_bot`, and `run_battle`.
+- Kiro invoked the three auto-approved read-only tools. `get_arena_status` returned `Arena status: ready`; `list_bots` returned `Found 2 registered bundled bots`; `inspect_bot` for `kiro-bot` returned `Inspection for kiro-bot: VALID`.
+- Kiro invoked `run_battle` for `kiro-bot` versus `sample-opponent`, one round, recording enabled. The call completed successfully in the installed Kiro session, so one-round synchronous timeout compatibility is verified for this execution. Exact call duration was not exposed and is **not verified**.
+- The first Kiro battle call exposed only a short text summary even though structured content existed. Kiro could not surface the required score fields. `McpToolAdapter` was corrected to include genuine result fields in text content, a focused regression test was added, the distribution was refreshed, and Kiro reconnected before the final call.
+- Final Kiro result: provenance `OFFICIAL_BATTLE_RUNNER_COMPLETION`, one round, actual URL `ws://127.0.0.1:44725`, recording `runtime/recordings/direct-1784305918236/game-2026-07-17-19-31-59.battle.gz`, and `cleanupComplete=true`.
+- Rank 1: Sample Opponent `1.0`; total `60`, survival `50`, bullet damage `0`, ram damage `0`, first places `1`, rounds played `1`.
+- Rank 2: Kiro Bot `1.0`; total `0`, survival `0`, bullet damage `0`, ram damage `0`, first places `0`, rounds played `1`.
+- These values are genuine observations from this execution only; winner and score repeatability are not claimed.
+
+### Replay Proof observation
+
+- The human reviewer loaded the exact Kiro-triggered `30,141`-byte recording through **Battle → Replay from File** in the official Tank Royale GUI `1.0.2` and confirmed that it loaded and ran.
+- The reviewer visibly observed both Bots moving in the arena. They moved mainly backward and forward near their spawn positions. This is consistent with the deliberately simple MVP strategies in `KiroBot` and `SampleOpponent`; it is not evidence of fabricated execution.
+- Same-battle official-GUI playback therefore satisfies Replay Proof and Visual Proof for Stage 3.
+
+### Complete Stage 3 changed-file inventory
+
+- `.kiro/settings/mcp.json` — enabled the proven fixed launcher with read-only auto-approvals.
+- `.kiro/specs/kiro-royale/tasks.md` — marks Tasks 5.1, 6, and 7.1 complete from verified evidence.
+- `src/main/java/dev/kiro/royale/McpToolAdapter.java` — includes genuine ranks, required score fields, recording, URL, provenance, and cleanup state in Kiro-visible text as well as structured content.
+- `src/test/java/dev/kiro/royale/Stage2McpContractTest.java` — regression coverage for Kiro-visible genuine battle fields.
+- `DECISIONS.md` — records installed-Kiro compatibility and replay fallback selection.
+- `STATUS.md` — this Stage 3 evidence gate.
+
+The downloaded official GUI, checksum, Bots, recordings, and other generated artifacts remain below ignored `runtime/` and are not project source changes.
+
+### Remaining failures and unverified claims
+
+- Stage 3 blocker: **none**. Stage 4 is unblocked.
+- Passive hosted live-viewer connection and observation: **not verified**; same-battle official-GUI Replay Proof was used instead.
+- Exact Kiro `run_battle` duration: **not verified**; successful completion proves only that this one-round call fit the installed Kiro timeout.
+- Competitive Bot quality: intentionally out of MVP scope; only genuine functional behavior is claimed.
+- Concurrent overlap, timeout, abort, startup-failure, recording-failure, forced-kill, and JVM-shutdown branches: **not verified** by this successful path.
+- Demo recording, Stage 4 hardening/real smoke gate, final tracked-file hygiene, and submission publication: **not verified**.
