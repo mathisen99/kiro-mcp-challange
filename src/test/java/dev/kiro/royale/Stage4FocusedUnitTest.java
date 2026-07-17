@@ -193,6 +193,8 @@ class Stage4FocusedUnitTest {
         assertTrue(runner.contains("showBattle ? \"[::1]\" : \"127.0.0.1\""));
         assertTrue(runner.contains("\"--listen=\" + listenAddress + \":\" + serverPort"));
         assertFalse(runner.contains("builder.embeddedServer"));
+        assertEquals(Duration.ZERO, LiveViewerLauncher.resultDisplayHold(false));
+        assertEquals(Duration.ofSeconds(5), LiveViewerLauncher.resultDisplayHold(true));
         assertTrue(launcher.contains("/proc/$PPID/environ"));
         assertFalse(launcher.contains("env >"));
         assertFalse(launcher.contains("export $("));

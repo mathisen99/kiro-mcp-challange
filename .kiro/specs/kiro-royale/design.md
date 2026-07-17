@@ -113,8 +113,10 @@ stateDiagram-v2
     Running --> Completing: official completion event
     Running --> Failed: abort or wall-clock timeout
     Completing --> RecordingCheck: map genuine completion data
-    RecordingCheck --> Succeeded: recording disabled or verified
+    RecordingCheck --> ResultDisplay: viewer enabled and recording disabled or verified
+    RecordingCheck --> Succeeded: headless and recording disabled or verified
     RecordingCheck --> Failed: required recording missing/invalid
+    ResultDisplay --> Succeeded: bounded post-result hold completes
     Succeeded --> Cleaning
     Failed --> Cleaning
     Cleaning --> Idle: close runner, terminate owned children, close streams
@@ -130,7 +132,7 @@ Child stdout/stderr is consumed concurrently to prevent pipe deadlock. Each stre
 
 The managed Tank Royale service binds to an explicitly verified loopback setting. A dynamic port is preferred only if the current API can return the actual WebSocket URL; otherwise Stage 0 must verify a safe fixed-loopback configuration. No MCP caller can provide a host, port, or URL.
 
-The lifecycle exposes the actual URL only after readiness is confirmed. `get_arena_status` returns that value while a managed server/session is available and `null` otherwise; it never guesses a default port. For the Stage 3 demonstration, the server/session is made ready before the battle starts, the actual URL is shown to the reviewer, and the passive viewer is connected first. Whether the verified runner can remain ready across `get_arena_status` and `run_battle`, or instead supplies a pre-battle readiness callback/window, is a Stage 0/1 adapter decision. If the verified API cannot provide a reliable live-observation window, the design does not add a custom server or control plane: recording remains enabled and the same battle is played manually in the official GUI.
+The lifecycle exposes the actual URL only after readiness is confirmed. `get_arena_status` returns that value while a managed server/session is available and `null` otherwise; it never guesses a default port. For the Stage 3 demonstration, the server/session is made ready before the battle starts, the actual URL is shown to the reviewer, and the passive viewer is connected first. After a viewer-enabled official completion, the adapter keeps the loopback session alive for a fixed five-second post-result interval so the victory overlay remains readable, then performs normal cleanup. This hold is application-owned, bounded, and absent from MCP input; headless battles skip it. Whether the verified runner can remain ready across `get_arena_status` and `run_battle`, or instead supplies a pre-battle readiness callback/window, is a Stage 0/1 adapter decision. If the verified API cannot provide a reliable live-observation window, the design does not add a custom server or control plane: recording remains enabled and the same battle is played manually in the official GUI.
 
 ### Repository-relative runtime layout
 

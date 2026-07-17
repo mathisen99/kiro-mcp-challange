@@ -218,6 +218,9 @@ third-party [Tank Royale Viewer](https://github.com/jandurovec/tank-royale-viewe
 for a client on the fixed loopback endpoint, reports whether one was observed, and then starts the
 battle. The viewer is passive and cannot control the battle. If you previously changed its saved
 Server URL, open its gear menu once and reset it to `ws://localhost:7654`.
+After the official result arrives, Kiro Royale keeps the local viewer connection open for five
+seconds before cleanup so the victory screen and scores remain readable. Headless battles do not
+incur this display hold.
 
 The same production path can be checked outside Kiro with:
 

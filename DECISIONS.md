@@ -262,3 +262,9 @@ Viewer-enabled sessions now perform an application-owned IPv6 bind probe with ad
 and wait at most 65 seconds for the fixed port to become reusable before starting the official
 server. The existing 120-second battle wall clock and 150-second MCP request deadline remain finite;
 dynamic headless ports do not use this wait.
+
+**Post-result display decision:** viewer-enabled sessions retain the official loopback server and
+passive viewer connection for a fixed five seconds after genuine completion and recording
+verification, before owned-process cleanup begins. This bounded application-owned delay gives the
+hosted viewer's victory overlay time to be read. It is not an MCP input, does not affect headless
+battles, and remains inside the existing finite wall-clock deadline.

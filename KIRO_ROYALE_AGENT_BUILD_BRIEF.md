@@ -249,6 +249,7 @@ Behavior:
 - reject unknown IDs and unsafe paths;
 - start the real Battle Runner;
 - run a real battle;
+- when live viewing is enabled, retain the viewer connection for a fixed five seconds after the official result so the victory screen remains readable;
 - return real results ordered by rank;
 - include the recording path when present;
 - return an explicit failure when Robocode fails.

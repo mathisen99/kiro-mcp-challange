@@ -12,7 +12,12 @@ import java.util.concurrent.TimeUnit;
 final class LiveViewerLauncher {
     static final String VIEWER_URL = "https://jandurovec.github.io/tank-royale-viewer/";
     static final int VIEWER_PORT = 7654;
+    static final Duration RESULT_DISPLAY_HOLD = Duration.ofSeconds(5);
     private static final Path OPENER = Path.of("/usr/bin/xdg-open");
+
+    static Duration resultDisplayHold(boolean showBattle) {
+        return showBattle ? RESULT_DISPLAY_HOLD : Duration.ZERO;
+    }
 
     boolean launchAndAwaitConnection(Duration timeout, BoundedDiagnostics diagnostics) throws Exception {
         if (!Files.isExecutable(OPENER) || !desktopSessionAvailable()) {

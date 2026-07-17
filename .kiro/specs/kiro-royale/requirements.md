@@ -143,6 +143,7 @@ This document separates product behavior, repository and process gates, and manu
 19. WHEN `run_battle` omits `showBattle`, THE Kiro_Royale_Server SHALL NOT open a viewer and SHALL preserve headless execution.
 20. WHEN `run_battle` sets `showBattle` to true, THE Kiro_Royale_Server SHALL open only the configured trusted Passive_Viewer URL and SHALL use its application-owned loopback endpoint.
 21. WHEN `showBattle` is true, THE Kiro_Royale_Server SHALL give the viewer a finite application-owned pre-battle connection window and SHALL record whether an established loopback client was mechanically observed.
+22. WHEN a viewer-enabled Genuine_Battle completes, THE Kiro_Royale_Server SHALL keep the loopback viewer session available for a finite application-owned post-result interval before cleanup so the victory result can be read.
 22. IF the trusted viewer cannot be opened, THEN THE Kiro_Royale_Server SHALL return a Sanitized_Failure without starting a battle; absence of a kernel-level connection observation SHALL NOT fabricate failure when the browser launch succeeded and a late connection can still display the battle.
 23. WHEN a viewer-enabled battle completes successfully, THE Kiro_Royale_Server SHALL report separately whether viewing was requested and whether a pre-battle connection was mechanically observed.
 

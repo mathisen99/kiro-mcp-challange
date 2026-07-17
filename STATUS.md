@@ -889,3 +889,21 @@ official service to IPv6 loopback and giving the Java runner the explicit IPv6 U
 retries wait no more than 65 seconds for the application-owned fixed port to become reusable.
 Installed-Kiro automatic live viewing after the final endpoint correction is verified on the
 exercised Firefox/Linux desktop. Other browsers and operating systems remain unverified.
+
+## Post-MVP readable victory-screen hold — 2026-07-17
+
+**State: IMPLEMENTED AND VERIFIED MECHANICALLY AND VISUALLY.** A
+viewer-enabled battle now keeps its official loopback session alive for a fixed five seconds after
+genuine completion and recording verification, before normal owned-process cleanup. The delay is
+application-owned, finite, absent from MCP input, and skipped when `showBattle=false`.
+
+| Command/observation | Exit code/state | Result |
+|---|---:|---|
+| `./gradlew test` | `0` | The focused suite passed, including the regression that headless requests select a zero result-display hold and viewer-enabled requests select exactly five seconds. |
+| `./gradlew mcpViewerProof` | `0` | Official MCP discovery retained exactly four tools. The genuine viewer-enabled round completed in `22,055 ms`, returned official results, created the `28,145`-byte recording `runtime/recordings/direct-1784316635558/game-2026-07-17-22-30-37.battle.gz`, reported `viewerRequested=true` and `viewerConnected=true`, and cleaned all three owned processes. The complete proof took `23,129 ms`. |
+| `git diff --check` | `0` | The implementation and evidence documentation contain no whitespace errors. |
+
+Changed files for this improvement: `LiveViewerLauncher.java`, `OfficialBattleRunnerAdapter.java`,
+`Stage4FocusedUnitTest.java`, `README.md`, `KIRO_ROYALE_AGENT_BUILD_BRIEF.md`, the Kiro requirements
+and design, `DECISIONS.md`, and `STATUS.md`. The owner observed the automatically opened Firefox
+viewer and confirmed that the five-second hold made the victory screen comfortably readable.

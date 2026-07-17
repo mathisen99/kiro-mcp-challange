@@ -183,6 +183,12 @@ public final class OfficialBattleRunnerAdapter implements BattleEngine {
                 } catch (IOException exception) {
                     throw new BattleEngineException(BattleEngineException.Kind.RECORDING_FAILED, exception);
                 }
+                Duration resultDisplayHold = LiveViewerLauncher.resultDisplayHold(showBattle);
+                if (!resultDisplayHold.isZero()) {
+                    diagnostics.add("holding live viewer result display for "
+                            + resultDisplayHold.toSeconds() + "s before cleanup");
+                    Thread.sleep(resultDisplayHold.toMillis());
+                }
                 cleanup();
                 return new EngineExecution(completion, endpoint, recordingPath, processEvidence(),
                         ownedProcesses.stream().noneMatch(ProcessHandle::isAlive), diagnostics.snapshot(),
